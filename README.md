@@ -59,7 +59,7 @@ Full Stack Web Developer (MERN)
 <h2 align="center">💡 Like this portfolio?</h2>
 <p align="center">
   <a href="https://github.com/codecsuman/portfolio">
-    <img src="https://img.shields.io/badge/⭐ Star_on_GitHub-FFD700?style=for-the-badge">
+    <img src="https://github.com/codecsuman/Portfolio-⭐ Star_on_GitHub-FFD700?style=for-the-badge">
   </a>
 </p>
 

@@ -55,14 +55,6 @@
 
 ---
 
-<h2>⚙️ Run Locally</h2>
-
-```bash
-npm install
-npm run dev
-
-
-
 <h2>👤 About Me</h2> <p> <b>Suman Jhanp</b><br/> Full Stack Web Developer (MERN)<br/> 📍 Gourhati, Arambagh, Hooghly, India </p> <p> 📧 <a href="mailto:sumanjhanp1@gmail.com">sumanjhanp1@gmail.com</a><br/> 🔗 <a href="https://github.com/codecsuman">GitHub</a> | <a href="https://www.linkedin.com/in/sumanjhanp/">LinkedIn</a> | <a href="https://leetcode.com/u/sumanjhanp1/">LeetCode</a> </p>
 
 <h2 align="center">💡 Like this portfolio?</h2> <p align="center"> <a href="https://github.com/codecsuman/portfolio"> <img src="https://img.shields.io/badge/⭐ Star_on_GitHub-FFD700?style=for-the-badge"> </a> </p> <p align="center"> © 2025 Suman Jhanp · Full Stack Developer </p> ```

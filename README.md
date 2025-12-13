@@ -1,15 +1,13 @@
-
 <h1 align="center">🚀 Suman Jhanp — Full Stack Developer Portfolio</h1>
 
 <p align="center">
-  A modern, high-performance <b>Full Stack Developer Portfolio</b> built with
-  <b>React + Vite</b>, featuring smooth animations, interactive UI,
-  and production-ready architecture.
+  Modern, high-performance <b>Full Stack Developer Portfolio</b> built with
+  <b>React + Vite</b>, featuring smooth animations and production-ready UI.
 </p>
 
 <p align="center">
   <a href="https://portfolio-kpwnz9t5f-codecsumans-projects.vercel.app" target="_blank">
-    <img src="https://img.shields.io/badge/🌐 Live Website-Visit-blueviolet?style=for-the-badge">
+    <img src="https://img.shields.io/badge/🌐 Live Portfolio-Visit-blueviolet?style=for-the-badge">
   </a>
   <a href="https://github.com/codecsuman" target="_blank">
     <img src="https://img.shields.io/badge/GitHub-codecsuman-black?style=for-the-badge&logo=github">
@@ -21,43 +19,52 @@
 
 ---
 
-<h2>✨ Features</h2>
-
-<ul>
-  <li>⚡ Built with <b>Vite + React</b></li>
-  <li>🎨 Modern <b>UI/UX</b> using Tailwind CSS</li>
-  <li>🧠 Smooth animations with <b>Framer Motion</b></li>
-  <li>📱 Fully <b>responsive</b> (mobile-first)</li>
-  <li>🧭 Scroll-based navigation</li>
-  <li>✉️ Contact form powered by <b>EmailJS</b></li>
-  <li>🌙 Dark themed professional design</li>
-  <li>🚀 Deployed on <b>Vercel</b></li>
-</ul>
+## ✨ Features
+- ⚡ **Vite + React** for blazing-fast performance  
+- 🎨 **Modern UI/UX** with Tailwind CSS  
+- 🧠 **Smooth animations** using Framer Motion  
+- 📱 **Fully responsive** (mobile-first)  
+- 🧭 Scroll-based navigation  
+- ✉️ Contact form powered by **EmailJS**  
+- 🌙 Dark, professional theme  
+- 🚀 Deployed on **Vercel**
 
 ---
 
-<h2>🛠 Tech Stack</h2>
+## 🛠 Tech Stack
 
-<h3>Frontend</h3>
-<p>
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react">
-  <img src="https://img.shields.io/badge/Vite-4-646CFF?style=flat-square&logo=vite">
-  <img src="https://img.shields.io/badge/Tailwind-CSS-38BDF8?style=flat-square&logo=tailwindcss">
-  <img src="https://img.shields.io/badge/Framer-Motion-EF4444?style=flat-square">
-</p>
+### Frontend
+![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38BDF8?style=flat-square&logo=tailwindcss)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-EF4444?style=flat-square)
 
-<h3>Tools & Services</h3>
-<p>
-  <img src="https://img.shields.io/badge/EmailJS-Contact_Form-orange?style=flat-square">
-  <img src="https://img.shields.io/badge/Vercel-Deployment-black?style=flat-square&logo=vercel">
-  <img src="https://img.shields.io/badge/GitHub-Version_Control-181717?style=flat-square&logo=github">
-</p>
+### Tools & Services
+![EmailJS](https://img.shields.io/badge/EmailJS-Contact_Form-orange?style=flat-square)
+![Vercel](https://img.shields.io/badge/Vercel-Deployment-black?style=flat-square&logo=vercel)
+![GitHub](https://img.shields.io/badge/GitHub-Version_Control-181717?style=flat-square&logo=github)
 
 ---
 
-<h2>👤 About Me</h2> <p> <b>Suman Jhanp</b><br/> Full Stack Web Developer (MERN)<br/> 📍 Gourhati, Arambagh, Hooghly, India </p> <p> 📧 <a href="mailto:sumanjhanp1@gmail.com">sumanjhanp1@gmail.com</a><br/> 🔗 <a href="https://github.com/codecsuman">GitHub</a> | <a href="https://www.linkedin.com/in/sumanjhanp/">LinkedIn</a> | <a href="https://leetcode.com/u/sumanjhanp1/">LeetCode</a> </p>
+## 👤 About Me
+**Suman Jhanp**  
+Full Stack Web Developer (MERN)  
+📍 Hooghly, West Bengal, India  
 
-<h2 align="center">💡 Like this portfolio?</h2> <p align="center"> <a href="https://github.com/codecsuman/portfolio"> <img src="https://img.shields.io/badge/⭐ Star_on_GitHub-FFD700?style=for-the-badge"> </a> </p> <p align="center"> © 2025 Suman Jhanp · Full Stack Developer </p> ```
+📧 **Email:** [sumanjhanp1@gmail.com](mailto:sumanjhanp1@gmail.com)  
+🔗 **Links:** [GitHub](https://github.com/codecsuman) · [LinkedIn](https://www.linkedin.com/in/sumanjhanp/) · [LeetCode](https://leetcode.com/u/sumanjhanp1/)
 
+---
+
+<h2 align="center">💡 Like this portfolio?</h2>
+<p align="center">
+  <a href="https://github.com/codecsuman/portfolio">
+    <img src="https://img.shields.io/badge/⭐ Star_on_GitHub-FFD700?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+  © 2025 Suman Jhanp · Full Stack Developer
+</p>
 
 

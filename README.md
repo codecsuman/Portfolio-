@@ -54,14 +54,8 @@ Full Stack Web Developer (MERN)
 📧 **Email:** [sumanjhanp1@gmail.com](mailto:sumanjhanp1@gmail.com)  
 🔗 **Links:** [GitHub](https://github.com/codecsuman) · [LinkedIn](https://www.linkedin.com/in/sumanjhanp/) · [LeetCode](https://leetcode.com/u/sumanjhanp1/)
 
----
 
-<h2 align="center">💡 Like this portfolio?</h2>
-<p align="center">
-  <a href="https://github.com/codecsuman/portfolio">
-    <img src="https://github.com/codecsuman/Portfolio-⭐ Star_on_GitHub-FFD700?style=for-the-badge">
-  </a>
-</p>
+
 
 <p align="center">
   © 2025 Suman Jhanp · Full Stack Developer

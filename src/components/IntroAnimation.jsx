@@ -23,11 +23,26 @@ export default function IntroAnimation({ onFinish, speed = 30 }) {
   const [index, setIndex] = useState(0);
   const [text, setText] = useState("");
   const [visible, setVisible] = useState(true);
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains("dark")
+  );
 
+  /* Watch theme */
+  useEffect(() => {
+    const obs = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  /* Typing effect */
   useEffect(() => {
     let char = 0;
     const word = greetings[index];
-
     setText("");
 
     const type = setInterval(() => {
@@ -51,13 +66,20 @@ export default function IntroAnimation({ onFinish, speed = 30 }) {
     <AnimatePresence onExitComplete={onFinish}>
       {visible && (
         <motion.div
-          className="
+          className={`
             fixed inset-0 z-[9999] flex items-center justify-center
-            text-white backdrop-blur-xl
-            bg-[linear-gradient(120deg,#000428,#004e92,#000428)]
-            bg-[length:300%_300%] animate-gradientMove
-          "
+            backdrop-blur-xl
+            ${isDark ? "text-white" : "text-black"}
+          `}
+          style={{
+            background: isDark
+              ? "linear-gradient(120deg,#000428,#004e92,#000428)"
+              : "linear-gradient(120deg,#fdfbfb,#ebedee,#f5f7fa)",
+            backgroundSize: "300% 300%",
+          }}
           initial={{ opacity: 1 }}
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
           exit={{
             opacity: 0,
             backdropFilter: "blur(25px)",

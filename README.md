@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://portfolio-kpwnz9t5f-codecsumans-projects.vercel.app" target="_blank">
+  <a href="https://portfolio-codecsumans-projects.vercel.app" target="_blank">
     <img src="https://img.shields.io/badge/🌐 Live Portfolio-Visit-blueviolet?style=for-the-badge">
   </a>
   <a href="https://github.com/codecsuman" target="_blank">
@@ -54,11 +54,6 @@ Full Stack Web Developer (MERN)
 📧 **Email:** [sumanjhanp1@gmail.com](mailto:sumanjhanp1@gmail.com)  
 🔗 **Links:** [GitHub](https://github.com/codecsuman) · [LinkedIn](https://www.linkedin.com/in/sumanjhanp/) · [LeetCode](https://leetcode.com/u/sumanjhanp1/)
 
-
-
-
 <p align="center">
   © 2025 Suman Jhanp · Full Stack Developer
 </p>
-
-

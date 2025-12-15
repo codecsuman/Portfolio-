@@ -1,84 +1,33 @@
-import { useRef, useEffect, useCallback, useState } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useScroll,
-  AnimatePresence,
-  useInView,
-} from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import ParticlesBackground from "../components/ParticlesBackground";
 import P from "../assets/P.jpg";
 import resumeImg from "../assets/resume.png";
 
-/* ---------------- COUNTER ---------------- */
+/* ---------- COUNTER ---------- */
 const Counter = ({ value }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const mv = useMotionValue(0);
-  const spring = useSpring(mv, { stiffness: 180, damping: 22 });
-  const rounded = useTransform(spring, (v) => Math.round(v));
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (inView) mv.set(value);
-  }, [inView, value, mv]);
+    let current = 0;
+    const step = Math.max(1, Math.floor(value / 25));
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= value) {
+        setCount(value);
+        clearInterval(timer);
+      } else setCount(current);
+    }, 30);
 
-  return (
-    <span ref={ref}>
-      <motion.span>{rounded}</motion.span>
-    </span>
-  );
+    return () => clearInterval(timer);
+  }, [value]);
+
+  return <span>{count}</span>;
 };
 
-/* ---------------- MAGNETIC BUTTON ---------------- */
-const MagneticButton = ({ href, children, className }) => {
-  const ref = useRef(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const sx = useSpring(x, { stiffness: 320, damping: 22 });
-  const sy = useSpring(y, { stiffness: 320, damping: 22 });
-
-  const move = useCallback(
-    (e) => {
-      const r = ref.current.getBoundingClientRect();
-      x.set((e.clientX - (r.left + r.width / 2)) * 0.18);
-      y.set((e.clientY - (r.top + r.height / 2)) * 0.18);
-    },
-    [x, y]
-  );
-
-  return (
-    <motion.a
-      ref={ref}
-      href={href}
-      onPointerMove={move}
-      onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-      style={{ x: sx, y: sy }}
-      whileHover={{ scale: 1.06 }}
-      className={className}
-    >
-      {children}
-    </motion.a>
-  );
-};
-
-/* ---------------- ABOUT ---------------- */
 export default function About() {
-  const sectionRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 0.3], [60, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
 
   /* ESC CLOSE */
   useEffect(() => {
@@ -90,57 +39,58 @@ export default function About() {
   return (
     <>
       <section
-        ref={sectionRef}
         id="about"
-        className="relative min-h-screen bg-neutral-950 overflow-hidden"
+        className="relative min-h-screen overflow-hidden"
       >
-        {/* BACKGROUND BLOBS */}
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            className="absolute -top-40 -left-40 w-[600px] h-[600px]
-              bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600
-              opacity-20 blur-[200px]"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute bottom-0 right-0 w-[600px] h-[600px]
-              bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600
-              opacity-20 blur-[200px]"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 90, repeat: Infinity, ease: "linear" }}
-          />
+        {/* 🌌 Premium Background */}
+        <ParticlesBackground section="about" />
+
+        {/* Glow blobs */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-emerald-500/25 blur-[160px] rounded-full" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-sky-500/25 blur-[160px] rounded-full" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+        <div className="max-w-7xl mx-auto px-6 py-24 relative z-10">
           <motion.div
             className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
-            style={{ y, opacity }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            {/* LEFT */}
+            {/* ---------- LEFT ---------- */}
             <div>
+              {/* Profile image */}
               <motion.div
-                className="w-[260px] h-[260px] rounded-3xl overflow-hidden
-                  border border-white/20 shadow-2xl mb-6"
-                whileHover={{ scale: 1.05 }}
+                className="
+                  w-[260px] h-[260px] rounded-3xl overflow-hidden
+                  border border-white/20
+                  shadow-2xl mb-6
+                "
+                whileHover={{ scale: 1.04 }}
               >
-                <img src={P} alt="Suman Jhanp" className="w-full h-full object-cover" />
+                <img
+                  src={P}
+                  alt="Suman Jhanp"
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
 
-              <h2 className="text-5xl font-extrabold text-white">
+              <h2 className="text-4xl font-bold text-white">
                 Suman Jhanp
               </h2>
 
-              <p className="mt-2 text-lg font-semibold text-gray-300">
+              <p className="mt-2 text-lg text-emerald-300">
                 Full Stack Developer
               </p>
 
-              <p className="mt-4 text-gray-400 max-w-xl">
-                I build fast, scalable, and visually polished web applications
-                with a strong focus on performance and user experience.
+              <p className="mt-4 text-white/70 max-w-xl">
+                I build fast, scalable, and user-focused web applications with
+                strong attention to performance, UX, and clean architecture.
               </p>
 
-              {/* STATS */}
+              {/* ---------- STATS ---------- */}
               <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { label: "Experience", value: 1, suffix: "+" },
@@ -149,77 +99,106 @@ export default function About() {
                 ].map((s) => (
                   <motion.div
                     key={s.label}
-                    whileHover={{ scale: 1.05 }}
-                    className="rounded-xl border border-white/10
-                      bg-white/5 backdrop-blur-md px-4 py-4 text-center"
+                    whileHover={{ scale: 1.06 }}
+                    className="
+                      rounded-xl
+                      border border-white/10
+                      bg-white/5 backdrop-blur-xl
+                      px-4 py-4 text-center
+                      shadow-lg
+                    "
                   >
                     <p className="text-3xl font-bold text-white">
                       <Counter value={s.value} />
                       {s.suffix}
                     </p>
-                    <p className="text-sm text-gray-400">{s.label}</p>
+                    <p className="text-sm text-white/60">{s.label}</p>
                   </motion.div>
                 ))}
               </div>
 
-              {/* CTA */}
-              <div className="mt-8 flex gap-4">
-                <MagneticButton
+              {/* ---------- CTA ---------- */}
+              <div className="mt-10 flex gap-4">
+                <a
                   href="#projects"
-                  className="px-6 py-3 rounded-xl bg-white text-black font-semibold"
+                  className="
+                    px-6 py-3 rounded-full
+                    bg-gradient-to-r from-emerald-400 to-sky-400
+                    text-black font-semibold
+                    shadow-lg shadow-emerald-400/40
+                    hover:scale-105 transition
+                  "
                 >
                   View Projects
-                </MagneticButton>
+                </a>
 
-                <MagneticButton
+                <a
                   href="#contact"
-                  className="px-6 py-3 rounded-xl border border-white/20 text-white"
+                  className="
+                    px-6 py-3 rounded-full
+                    border border-white/20
+                    text-white
+                    hover:bg-white/10 transition
+                  "
                 >
                   Get In Touch
-                </MagneticButton>
+                </a>
               </div>
             </div>
 
-            {/* RESUME CARD */}
+            {/* ---------- RESUME CARD ---------- */}
             <motion.div
               onClick={() => {
                 setZoom(1);
                 setOpen(true);
               }}
-              className="cursor-pointer max-w-[420px] mx-auto
-                rounded-2xl border border-white/20
-                bg-white/5 backdrop-blur-xl shadow-2xl p-4"
               whileHover={{ scale: 1.04 }}
+              className="
+                cursor-pointer max-w-[420px] mx-auto
+                rounded-2xl
+                border border-white/20
+                bg-white/5 backdrop-blur-xl
+                shadow-2xl p-4
+              "
             >
-              <img src={resumeImg} alt="Resume Preview" className="rounded-xl" />
+              <img
+                src={resumeImg}
+                alt="Resume Preview"
+                className="rounded-xl"
+              />
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* MODAL */}
+      {/* ---------- MODAL ---------- */}
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[9999] bg-black/80
-              backdrop-blur-xl flex items-center justify-center p-4"
+            className="
+              fixed inset-0 z-[9999]
+              bg-black/80 backdrop-blur-sm
+              flex items-center justify-center p-4
+            "
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setOpen(false)}
           >
             <motion.div
-              className="relative bg-black rounded-2xl w-full max-w-4xl
-                max-h-[90vh] overflow-hidden shadow-2xl"
+              className="
+                relative bg-black
+                rounded-xl w-full max-w-4xl
+                max-h-[90vh] overflow-hidden
+              "
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.3 }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* HEADER */}
-              <div className="sticky top-0 z-10 flex justify-between
-                px-4 py-3 bg-black border-b border-white/10">
+              <div className="flex justify-between px-4 py-3 border-b border-white/10">
                 <span className="text-white font-semibold">
                   Resume Preview
                 </span>
@@ -237,13 +216,6 @@ export default function About() {
                   >
                     －
                   </button>
-                  <button
-                    onClick={() => setZoom(1)}
-                    className="px-3 py-1 bg-white/10 text-white rounded"
-                  >
-                    Reset
-                  </button>
-
                   <a
                     href="/Resume.pdf"
                     download
@@ -251,7 +223,6 @@ export default function About() {
                   >
                     PDF
                   </a>
-
                   <button
                     onClick={() => setOpen(false)}
                     className="text-white text-xl px-2"
@@ -262,7 +233,7 @@ export default function About() {
               </div>
 
               {/* CONTENT */}
-              <div className="overflow-y-auto max-h-[calc(90vh-60px)] p-4">
+              <div className="overflow-y-auto p-4">
                 <motion.img
                   src={resumeImg}
                   alt="Resume Full View"

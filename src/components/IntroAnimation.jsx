@@ -1,112 +1,64 @@
-import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
-export default function IntroAnimation({ onFinish, speed = 30 }) {
-  const greetings = useMemo(
-    () => [
-      "Hello",
-      "नमस्ते",
-      "Hola",
-      "Bonjour",
-      "Ciao",
-      "Olá",
-      "Здравствуйте",
-      "Merhaba",
-      "Γειά",
-      "Hej",
-      "Hallo",
-      "Salam",
-    ],
-    []
-  );
-
-  const [index, setIndex] = useState(0);
-  const [text, setText] = useState("");
+export default function IntroAnimation({ onFinish }) {
   const [visible, setVisible] = useState(true);
-  const [isDark, setIsDark] = useState(
-    document.documentElement.classList.contains("dark")
-  );
 
-  /* Watch theme */
   useEffect(() => {
-    const obs = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    obs.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => obs.disconnect();
+    const timer = setTimeout(() => setVisible(false), 1800); // ⬅ slower
+    return () => clearTimeout(timer);
   }, []);
-
-  /* Typing effect */
-  useEffect(() => {
-    let char = 0;
-    const word = greetings[index];
-    setText("");
-
-    const type = setInterval(() => {
-      char++;
-      setText(word.slice(0, char));
-
-      if (char === word.length) {
-        clearInterval(type);
-        setTimeout(() => {
-          index < greetings.length - 1
-            ? setIndex((i) => i + 1)
-            : setVisible(false);
-        }, speed * 3);
-      }
-    }, speed);
-
-    return () => clearInterval(type);
-  }, [index, greetings, speed]);
 
   return (
     <AnimatePresence onExitComplete={onFinish}>
       {visible && (
         <motion.div
-          className={`
-            fixed inset-0 z-[9999] flex items-center justify-center
-            backdrop-blur-xl
-            ${isDark ? "text-white" : "text-black"}
-          `}
-          style={{
-            background: isDark
-              ? "linear-gradient(120deg,#000428,#004e92,#000428)"
-              : "linear-gradient(120deg,#fdfbfb,#ebedee,#f5f7fa)",
-            backgroundSize: "300% 300%",
-          }}
+          className="
+            fixed inset-0 z-[9999]
+            flex items-center justify-center
+            bg-white dark:bg-black
+          "
           initial={{ opacity: 1 }}
-          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-          exit={{
-            opacity: 0,
-            backdropFilter: "blur(25px)",
-            transition: { duration: 0.9, ease: "easeInOut" },
-          }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         >
+          {/* Soft background glow */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 h-[320px] w-[320px] rounded-full bg-indigo-500/20 blur-[140px]" />
+          </div>
+
+          {/* Logo / Text */}
           <motion.h1
-            key={index}
             className="
-              text-5xl md:text-7xl lg:text-8xl font-bold
-              tracking-wide drop-shadow-xl whitespace-nowrap
+              relative z-10
+              text-4xl md:text-5xl
+              font-semibold tracking-tight
+              text-black dark:text-white
             "
-            initial={{ opacity: 0, y: 20, filter: "blur(12px)" }}
+            initial={{
+              opacity: 0,
+              y: 24,
+              scale: 0.94,
+              filter: "blur(10px)",
+            }}
             animate={{
               opacity: 1,
               y: 0,
+              scale: 1,
               filter: "blur(0px)",
-              transition: { duration: 0.45, ease: "easeOut" },
             }}
             exit={{
               opacity: 0,
               y: -20,
-              filter: "blur(12px)",
-              transition: { duration: 0.35 },
+              scale: 0.98,
+              filter: "blur(6px)",
+            }}
+            transition={{
+              duration: 0.9,
+              ease: [0.22, 1, 0.36, 1],
             }}
           >
-            {text}
+            Welcome
           </motion.h1>
         </motion.div>
       )}

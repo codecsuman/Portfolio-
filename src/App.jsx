@@ -1,4 +1,4 @@
-import { useState, useCallback, lazy, Suspense, useEffect, memo } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 
 /* ---------- CORE ---------- */
 import Navbar from "./components/Navbar";
@@ -17,14 +17,10 @@ const Projects = lazy(() => import("./sections/Projects"));
 const Experience = lazy(() => import("./sections/Experience"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 
-/* ---------- CONFIG (SCALE HERE) ---------- */
-const CORE_SECTIONS = [Home, About, Skills];
-const HEAVY_SECTIONS = [Projects, Experience, Testimonials];
-
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
 
-  /* ---------- THEME BOOTSTRAP ---------- */
+  /* ---------- THEME INIT ---------- */
   useEffect(() => {
     const theme = localStorage.getItem("theme");
     if (theme === "dark") {
@@ -32,56 +28,70 @@ export default function App() {
     }
   }, []);
 
-  /* ---------- PRELOAD HEAVY SECTIONS ---------- */
-  useEffect(() => {
-    if (!introDone) return;
-    import("./sections/Projects");
-    import("./sections/Experience");
-    import("./sections/Testimonials");
-  }, [introDone]);
-
-  const handleIntroFinish = useCallback(() => {
-    setIntroDone(true);
-  }, []);
-
-  /* ---------- INTRO GATE ---------- */
+  /* ---------- INTRO ---------- */
   if (!introDone) {
-    return <IntroAnimation onFinish={handleIntroFinish} />;
+    return <IntroAnimation onFinish={() => setIntroDone(true)} />;
   }
 
   return (
     <main
-      className="relative min-h-screen overflow-x-hidden scroll-smooth"
       role="main"
+      className="
+        relative min-h-screen
+        overflow-x-hidden overflow-y-visible
+        bg-[var(--bg)]
+        text-[var(--text)]
+        antialiased
+      "
     >
+      {/* ---------- GLOBAL BACKGROUND GLOW (SAFE) ---------- */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-indigo-500/15 blur-[160px]" />
+        <div className="absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-[160px]" />
+      </div>
+
+      {/* Cursor */}
       <CustomCursor />
 
+      {/* Navbar */}
       <Navbar />
 
-      {/* CORE (IMMEDIATE) */}
-      {CORE_SECTIONS.map((Section, i) => (
-        <Section key={i} />
-      ))}
+      {/* ---------- CONTENT ---------- */}
+      <div className="relative z-10">
+        <Home />
+        <About />
+        <Skills />
 
-      {/* HEAVY (DEFERRED) */}
-      <Suspense fallback={<SectionLoader />}>
-        {HEAVY_SECTIONS.map((Section, i) => (
-          <Section key={i} />
-        ))}
-      </Suspense>
+        <Suspense fallback={<SectionLoader />}>
+          <Projects />
+          <Experience />
+          <Testimonials />
+        </Suspense>
 
-      <Contact />
+        <Contact />
+      </div>
+
+      {/* Footer */}
       <Footer />
     </main>
   );
 }
 
-/* ---------- FALLBACK ---------- */
-const SectionLoader = memo(() => (
-  <div
-    className="py-32 text-center text-sm opacity-60"
-    aria-live="polite"
-  >
-    Loading content…
-  </div>
-));
+/* ---------- LOADER ---------- */
+function SectionLoader() {
+  return (
+    <div className="flex justify-center py-24">
+      <div
+        className="
+          px-8 py-4
+          border border-white/10
+          bg-white/5
+          backdrop-blur-xl
+          text-sm text-white/60
+        "
+      >
+        Loading…
+      </div>
+    </div>
+  );
+}

@@ -1,167 +1,186 @@
 import { useEffect, useRef } from "react";
 
-const CONFIG = {
-  BLOBS: 4,
-  STARS: 140,
-  PARTICLES: 60,
-  LINE_DIST: 140,
+/* ---------- CONFIG ---------- */
+const DEFAULT_CONFIG = {
+  enabledSections: ["home"], // HOME ONLY
+  performance: "low", // elegance > density
 };
 
-export default function ParticlesBackground() {
+export default function ParticlesBackground({
+  section = "home",
+  config = DEFAULT_CONFIG,
+}) {
   const canvasRef = useRef(null);
-  const rafRef = useRef(0);
+  const rafRef = useRef(null);
+  const mouse = useRef({ x: 0.5, y: 0.5 });
+  const lastTime = useRef(0);
 
   useEffect(() => {
+    /* ---------- ENABLE CHECK ---------- */
+    if (section !== "home") return;
+    if (!config.enabledSections.includes("home")) return;
+
+    /* ---------- MOBILE DISABLE ---------- */
+    if (window.matchMedia("(max-width: 768px)").matches) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", { alpha: true });
     let w = 0,
-      h = 0,
-      dpr = 1;
+      h = 0;
 
-    let isDark = document.documentElement.classList.contains("dark");
+    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    /* ---------- PERFORMANCE (VERY SLOW) ---------- */
+    const FPS = 18; // slower than before
+    const SNOW_COUNT = 28; // more, but still safe
+    const STAR_COUNT = 12;
+
+    /* ---------- PARTICLES ---------- */
+    const snow = Array.from({ length: SNOW_COUNT }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: 2.4 + Math.random() * 2.8, // BIGGER
+      vy: 0.012 + Math.random() * 0.02, // VERY SLOW
+      depth: 0.3 + Math.random() * 0.7,
+    }));
+
+    const stars = Array.from({ length: STAR_COUNT }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      vy: 0.025 + Math.random() * 0.035, // SLOW
+      a: 0.25 + Math.random() * 0.35,
+      glow: 2 + Math.random() * 3,
+    }));
+
+    let shootingStar = null;
+    let nextShoot = performance.now() + 26000 + Math.random() * 12000;
 
     /* ---------- RESIZE ---------- */
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = window.innerWidth;
       h = window.innerHeight;
-
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width = w * DPR;
+      canvas.height = h * DPR;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     };
 
     resize();
-    window.addEventListener("resize", resize, { passive: true });
+    window.addEventListener("resize", resize);
 
-    /* ---------- THEME OBSERVER ---------- */
-    const observer = new MutationObserver(() => {
-      isDark = document.documentElement.classList.contains("dark");
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
+    /* ---------- MOUSE (VERY SUBTLE) ---------- */
+    const onMove = (e) => {
+      mouse.current.x = e.clientX / w;
+      mouse.current.y = e.clientY / h;
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
 
-    /* ---------- DATA ---------- */
-    const blobs = Array.from({ length: CONFIG.BLOBS }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: 200 + Math.random() * 200,
-      dx: (Math.random() - 0.5) * 0.2,
-      dy: (Math.random() - 0.5) * 0.2,
-      hue: Math.random() * 360,
-    }));
-
-    const stars = Array.from({ length: CONFIG.STARS }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      z: Math.random() * 3 + 1,
-      r: Math.random() * 1.2 + 0.5,
-    }));
-
-    const particles = Array.from({ length: CONFIG.PARTICLES }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() * 2 + 1.5,
-      a: Math.random() * Math.PI * 2,
-      s: 0.6 + Math.random(),
-      h: Math.random() * 360,
-    }));
-
-    /* ---------- LOOP ---------- */
-    const animate = () => {
-      ctx.fillStyle = isDark ? "#020617" : "#f8fafc";
-      ctx.fillRect(0, 0, w, h);
-
-      /* BLOBS */
-      ctx.filter = "blur(90px)";
-      for (const b of blobs) {
-        ctx.fillStyle = `hsla(${b.hue},70%,${isDark ? 60 : 45}%,0.22)`;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-        ctx.fill();
-        b.x += b.dx;
-        b.y += b.dy;
+    /* ---------- DRAW ---------- */
+    const draw = (t) => {
+      if (t - lastTime.current < 1000 / FPS) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
       }
-      ctx.filter = "none";
+      lastTime.current = t;
 
-      /* STARS */
-      for (const s of stars) {
-        ctx.fillStyle = isDark
-          ? `rgba(255,255,255,${0.25 + s.z * 0.15})`
-          : `rgba(0,0,0,${0.12 + s.z * 0.08})`;
+      const isDark = document.documentElement.classList.contains("dark");
+      ctx.clearRect(0, 0, w, h);
 
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r * s.z * 0.6, 0, Math.PI * 2);
-        ctx.fill();
+      const snowColor = isDark
+        ? "rgba(180,220,255,0.16)"
+        : "rgba(120,150,190,0.12)";
 
-        s.y += 0.12 * s.z;
-        if (s.y > h) s.y = -10;
-      }
-
-      /* PARTICLES */
-      for (const p of particles) {
-        p.h += 0.8;
-        p.a += 0.03;
-        p.x += Math.cos(p.a) * p.s;
-        p.y += Math.sin(p.a) * p.s;
-
-        if (p.x < 0) p.x = w;
-        if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h;
-        if (p.y > h) p.y = 0;
-
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = `hsl(${p.h},80%,${isDark ? 60 : 40}%)`;
-        ctx.fillStyle = ctx.shadowColor;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.shadowBlur = 0;
-
-      /* CONNECTION LINES */
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d = Math.hypot(dx, dy);
-
-          if (d < CONFIG.LINE_DIST) {
-            ctx.strokeStyle = isDark
-              ? `rgba(255,255,255,${(1 - d / CONFIG.LINE_DIST) * 0.35})`
-              : `rgba(0,0,0,${(1 - d / CONFIG.LINE_DIST) * 0.22})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
+      /* ---------- SNOW (FLOATING ORBS) ---------- */
+      snow.forEach((p) => {
+        p.y += p.vy * p.depth;
+        if (p.y > 1.15) {
+          p.y = -0.15;
+          p.x = Math.random();
         }
+
+        const mx = (mouse.current.x - 0.5) * 10 * p.depth;
+        const my = (mouse.current.y - 0.5) * 6 * p.depth;
+
+        ctx.beginPath();
+        ctx.fillStyle = snowColor;
+        ctx.arc(
+          p.x * w + mx,
+          p.y * h + my,
+          p.r,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      });
+
+      /* ---------- STARS (GLOWING) ---------- */
+      stars.forEach((s) => {
+        s.y += s.vy;
+        if (s.y > 1.15) {
+          s.y = -0.15;
+          s.x = Math.random();
+        }
+
+        ctx.save();
+        ctx.shadowBlur = s.glow;
+        ctx.shadowColor = isDark
+          ? "rgba(255,255,255,0.6)"
+          : "rgba(0,0,0,0.4)";
+
+        ctx.fillStyle = isDark
+          ? `rgba(255,255,255,${s.a})`
+          : `rgba(0,0,0,${s.a * 0.4})`;
+
+        ctx.fillRect(s.x * w, s.y * h, 1.6, 3.6);
+        ctx.restore();
+      });
+
+      /* ---------- SHOOTING STAR (RARE & SLOW) ---------- */
+      if (!shootingStar && t > nextShoot) {
+        shootingStar = {
+          x: Math.random() * w * 0.7,
+          y: -40,
+          vx: 4.5,
+          vy: 3,
+          life: 0,
+        };
+        nextShoot = t + 26000 + Math.random() * 12000;
       }
 
-      rafRef.current = requestAnimationFrame(animate);
+      if (shootingStar) {
+        shootingStar.x += shootingStar.vx;
+        shootingStar.y += shootingStar.vy;
+        shootingStar.life++;
+
+        ctx.strokeStyle = "rgba(255,255,255,0.35)";
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(shootingStar.x, shootingStar.y);
+        ctx.lineTo(shootingStar.x - 70, shootingStar.y - 40);
+        ctx.stroke();
+
+        if (shootingStar.life > 38) shootingStar = null;
+      }
+
+      rafRef.current = requestAnimationFrame(draw);
     };
 
-    animate();
+    rafRef.current = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      observer.disconnect();
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMove);
     };
-  }, []);
+  }, [section, config]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
+      className="fixed inset-0 -z-10 pointer-events-none"
     />
   );
 }

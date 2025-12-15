@@ -1,4 +1,5 @@
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
+import ParticlesBackground from "../components/ParticlesBackground";
 import {
   FaJava,
   FaJs,
@@ -6,7 +7,6 @@ import {
   FaNodeJs,
   FaGitAlt,
   FaPython,
-  FaChartBar,
 } from "react-icons/fa";
 import {
   SiTypescript,
@@ -15,149 +15,169 @@ import {
   SiExpress,
   SiPostman,
   SiTailwindcss,
-  SiPandas,
-  SiNumpy,
   SiGithub,
+  SiHtml5,
+  SiCss3,
+  SiVercel,
+  SiNetlify,
 } from "react-icons/si";
 
-/* -------- SKILLS -------- */
-const skills = [
-  { name: "React", icon: <FaReact /> },
-  { name: "JavaScript", icon: <FaJs /> },
-  { name: "TypeScript", icon: <SiTypescript /> },
-  { name: "Tailwind CSS", icon: <SiTailwindcss /> },
-  { name: "Java", icon: <FaJava /> },
-  { name: "Node.js", icon: <FaNodeJs /> },
-  { name: "Express", icon: <SiExpress /> },
-  { name: "MongoDB", icon: <SiMongodb /> },
-  { name: "MySQL", icon: <SiMysql /> },
-  { name: "Python", icon: <FaPython /> },
-  { name: "Pandas", icon: <SiPandas /> },
-  { name: "NumPy", icon: <SiNumpy /> },
-  { name: "Power BI", icon: <FaChartBar /> },
-  { name: "Git", icon: <FaGitAlt /> },
-  { name: "GitHub", icon: <SiGithub /> },
-  { name: "Postman", icon: <SiPostman /> },
+/* ---------- SKILLS ---------- */
+const SKILLS = [
+  {
+    title: "Languages",
+    items: [
+      { name: "Java", icon: <FaJava className="text-orange-400" /> },
+      { name: "JavaScript", icon: <FaJs className="text-yellow-300" /> },
+      { name: "TypeScript", icon: <SiTypescript className="text-blue-400" /> },
+      { name: "Python", icon: <FaPython className="text-sky-400" /> },
+      { name: "C", icon: <span className="font-bold text-cyan-400">C</span> },
+    ],
+  },
+  {
+    title: "Frontend",
+    items: [
+      { name: "React", icon: <FaReact className="text-cyan-400" /> },
+      { name: "Next.js", icon: <span className="font-bold text-white">N</span> },
+      { name: "HTML5", icon: <SiHtml5 className="text-orange-500" /> },
+      { name: "CSS3", icon: <SiCss3 className="text-blue-500" /> },
+      { name: "Tailwind CSS", icon: <SiTailwindcss className="text-sky-400" /> },
+    ],
+  },
+  {
+    title: "Backend",
+    items: [
+      { name: "Node.js", icon: <FaNodeJs className="text-green-400" /> },
+      { name: "Express.js", icon: <SiExpress className="text-white" /> },
+      { name: "REST APIs", icon: <span className="text-emerald-400 font-semibold">API</span> },
+      { name: "JWT Auth", icon: <span className="text-pink-400 font-semibold">JWT</span> },
+    ],
+  },
+  {
+    title: "Databases",
+    items: [
+      { name: "MongoDB", icon: <SiMongodb className="text-emerald-400" /> },
+      { name: "MySQL", icon: <SiMysql className="text-sky-400" /> },
+      { name: "SQL", icon: <span className="text-cyan-400 font-semibold">SQL</span> },
+    ],
+  },
+  {
+    title: "Tools",
+    items: [
+      { name: "Git", icon: <FaGitAlt className="text-orange-400" /> },
+      { name: "GitHub", icon: <SiGithub className="text-white" /> },
+      { name: "Postman", icon: <SiPostman className="text-orange-500" /> },
+      { name: "VS Code", icon: <span className="text-blue-400 font-semibold">VS</span> },
+      { name: "Vercel", icon: <SiVercel className="text-white" /> },
+      { name: "Netlify", icon: <SiNetlify className="text-emerald-400" /> },
+    ],
+  },
+  {
+    title: "Core",
+    items: [
+      { name: "Full Stack", icon: "⚙️" },
+      { name: "API Design", icon: "🔗" },
+      { name: "Cloud", icon: "☁️" },
+      { name: "CI / CD", icon: "🚀" },
+    ],
+  },
 ];
-
-const marquee = [...skills, ...skills];
-
-/* ---------------- SKILL CARD (FAST) ---------------- */
-const SkillCard = ({ skill }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  // 🔥 MUCH SNAPPIER SPRINGS
-  const sx = useSpring(x, { stiffness: 420, damping: 22 });
-  const sy = useSpring(y, { stiffness: 420, damping: 22 });
-
-  const move = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const dx = e.clientX - (r.left + r.width / 2);
-    const dy = e.clientY - (r.top + r.height / 2);
-    x.set(dx * 0.25); // 🔥 stronger magnet
-    y.set(dy * 0.25);
-  };
-
-  const reset = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      onPointerMove={move}
-      onPointerLeave={reset}
-      style={{ x: sx, y: sy }}
-      whileHover={{ scale: 1.18 }} // 🔥 instant pop
-      transition={{ type: "spring", stiffness: 500, damping: 20 }}
-      className="
-        relative group min-w-[150px]
-        rounded-2xl
-        bg-white/[0.06]
-        backdrop-blur-2xl
-        p-6
-        flex flex-col items-center gap-3
-        shadow-[0_0_50px_-12px_rgba(28,216,210,0.55)]
-        border border-white/[0.1]
-      "
-    >
-      {/* Breathing glow */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl"
-        animate={{ opacity: [0.25, 0.45, 0.25] }}
-        transition={{ duration: 2.5, repeat: Infinity }} // 🔥 faster
-        style={{
-          background:
-            "radial-gradient(circle at center, rgba(28,216,210,0.45), transparent 70%)",
-        }}
-      />
-
-      {/* Icon */}
-      <motion.span
-        className="relative text-5xl text-[#1cd8d2]"
-        whileHover={{ rotate: 360 }}
-        transition={{ duration: 0.45, ease: "easeInOut" }} // 🔥 faster spin
-      >
-        {skill.icon}
-      </motion.span>
-
-      {/* Label */}
-      <span className="relative text-sm text-white/80 tracking-wide">
-        {skill.name}
-      </span>
-    </motion.div>
-  );
-};
 
 export default function Skills() {
   return (
     <section
       id="skills"
-      className="relative w-full py-32 bg-black text-white overflow-hidden"
+      className="
+        relative min-h-screen py-28 overflow-hidden
+        bg-gradient-to-br from-[#020617] via-[#020617] to-[#020617]
+        text-white
+      "
     >
-      {/* Ambient glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-48 left-1/3 w-[500px] h-[500px] bg-[#1cd8d2]/25 blur-[160px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#302b63]/25 blur-[160px] rounded-full" />
+      {/* 🌌 Particle background */}
+      <ParticlesBackground section="skills" />
+
+      {/* 🌈 BIG COLOR BLOBS */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/30 rounded-full blur-[200px]" />
+        <div className="absolute top-1/3 right-[-20%] w-[600px] h-[600px] bg-sky-500/30 rounded-full blur-[200px]" />
+        <div className="absolute bottom-[-30%] left-1/3 w-[600px] h-[600px] bg-cyan-500/20 rounded-full blur-[200px]" />
       </div>
 
-      {/* Heading */}
+      {/* ---------- HEADING ---------- */}
       <motion.h2
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }} // 🔥 faster
-        className="relative z-10 text-center text-5xl font-bold
-          bg-clip-text text-transparent
-          bg-gradient-to-r from-[#1cd8d2] via-[#00bf8f] to-[#302b63]"
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="
+          text-center text-4xl md:text-5xl font-bold
+          text-transparent bg-clip-text
+          bg-gradient-to-r from-emerald-400 via-green-400 to-sky-400
+        "
       >
-        Skills & Tools
+        Skills & Technologies
       </motion.h2>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 0.15 }}
-        className="relative z-10 mt-4 text-center text-white/70"
-      >
-        Crafting elegant, scalable & modern solutions
-      </motion.p>
+      <p className="mt-4 text-center text-white/70">
+        Tools I use to craft scalable, high-quality applications
+      </p>
 
-      {/* Marquee */}
-      <div className="relative mt-20 w-full overflow-hidden">
-        <motion.div
-          className="flex gap-12 will-change-transform"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{
-            duration: 32, // 🔥 faster marquee
-            ease: "linear",
-            repeat: Infinity,
-          }}
-        >
-          {marquee.map((skill, i) => (
-            <SkillCard key={i} skill={skill} />
-          ))}
-        </motion.div>
+      {/* ---------- GRID ---------- */}
+      <div className="mt-20 max-w-6xl mx-auto px-6 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        {SKILLS.map((group) => (
+          <motion.div
+            key={group.title}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -12, scale: 1.02 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="
+              relative rounded-3xl p-6
+              bg-white/5 backdrop-blur-2xl
+              border border-white/10
+              shadow-xl
+              hover:shadow-emerald-400/30
+              transition
+            "
+          >
+            {/* Neon border glow */}
+            <div
+              className="
+                absolute inset-0 rounded-3xl opacity-0
+                hover:opacity-100 transition
+                bg-gradient-to-br from-emerald-400/20 via-sky-400/20 to-transparent
+                pointer-events-none
+              "
+            />
+
+            <h3 className="relative mb-6 text-xl font-semibold">
+              {group.title}
+            </h3>
+
+            <ul className="relative flex flex-wrap gap-3">
+              {group.items.map((item) => (
+                <li
+                  key={item.name}
+                  className="
+                    flex items-center gap-2
+                    px-4 py-2 rounded-full
+                    bg-white/10
+                    border border-white/10
+                    text-sm text-white/80
+                    hover:text-white
+                    hover:bg-gradient-to-r hover:from-emerald-400/20 hover:to-sky-400/20
+                    hover:border-emerald-400/50
+                    transition
+                  "
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span>{item.name}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ))}
       </div>
     </section>
   );

@@ -1,5 +1,7 @@
+import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
+import ParticlesBackground from "../components/ParticlesBackground";
 
 /* ---------- DATA ---------- */
 const EXPERIENCES = [
@@ -58,13 +60,19 @@ const EXPERIENCES = [
 
 /* ---------- CARD ---------- */
 const ExperienceCard = ({ exp }) => (
-  <div
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    whileHover={{ y: -6, scale: 1.02 }}
+    transition={{ duration: 0.4 }}
     className="
-      rounded-xl p-4
+      rounded-2xl p-4
       bg-white/5 backdrop-blur-xl
       border border-white/10
+      shadow-lg
       hover:border-emerald-400/30
-      hover:shadow-emerald-400/20
+      hover:shadow-emerald-400/30
       transition
     "
   >
@@ -94,7 +102,7 @@ const ExperienceCard = ({ exp }) => (
         <li key={i}>{p}</li>
       ))}
     </ul>
-  </div>
+  </motion.div>
 );
 
 /* ---------- SECTION ---------- */
@@ -102,11 +110,24 @@ export default function Experience() {
   return (
     <section
       id="experience"
-      className="relative py-20 bg-black text-white"
+      className="
+        relative min-h-screen flex items-center
+        bg-gradient-to-br from-[#020617] via-[#020617] to-[#020617]
+        overflow-hidden
+      "
     >
-      <div className="max-w-6xl mx-auto px-6">
+      {/* 🌌 Particle background */}
+      <ParticlesBackground section="experience" />
+
+      {/* 🌈 Glow blobs */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/25 blur-[200px]" />
+        <div className="absolute bottom-[-30%] right-[-20%] w-[600px] h-[600px] bg-sky-500/25 blur-[200px]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6">
         {/* Heading */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-10">
           <h2
             className="
               text-3xl md:text-4xl font-bold
@@ -121,7 +142,7 @@ export default function Experience() {
           </p>
         </div>
 
-        {/* GRID — ALL VISIBLE */}
+        {/* GRID — SINGLE SCREEN */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {EXPERIENCES.map((exp) => (
             <ExperienceCard key={exp.role} exp={exp} />
@@ -129,12 +150,12 @@ export default function Experience() {
         </div>
 
         {/* SOCIAL */}
-        <div className="flex justify-center gap-6 mt-10 text-xl text-white/50">
+        <div className="flex justify-center gap-8 mt-12 text-2xl">
           <a
             href="https://github.com/codecsuman"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-emerald-400 transition"
+            className="text-white/50 hover:text-emerald-400 transition"
           >
             <FaGithub />
           </a>
@@ -142,7 +163,7 @@ export default function Experience() {
             href="https://www.linkedin.com/in/sumanjhanp/"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-sky-400 transition"
+            className="text-white/50 hover:text-sky-400 transition"
           >
             <FaLinkedin />
           </a>
@@ -150,7 +171,7 @@ export default function Experience() {
             href="https://leetcode.com/u/sumanjhanp1/"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-yellow-400 transition"
+            className="text-white/50 hover:text-yellow-400 transition"
           >
             <SiLeetcode />
           </a>

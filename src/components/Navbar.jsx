@@ -1,40 +1,53 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, memo, useRef } from "react";
 import Logo from "../assets/Logo.png";
 import OverlayMenu from "./OverlayMenue";
 import { FiSun, FiMoon } from "react-icons/fi";
 
-/* ---------- CONFIG ---------- */
-const SECTIONS = ["home", "about", "skills", "projects"];
+/* ---------- NAV CONFIG ---------- */
+const NAV_ITEMS = [
+  { id: "home", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "skills", label: "Skills" },
+  { id: "projects", label: "Projects" },
+];
 
-export default function Navbar() {
+function Navbar({ theme, setTheme }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
+
+  const activeRef = useRef("home");
 
   /* ---------- THEME TOGGLE ---------- */
   const toggleTheme = useCallback(() => {
-    const html = document.documentElement;
-    const isDark = html.classList.toggle("dark");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    setDark(isDark);
-  }, []);
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  }, [setTheme]);
 
-  /* ---------- ACTIVE SECTION ---------- */
+  /* ---------- ACTIVE SECTION TRACKING ---------- */
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
     if (!sections.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
+        let mostVisible = activeRef.current;
+        let maxRatio = 0;
+
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio > maxRatio) {
+            maxRatio = e.intersectionRatio;
+            mostVisible = e.target.id;
           }
         });
+
+        if (mostVisible !== activeRef.current) {
+          activeRef.current = mostVisible;
+          setActiveSection(mostVisible);
+        }
       },
-      { threshold: 0.6 }
+      {
+        rootMargin: "-35% 0px -35% 0px",
+        threshold: [0.25, 0.5, 0.75],
+      }
     );
 
     sections.forEach((s) => observer.observe(s));
@@ -46,59 +59,46 @@ export default function Navbar() {
       <nav
         className="
           fixed top-0 left-0 w-full z-50
-          px-6 py-4
-          flex items-center justify-between
+          px-6 py-4 flex items-center justify-between
           bg-white/70 dark:bg-black/60
           backdrop-blur-2xl
           border-b border-black/10 dark:border-white/10
         "
       >
-        {/* ---------- LOGO ---------- */}
-        <a href="#home" className="flex items-center gap-3">
-          <img src={Logo} alt="Logo" className="w-9 h-9 rounded-md" />
+        {/* LOGO */}
+        <a href="#home" className="flex items-center gap-3 group">
+          <img
+            src={Logo}
+            alt="Logo"
+            className="w-9 h-9 rounded-md transition-transform group-hover:scale-105"
+          />
           <span className="hidden sm:block text-lg font-semibold tracking-tight">
             SUMAN
           </span>
         </a>
 
-        {/* ---------- DESKTOP NAV ---------- */}
-        <div className="hidden lg:flex items-center gap-8">
-          {SECTIONS.map((sec) => {
-            const active = activeSection === sec;
+        {/* DESKTOP NAV */}
+        <div className="hidden lg:flex items-center gap-4">
+          {NAV_ITEMS.map(({ id, label }) => {
+            const active = activeSection === id;
             return (
               <a
-                key={sec}
-                href={`#${sec}`}
+                key={id}
+                href={`#${id}`}
                 className={`
-                  relative capitalize text-sm font-medium
-                  transition-colors
-                  ${
-                    active
-                      ? "text-black dark:text-white"
-                      : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-                  }
+                  nav-btn text-sm
+                  ${active ? "scale-105 shadow-lg" : "opacity-80"}
                 `}
               >
-                {sec}
-
-                {/* Active underline */}
-                {active && (
-                  <span
-                    className="
-                      absolute -bottom-2 left-0 h-[2px] w-full
-                      bg-gradient-to-r from-indigo-400 to-cyan-400
-                      rounded-full
-                    "
-                  />
-                )}
+                {label}
               </a>
             );
           })}
         </div>
 
-        {/* ---------- ACTIONS ---------- */}
+        {/* ACTIONS */}
         <div className="flex items-center gap-3">
-          {/* Theme Toggle */}
+          {/* THEME TOGGLE */}
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
@@ -109,14 +109,16 @@ export default function Navbar() {
               from-yellow-300/80 to-orange-400/80
               dark:from-indigo-500/70 dark:to-cyan-400/70
               text-black dark:text-white
-              shadow-md hover:shadow-lg
-              hover:scale-105 transition
+              shadow-md
+              hover:shadow-xl hover:scale-110
+              active:scale-95
+              transition
             "
           >
-            {dark ? <FiSun /> : <FiMoon />}
+            {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
 
-          {/* Contact CTA */}
+          {/* CONTACT CTA */}
           <a
             href="#contact"
             className="
@@ -126,14 +128,15 @@ export default function Navbar() {
               text-sm font-semibold text-black
               bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400
               shadow-lg shadow-cyan-400/30
-              hover:shadow-cyan-400/60
-              hover:scale-[1.05] transition
+              hover:shadow-cyan-400/70 hover:scale-105
+              active:scale-95
+              transition
             "
           >
             Contact
           </a>
 
-          {/* Hamburger */}
+          {/* HAMBURGER */}
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
@@ -141,7 +144,8 @@ export default function Navbar() {
               lg:hidden w-10 h-10 rounded-full
               flex flex-col items-center justify-center gap-[5px]
               bg-black/10 dark:bg-white/10
-              hover:scale-105 transition
+              hover:scale-110 active:scale-95
+              transition
             "
           >
             <span className="w-5 h-[2px] bg-current" />
@@ -151,8 +155,14 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ---------- OVERLAY MENU ---------- */}
-      <OverlayMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      {/* OVERLAY MENU */}
+      <OverlayMenu
+        isOpen={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        items={NAV_ITEMS.map((i) => i.label)}
+      />
     </>
   );
 }
+
+export default memo(Navbar);

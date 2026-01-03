@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 
 /* ---------- CONFIG ---------- */
 const DEFAULT_CONFIG = {
-  enabledSections: ["home"], // HOME ONLY
-  performance: "low", // elegance > density
+  enabledSections: ["home"],
+  performance: "auto", // auto | low | medium | high
 };
 
 export default function ParticlesBackground({
@@ -12,50 +12,60 @@ export default function ParticlesBackground({
 }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
-  const mouse = useRef({ x: 0.5, y: 0.5 });
+
+  const mouse = useRef({ x: 0.5, y: 0.5, vx: 0, vy: 0 });
+  const lastMouse = useRef({ x: 0.5, y: 0.5 });
   const lastTime = useRef(0);
+  const scrollFade = useRef(1);
+  const isVisible = useRef(true);
 
   useEffect(() => {
-    /* ---------- ENABLE CHECK ---------- */
+    if (!config.enabledSections.includes(section)) return;
     if (section !== "home") return;
-    if (!config.enabledSections.includes("home")) return;
 
-    /* ---------- MOBILE DISABLE ---------- */
+    /* ---------- HARD PERFORMANCE GUARDS ---------- */
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
+    const lowCPU = navigator.hardwareConcurrency <= 4;
+
+    const ultraLow = prefersReduced || lowMemory || lowCPU;
     if (window.matchMedia("(max-width: 768px)").matches) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: true });
-    let w = 0,
-      h = 0;
 
-    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    let w = 0;
+    let h = 0;
 
-    /* ---------- PERFORMANCE (VERY SLOW) ---------- */
-    const FPS = 18; // slower than before
-    const SNOW_COUNT = 28; // more, but still safe
-    const STAR_COUNT = 12;
+    const DPR = ultraLow ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+
+    /* ---------- PERFORMANCE PRESETS ---------- */
+    const PERF = ultraLow
+      ? { fps: 12, particles: 30 }
+      : config.performance === "high"
+        ? { fps: 60, particles: 140 }
+        : config.performance === "medium"
+          ? { fps: 36, particles: 90 }
+          : { fps: 24, particles: 60 };
+
+    const FPS = PERF.fps;
 
     /* ---------- PARTICLES ---------- */
-    const snow = Array.from({ length: SNOW_COUNT }, () => ({
+    const particles = Array.from({ length: PERF.particles }, () => ({
       x: Math.random(),
       y: Math.random(),
-      r: 2.4 + Math.random() * 2.8, // BIGGER
-      vy: 0.012 + Math.random() * 0.02, // VERY SLOW
+      r: 1.5 + Math.random() * 2.5,
+      vy: 0.02 + Math.random() * 0.05,
+      vx: (-0.5 + Math.random()) * 0.01,
       depth: 0.3 + Math.random() * 0.7,
+      hue: Math.floor(180 + Math.random() * 120), // 🌈 colorful
+      alpha: 0.25 + Math.random() * 0.4,
     }));
-
-    const stars = Array.from({ length: STAR_COUNT }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      vy: 0.025 + Math.random() * 0.035, // SLOW
-      a: 0.25 + Math.random() * 0.35,
-      glow: 2 + Math.random() * 3,
-    }));
-
-    let shootingStar = null;
-    let nextShoot = performance.now() + 26000 + Math.random() * 12000;
 
     /* ---------- RESIZE ---------- */
     const resize = () => {
@@ -71,41 +81,78 @@ export default function ParticlesBackground({
     resize();
     window.addEventListener("resize", resize);
 
-    /* ---------- MOUSE (VERY SUBTLE) ---------- */
+    /* ---------- MOUSE ---------- */
     const onMove = (e) => {
-      mouse.current.x = e.clientX / w;
-      mouse.current.y = e.clientY / h;
+      const nx = e.clientX / w;
+      const ny = e.clientY / h;
+
+      mouse.current.vx = nx - lastMouse.current.x;
+      mouse.current.vy = ny - lastMouse.current.y;
+
+      mouse.current.x = nx;
+      mouse.current.y = ny;
+      lastMouse.current = { x: nx, y: ny };
     };
+
     window.addEventListener("mousemove", onMove, { passive: true });
 
-    /* ---------- DRAW ---------- */
+    /* ---------- SCROLL FADE ---------- */
+    const onScroll = () => {
+      const max = window.innerHeight * 0.9;
+      scrollFade.current = Math.max(0, 1 - window.scrollY / max);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    /* ---------- VISIBILITY ---------- */
+    const onVisibility = () => {
+      isVisible.current = !document.hidden;
+      lastTime.current = performance.now();
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+
+    /* ---------- DRAW LOOP ---------- */
     const draw = (t) => {
-      if (t - lastTime.current < 1000 / FPS) {
+      if (!isVisible.current) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
+      }
+
+      const delta = t - lastTime.current;
+      if (delta < 1000 / FPS) {
         rafRef.current = requestAnimationFrame(draw);
         return;
       }
       lastTime.current = t;
 
-      const isDark = document.documentElement.classList.contains("dark");
       ctx.clearRect(0, 0, w, h);
 
-      const snowColor = isDark
-        ? "rgba(180,220,255,0.16)"
-        : "rgba(120,150,190,0.12)";
+      const fade = scrollFade.current;
+      const isDark = document.documentElement.classList.contains("dark");
 
-      /* ---------- SNOW (FLOATING ORBS) ---------- */
-      snow.forEach((p) => {
+      const speed =
+        Math.min(1, Math.abs(mouse.current.vx) + Math.abs(mouse.current.vy)) *
+        18;
+
+      particles.forEach((p) => {
         p.y += p.vy * p.depth;
-        if (p.y > 1.15) {
-          p.y = -0.15;
+        p.x += p.vx * p.depth;
+
+        if (p.y > 1.2) {
+          p.y = -0.2;
           p.x = Math.random();
         }
 
-        const mx = (mouse.current.x - 0.5) * 10 * p.depth;
-        const my = (mouse.current.y - 0.5) * 6 * p.depth;
+        const mx =
+          (mouse.current.x - 0.5) * (8 + speed) * p.depth;
+        const my =
+          (mouse.current.y - 0.5) * (6 + speed) * p.depth;
 
         ctx.beginPath();
-        ctx.fillStyle = snowColor;
+        ctx.fillStyle = `hsla(${p.hue}, ${isDark ? 80 : 60
+          }%, ${isDark ? 70 : 40}%, ${p.alpha * fade})`;
+
         ctx.arc(
           p.x * w + mx,
           p.y * h + my,
@@ -116,55 +163,6 @@ export default function ParticlesBackground({
         ctx.fill();
       });
 
-      /* ---------- STARS (GLOWING) ---------- */
-      stars.forEach((s) => {
-        s.y += s.vy;
-        if (s.y > 1.15) {
-          s.y = -0.15;
-          s.x = Math.random();
-        }
-
-        ctx.save();
-        ctx.shadowBlur = s.glow;
-        ctx.shadowColor = isDark
-          ? "rgba(255,255,255,0.6)"
-          : "rgba(0,0,0,0.4)";
-
-        ctx.fillStyle = isDark
-          ? `rgba(255,255,255,${s.a})`
-          : `rgba(0,0,0,${s.a * 0.4})`;
-
-        ctx.fillRect(s.x * w, s.y * h, 1.6, 3.6);
-        ctx.restore();
-      });
-
-      /* ---------- SHOOTING STAR (RARE & SLOW) ---------- */
-      if (!shootingStar && t > nextShoot) {
-        shootingStar = {
-          x: Math.random() * w * 0.7,
-          y: -40,
-          vx: 4.5,
-          vy: 3,
-          life: 0,
-        };
-        nextShoot = t + 26000 + Math.random() * 12000;
-      }
-
-      if (shootingStar) {
-        shootingStar.x += shootingStar.vx;
-        shootingStar.y += shootingStar.vy;
-        shootingStar.life++;
-
-        ctx.strokeStyle = "rgba(255,255,255,0.35)";
-        ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        ctx.moveTo(shootingStar.x, shootingStar.y);
-        ctx.lineTo(shootingStar.x - 70, shootingStar.y - 40);
-        ctx.stroke();
-
-        if (shootingStar.life > 38) shootingStar = null;
-      }
-
       rafRef.current = requestAnimationFrame(draw);
     };
 
@@ -174,6 +172,8 @@ export default function ParticlesBackground({
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [section, config]);
 

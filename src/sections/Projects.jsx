@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FaGithub,
-  FaExternalLinkAlt,
-  FaChevronDown,
-} from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import ParticlesBackground from "../components/ParticlesBackground";
 
 /* ---------- IMAGES ---------- */
@@ -12,7 +8,6 @@ import d1 from "../assets/d1.png";
 import f1 from "../assets/f1.png";
 import j1 from "../assets/j1.png";
 import i1 from "../assets/i1.png";
-
 import s1 from "../assets/s1.png";
 import s3 from "../assets/s3.png";
 import s4 from "../assets/s4.png";
@@ -32,19 +27,11 @@ const PROJECTS = [
     features: [
       "JWT authentication",
       "Doctor directory & filters",
-      "Real-time appointment slots",
+      "Real-time slots",
       "Admin dashboard",
       "Cloudinary uploads",
     ],
-    stack: [
-      "React",
-      "Node.js",
-      "Express",
-      "MongoDB",
-      "JWT",
-      "Cloudinary",
-      "Vercel",
-    ],
+    stack: ["React", "Node", "MongoDB", "JWT", "Cloudinary"],
   },
   {
     title: "Restaurant Website",
@@ -53,12 +40,8 @@ const PROJECTS = [
     mobile: s4,
     github: "https://github.com/codecsuman/Restaurant-Website-",
     description:
-      "A clean and modern restaurant website focused on branding and responsiveness.",
-    features: [
-      "Modern UI/UX",
-      "Fully responsive",
-      "Optimized assets",
-    ],
+      "A clean, modern restaurant website focused on branding and responsiveness.",
+    features: ["Modern UI/UX", "Responsive design", "Optimized assets"],
     stack: ["React", "HTML", "CSS", "Tailwind"],
   },
   {
@@ -72,11 +55,11 @@ const PROJECTS = [
       "A full-stack job portal connecting job seekers and employers.",
     features: [
       "Authentication",
-      "Job search & filtering",
+      "Job filtering",
       "Employer dashboard",
       "REST APIs",
     ],
-    stack: ["React", "Node.js", "MongoDB", "Tailwind"],
+    stack: ["React", "Node", "MongoDB", "Tailwind"],
   },
   {
     title: "Instagram Clone",
@@ -86,241 +69,158 @@ const PROJECTS = [
     live: "https://instragram-clone-5.onrender.com/",
     github: "https://github.com/codecsuman/instragram_clone",
     description:
-      "A full-stack social media app inspired by Instagram.",
+      "A social media app inspired by Instagram with real-time features.",
     features: [
       "JWT auth",
-      "Like & comment system",
-      "Real-time updates",
+      "Likes & comments",
+      "Realtime updates",
       "Cloudinary uploads",
     ],
-    stack: [
-      "React",
-      "Node.js",
-      "MongoDB",
-      "Socket.io",
-    ],
+    stack: ["React", "Node", "MongoDB", "Socket.io"],
   },
 ];
 
-/* ---------- CARD ---------- */
-function ProjectCard({ project }) {
-  const [open, setOpen] = useState(false);
+export default function Projects() {
+  const [index, setIndex] = useState(0);
+  const project = PROJECTS[index];
+
+  const atStart = index === 0;
+  const atEnd = index === PROJECTS.length - 1;
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="
-        relative rounded-3xl p-6
-        bg-white/5 backdrop-blur-2xl
-        border border-white/10
-        shadow-xl hover:shadow-emerald-400/30
-        transition
-      "
+    <section
+      id="projects"
+      className="relative min-h-screen flex items-center bg-[#020617] overflow-hidden"
     >
-      {/* IMAGE */}
-      <div className="rounded-2xl overflow-hidden mb-6">
-        <picture>
-          <source media="(max-width: 639px)" srcSet={project.mobile} />
-          <img
-            src={project.desktop}
-            alt={project.title}
-            className="w-full h-[240px] object-cover"
-            loading="lazy"
-          />
-        </picture>
+      <ParticlesBackground section="projects" />
+
+      {/* Glow */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/25 blur-[200px]" />
+        <div className="absolute bottom-[-30%] right-[-20%] w-[600px] h-[600px] bg-sky-500/25 blur-[200px]" />
       </div>
 
-      <h3 className="text-2xl font-semibold">
-        {project.title}
-      </h3>
-      <p className="text-sm text-white/60 mt-1">
-        {project.subtitle}
-      </p>
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+        {/* Header */}
+        <h2 className="text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">
+          Projects
+        </h2>
 
-      <p className="mt-4 text-white/70">
-        {project.description}
-      </p>
+        <p className="mt-3 text-center text-white/70">
+          Each project shown clearly — image & details separated
+        </p>
 
-      {/* ACTIONS */}
-      <div className="flex flex-wrap gap-4 mt-6">
-        {project.live && (
-          <a
-            href={project.live}
-            target="_blank"
-            rel="noreferrer"
-            className="
-              flex items-center gap-2
-              px-5 py-2 rounded-full
-              bg-gradient-to-r from-emerald-400 to-sky-400
-              text-black font-semibold text-sm
-              shadow-lg shadow-emerald-400/40
-              hover:shadow-emerald-400/70
-              hover:scale-105 transition
-            "
-          >
-            Live <FaExternalLinkAlt />
-          </a>
-        )}
-
-        <a
-          href={project.github}
-          target="_blank"
-          rel="noreferrer"
-          className="
-            flex items-center gap-2
-            px-5 py-2 rounded-full
-            border border-white/20
-            text-sm text-white
-            hover:bg-white/10 transition
-          "
-        >
-          GitHub <FaGithub />
-        </a>
-      </div>
-
-      {/* VIEW DETAILS */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="
-          mt-6 flex items-center gap-2
-          text-sm font-medium
-          text-emerald-300
-          hover:text-emerald-200
-          drop-shadow-[0_0_12px_rgba(52,211,153,0.6)]
-        "
-      >
-        View details
-        <FaChevronDown
-          className={`transition ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {/* DETAILS */}
-      <AnimatePresence>
-        {open && (
+        {/* MAIN CARD */}
+        <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.35 }}
-            className="mt-6 space-y-5 overflow-hidden"
+            key={project.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
           >
-            <div>
-              <h4 className="font-semibold mb-2">
-                Features
-              </h4>
-              <ul className="list-disc list-inside text-white/70 space-y-1">
+            {/* IMAGE SECTION (X-Axis) */}
+            <motion.div
+              initial={{ x: -60, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+            >
+              <picture>
+                <source media="(max-width: 639px)" srcSet={project.mobile} />
+                <img
+                  src={project.desktop}
+                  alt={project.title}
+                  className="w-full h-[260px] md:h-[380px] object-cover"
+                />
+              </picture>
+            </motion.div>
+
+            {/* CONTENT SECTION (Y-Axis) */}
+            <motion.div
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="rounded-3xl p-8 bg-white/5 backdrop-blur-2xl border border-white/10 shadow-xl"
+            >
+              <h3 className="text-3xl font-bold">{project.title}</h3>
+              <p className="text-white/60 text-sm mt-1">
+                {project.subtitle}
+              </p>
+
+              <p className="mt-4 text-white/70 text-sm">
+                {project.description}
+              </p>
+
+              {/* FEATURES */}
+              <ul className="mt-4 grid grid-cols-2 gap-y-1 text-sm text-white/70">
                 {project.features.map((f) => (
-                  <li key={f}>{f}</li>
+                  <li key={f}>• {f}</li>
                 ))}
               </ul>
-            </div>
 
-            <div>
-              <h4 className="font-semibold mb-3">
-                Tech Stack
-              </h4>
-              <div className="flex flex-wrap gap-3">
+              {/* STACK */}
+              <div className="mt-5 flex flex-wrap gap-2">
                 {project.stack.map((s) => (
                   <span
                     key={s}
-                    className="
-                      px-3 py-1.5 text-xs rounded-full
-                      bg-emerald-400/10
-                      border border-emerald-400/30
-                      text-emerald-300
-                      shadow-[0_0_15px_rgba(52,211,153,0.5)]
-                    "
+                    className="px-3 py-1 text-xs rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-300"
                   >
                     {s}
                   </span>
                 ))}
               </div>
-            </div>
+
+              {/* ACTIONS */}
+              <div className="mt-6 flex flex-wrap gap-4">
+                {project.live && (
+                  <a
+                    href={project.live}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-5 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-sky-400 text-black font-semibold text-sm hover:scale-105 transition"
+                  >
+                    Live <FaExternalLinkAlt className="inline ml-1" />
+                  </a>
+                )}
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-5 py-2 rounded-full border border-white/20 text-sm hover:bg-white/10 transition"
+                >
+                  GitHub <FaGithub className="inline ml-1" />
+                </a>
+              </div>
+            </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.article>
-  );
-}
+        </AnimatePresence>
 
-/* ---------- SECTION ---------- */
-export default function Projects() {
-  const PER_PAGE = 2;
-  const [page, setPage] = useState(0);
-
-  const totalPages = Math.ceil(PROJECTS.length / PER_PAGE);
-  const start = page * PER_PAGE;
-  const visibleProjects = PROJECTS.slice(start, start + PER_PAGE);
-
-  return (
-    <section
-      id="projects"
-      className="
-        relative min-h-screen py-32
-        overflow-hidden
-      "
-    >
-      {/* 🌌 SAME PARTICLE BACKGROUND AS HOME */}
-      <ParticlesBackground section="home" />
-
-      {/* 🌈 SAME SOFT GLOW AS HOME */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-emerald-500/20 blur-[160px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-sky-500/20 blur-[160px]" />
-      </div>
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
-        <h2 className="
-          text-center text-4xl md:text-5xl font-bold
-          text-transparent bg-clip-text
-          bg-gradient-to-r from-emerald-400 to-sky-400
-        ">
-          Projects
-        </h2>
-
-        <p className="mt-4 text-center text-white/70">
-          Real-world applications built with modern technologies
-        </p>
-
-        {/* PROJECTS */}
-        <div className="mt-20 grid gap-12 md:grid-cols-2">
-          {visibleProjects.map((p) => (
-            <ProjectCard key={p.title} project={p} />
-          ))}
-        </div>
-
-        {/* PAGINATION */}
-        <div className="mt-16 flex justify-center gap-6">
+        {/* NAVIGATION */}
+        <div className="mt-12 flex justify-center items-center gap-6">
           <button
-            disabled={page === 0}
-            onClick={() => setPage((p) => p - 1)}
-            className="
-              px-5 py-2 rounded-full
-              border border-white/20
-              disabled:opacity-40
-              hover:bg-white/10 transition
-            "
+            disabled={atStart}
+            onClick={() => setIndex((i) => i - 1)}
+            className={`px-6 py-2 rounded-full font-semibold transition ${atStart
+              ? "border border-red-400 text-red-400"
+              : "bg-gradient-to-r from-indigo-400 to-cyan-400 text-black hover:scale-105"
+              }`}
           >
             Previous
           </button>
 
-          <span className="text-white/60 self-center">
-            Page {page + 1} of {totalPages}
+          <span className="text-white/60">
+            {index + 1} / {PROJECTS.length}
           </span>
 
           <button
-            disabled={page === totalPages - 1}
-            onClick={() => setPage((p) => p + 1)}
-            className="
-              px-5 py-2 rounded-full
-              border border-white/20
-              disabled:opacity-40
-              hover:bg-white/10 transition
-            "
+            disabled={atEnd}
+            onClick={() => setIndex((i) => i + 1)}
+            className={`px-6 py-2 rounded-full font-semibold transition ${atEnd
+              ? "border border-yellow-400 text-yellow-400"
+              : "bg-gradient-to-r from-emerald-400 to-sky-400 text-black hover:scale-105"
+              }`}
           >
             Next
           </button>

@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect, Suspense, lazy, useCallback } from "react";
 
 /* ---------- CORE ---------- */
 import Navbar from "./components/Navbar";
@@ -6,92 +6,103 @@ import Footer from "./sections/Footer";
 import CustomCursor from "./components/CustomCursor";
 import IntroAnimation from "./components/IntroAnimation";
 
-/* ---------- SECTIONS ---------- */
+/* ---------- SECTIONS (EAGER) ---------- */
 import Home from "./sections/Home";
 import About from "./sections/About";
 import Skills from "./sections/Skills";
 import Contact from "./sections/Contact";
 
-/* ---------- LAZY ---------- */
+/* ---------- SECTIONS (LAZY / HEAVY) ---------- */
 const Projects = lazy(() => import("./sections/Projects"));
 const Experience = lazy(() => import("./sections/Experience"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 
+/* ---------- SECTION LOADER ---------- */
+const SectionLoader = () => (
+  <div
+    className="flex justify-center py-28"
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <div className="px-8 py-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl text-sm text-white/60">
+      Loading section…
+    </div>
+  </div>
+);
+
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
+  const [theme, setTheme] = useState("dark");
 
-  /* ---------- THEME INIT ---------- */
+  /* ---------- LOAD THEME (ONCE) ---------- */
   useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    }
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) setTheme(savedTheme);
   }, []);
 
-  /* ---------- INTRO ---------- */
-  if (!introDone) {
-    return <IntroAnimation onFinish={() => setIntroDone(true)} />;
-  }
+  /* ---------- APPLY THEME ---------- */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  /* ---------- STABLE HANDLERS ---------- */
+  const handleIntroFinish = useCallback(() => {
+    setIntroDone(true);
+  }, []);
 
   return (
     <main
       role="main"
       className="
         relative min-h-screen
-        overflow-x-hidden overflow-y-visible
+        overflow-x-hidden
         bg-[var(--bg)]
         text-[var(--text)]
         antialiased
+        transition-colors duration-300
       "
     >
-      {/* ---------- GLOBAL BACKGROUND GLOW (SAFE) ---------- */}
+      {/* ---------- INTRO OVERLAY ---------- */}
+      {!introDone && (
+        <IntroAnimation onFinish={handleIntroFinish} />
+      )}
+
+      {/* ---------- GLOBAL BACKGROUND ---------- */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-indigo-500/15 blur-[160px]" />
         <div className="absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-[160px]" />
       </div>
 
-      {/* Cursor */}
+      {/* ---------- CUSTOM CURSOR ---------- */}
       <CustomCursor />
 
-      {/* Navbar */}
-      <Navbar />
+      {/* ---------- NAVBAR ---------- */}
+      <Navbar theme={theme} setTheme={setTheme} />
 
-      {/* ---------- CONTENT ---------- */}
+      {/* ---------- PAGE CONTENT ---------- */}
       <div className="relative z-10">
+        {/* Critical / Above the fold */}
         <Home />
         <About />
         <Skills />
 
-        <Suspense fallback={<SectionLoader />}>
-          <Projects />
-          <Experience />
-          <Testimonials />
-        </Suspense>
+        {/* Heavy sections load AFTER intro */}
+        {introDone && (
+          <Suspense fallback={<SectionLoader />}>
+            <Projects />
+            <Experience />
+            <Testimonials />
+          </Suspense>
+        )}
 
         <Contact />
       </div>
 
-      {/* Footer */}
+      {/* ---------- FOOTER ---------- */}
       <Footer />
     </main>
-  );
-}
-
-/* ---------- LOADER ---------- */
-function SectionLoader() {
-  return (
-    <div className="flex justify-center py-24">
-      <div
-        className="
-          px-8 py-4
-          border border-white/10
-          bg-white/5
-          backdrop-blur-xl
-          text-sm text-white/60
-        "
-      >
-        Loading…
-      </div>
-    </div>
   );
 }

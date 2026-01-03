@@ -7,6 +7,8 @@ import {
   FaNodeJs,
   FaGitAlt,
   FaPython,
+  FaDocker,
+  FaAws,
 } from "react-icons/fa";
 import {
   SiTypescript,
@@ -66,6 +68,8 @@ const SKILLS = [
     items: [
       { name: "Git", icon: <FaGitAlt className="text-orange-400" /> },
       { name: "GitHub", icon: <SiGithub className="text-white" /> },
+      { name: "Docker", icon: <FaDocker className="text-sky-400" /> },
+      { name: "AWS", icon: <FaAws className="text-orange-300" /> },
       { name: "Postman", icon: <SiPostman className="text-orange-500" /> },
       { name: "VS Code", icon: <span className="text-blue-400 font-semibold">VS</span> },
       { name: "Vercel", icon: <SiVercel className="text-white" /> },

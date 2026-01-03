@@ -26,17 +26,15 @@
   --text-soft: #475569;
 
   /* Accents */
-  --primary: #000000;   /* Indigo */
-  --secondary: #0baac6; /* Cyan */
-  --accent: #0c8438;    /* Green */
+  --primary: #000000;
+  --secondary: #0baac6;
+  --accent: #0c8438;
 
   /* Gradients */
   --grad-main: linear-gradient(135deg, #383aa0, #43acbe);
-  --grad-soft: linear-gradient(
-    135deg,
-    rgba(16, 19, 206, 0.12),
-    rgba(6, 182, 212, 0.12)
-  );
+  --grad-soft: linear-gradient(135deg,
+      rgba(16, 19, 206, 0.12),
+      rgba(6, 182, 212, 0.12));
 
   /* Radius */
   --radius-lg: 24px;
@@ -65,10 +63,18 @@
 body {
   font-family: "Poppins", system-ui, sans-serif;
   background:
-    radial-gradient(circle at top, rgba(99,102,241,0.12), transparent 55%),
+    radial-gradient(circle at top, rgba(99, 102, 241, 0.12), transparent 55%),
     var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------
+   LIGHT MODE TEXT VISIBILITY
+-------------------------------- */
+:root:not(.dark) body {
+  font-weight: 600;
+  color: #020617;
 }
 
 /* ------------------------------
@@ -127,6 +133,63 @@ h3 {
 }
 
 /* ------------------------------
+   COLORFUL NAVBAR BUTTONS
+-------------------------------- */
+.nav-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+  transition: all 0.3s ease;
+}
+
+/* Light Mode Nav Buttons */
+:root:not(.dark) .nav-btn {
+  color: #020617;
+  background: linear-gradient(90deg,
+      #6366f1,
+      #22d3ee,
+      #4ade80);
+  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
+}
+
+/* Dark Mode Nav Buttons */
+.dark .nav-btn {
+  color: #020617;
+  background: linear-gradient(90deg,
+      #818cf8,
+      #22d3ee,
+      #34d399);
+  box-shadow: 0 10px 34px rgba(34, 211, 238, 0.45);
+}
+
+/* Hover Effect */
+.nav-btn:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+/* Active Nav Button */
+.nav-btn.active {
+  transform: scale(1.15);
+  box-shadow: 0 16px 55px rgba(34, 211, 238, 0.75);
+}
+
+/* ------------------------------
+   PAGE BACKGROUNDS
+-------------------------------- */
+.section-bg {
+  background:
+    radial-gradient(circle at top left,
+      rgba(99, 102, 241, 0.15),
+      transparent 50%),
+    radial-gradient(circle at bottom right,
+      rgba(34, 211, 238, 0.15),
+      transparent 50%);
+}
+
+/* ------------------------------
    TAILWIND UTILITIES
 -------------------------------- */
 @layer utilities {
@@ -138,6 +201,6 @@ h3 {
     background: var(--card);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 }

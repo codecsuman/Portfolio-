@@ -5,11 +5,14 @@ import {
   FaLinkedin,
   FaXTwitter,
   FaInstagram,
+  FaDownload,
+  FaEye,
+  FaBriefcase,
 } from "react-icons/fa6";
 import avatar from "../assets/avator.png";
 
-/* ---------- SOCIALS ---------- */
-const social = [
+/* ---------- CONFIG ---------- */
+const SOCIALS = [
   { Icon: FaXTwitter, href: "https://x.com/suman9785" },
   { Icon: FaInstagram, href: "https://www.instagram.com/code.csuman/" },
   { Icon: FaLinkedin, href: "https://www.linkedin.com/in/sumanjhanp/" },
@@ -17,83 +20,127 @@ const social = [
 ];
 
 export default function Home() {
-  /* ---------- SCROLL GLOW ---------- */
+  /* ---------- SCROLL EFFECT ---------- */
   const { scrollY } = useScroll();
-  const glowOpacity = useTransform(scrollY, [0, 400], [0.5, 0.12]);
-  const glowScale = useTransform(scrollY, [0, 400], [1, 0.85]);
+  const glowOpacity = useTransform(scrollY, [0, 400], [0.45, 0.1]);
+  const glowScale = useTransform(scrollY, [0, 400], [1, 0.88]);
+
+  /* ---------- HANDLERS ---------- */
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // ✅ FINAL VIEW RESUME LOGIC
+  const viewResume = () => {
+    // 1️⃣ Scroll to About section
+    document.getElementById("about")?.scrollIntoView({
+      behavior: "smooth",
+    });
+
+    // 2️⃣ Trigger resume modal (About listens to this)
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("open-resume"));
+    }, 400);
+  };
 
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="
+        relative min-h-screen
+        flex items-center justify-center
+        overflow-hidden
+      "
     >
-      {/* Background */}
+      {/* ---------- BACKGROUND ---------- */}
       <ParticlesBackground section="home" />
 
-      <div className="relative z-10 max-w-6xl w-full px-6 grid lg:grid-cols-2 gap-12 items-center">
-        {/* ---------- LEFT : TEXT ---------- */}
+      {/* ---------- CONTENT ---------- */}
+      <div className="relative z-10 max-w-6xl w-full px-6 grid lg:grid-cols-2 gap-14 items-center">
+        {/* ================= LEFT ================= */}
         <motion.div
           className="text-center lg:text-left"
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          <p className="text-sm uppercase tracking-widest text-black/60 dark:text-white/60">
-            Full Stack Developer
-          </p>
+          {/* ROLE BADGE */}
+          <span
+            className="
+              inline-block w-fit
+              px-4 py-1 rounded-full
+              text-xs font-semibold uppercase tracking-widest
+              text-black
+              bg-gradient-to-r from-emerald-400 via-green-400 to-sky-400
+              shadow-md shadow-emerald-400/30
+            "
+          >
+            Full-Stack Developer
+          </span>
 
-          <h1 className="mt-3 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
+          {/* HEADING */}
+          <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">
             Hi, I’m{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-sky-400">
               Suman Jhanp
             </span>
           </h1>
 
-          <p className="mt-4 max-w-xl mx-auto lg:mx-0 text-black/70 dark:text-white/70">
-            I build modern, scalable, and user-focused web applications using
-            clean architecture and modern stacks.
-          </p>
+          {/* DESCRIPTION */}
+          <div className="mt-6 max-w-xl mx-auto lg:mx-0 space-y-2">
+            <p className="text-lg font-medium text-black/80 dark:text-white/80">
+              I build{" "}
+              <span className="font-semibold text-emerald-400">modern</span>,{" "}
+              <span className="font-semibold text-sky-400">scalable</span>, and{" "}
+              <span className="font-semibold text-green-400">user-focused</span>{" "}
+              web applications.
+            </p>
 
-          {/* Actions */}
-          <div className="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start">
-            <a
-              href="#projects"
-              className="
-                px-6 py-3 rounded-full text-sm font-semibold
-                text-black
-                bg-gradient-to-r from-emerald-400 to-sky-400
-                shadow-lg shadow-emerald-400/30
-                hover:shadow-emerald-400/60
-                hover:scale-105 transition
-              "
-            >
-              View Work
-            </a>
-
-            <a
-              href="/Resume.pdf"
-              download
-              className="
-                px-6 py-3 rounded-full text-sm font-semibold
-                border border-black/20 dark:border-white/20
-                hover:bg-black/5 dark:hover:bg-white/10 transition
-              "
-            >
-              Resume
-            </a>
+            <p className="text-sm uppercase tracking-widest text-black/50 dark:text-white/50">
+              Clean Architecture · Modern Stacks · Performance-First
+            </p>
           </div>
 
-          {/* Socials */}
-          <div className="mt-6 flex gap-5 justify-center lg:justify-start text-xl">
-            {social.map(({ Icon, href }, i) => (
+          {/* ---------- ACTION BUTTONS ---------- */}
+          <div className="mt-10 flex flex-wrap gap-4 justify-center lg:justify-start">
+            <ActionButton
+              icon={<FaBriefcase />}
+              label="View My Work"
+              gradient="from-emerald-400 to-sky-400"
+              onClick={() => scrollTo("projects")}
+            />
+
+            {/* Download still available */}
+            <ActionLink
+              icon={<FaDownload />}
+              label="Download Resume"
+              gradient="from-indigo-400 via-cyan-400 to-blue-500"
+              href="/Resume.pdf"
+              download
+            />
+
+            {/* ✅ UPDATED VIEW RESUME */}
+            <ActionButton
+              icon={<FaEye />}
+              label="View Resume"
+              gradient="from-pink-400 via-rose-400 to-orange-400"
+              onClick={viewResume}
+            />
+          </div>
+
+          {/* ---------- SOCIALS ---------- */}
+          <div className="mt-7 flex gap-5 justify-center lg:justify-start text-xl">
+            {SOCIALS.map(({ Icon, href }, i) => (
               <a
                 key={i}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Social link"
                 className="
                   text-black/60 dark:text-white/60
-                  hover:text-emerald-400 transition
+                  hover:text-emerald-400
+                  transition
                 "
               >
                 <Icon />
@@ -102,13 +149,13 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* ---------- RIGHT : AVATAR ---------- */}
+        {/* ================= RIGHT ================= */}
         <div className="hidden lg:flex justify-center relative">
-          {/* Scroll-reactive glow */}
+          {/* SCROLL GLOW */}
           <motion.div
             style={{ opacity: glowOpacity, scale: glowScale }}
             className="
-              absolute -inset-20
+              absolute -inset-24
               rounded-full
               bg-gradient-to-br
               from-emerald-400/35
@@ -118,7 +165,7 @@ export default function Home() {
             "
           />
 
-          {/* Animated gradient border */}
+          {/* ROTATING RING */}
           <motion.div
             className="
               absolute w-[320px] h-[320px]
@@ -127,16 +174,12 @@ export default function Home() {
               p-[2px]
             "
             animate={{ rotate: 360 }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+            transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
           >
             <div className="w-full h-full rounded-full bg-[var(--bg)] backdrop-blur-xl" />
           </motion.div>
 
-          {/* Avatar */}
+          {/* AVATAR */}
           <motion.img
             src={avatar}
             alt="Suman Jhanp"
@@ -145,24 +188,64 @@ export default function Home() {
               w-[280px] xl:w-[320px]
               rounded-full
               shadow-2xl
-              cursor-pointer
             "
             initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: [0, -12, 0] }}
-            whileHover={{
-              scale: 1.06,
-              rotateX: 6,
-              rotateY: -6,
-            }}
+            animate={{ opacity: 1, y: [0, -14, 0] }}
+            whileHover={{ scale: 1.06, rotateX: 6, rotateY: -6 }}
             transition={{
               opacity: { duration: 0.6 },
               y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-              hover: { duration: 0.4 },
             }}
             style={{ transformStyle: "preserve-3d" }}
           />
         </div>
       </div>
     </section>
+  );
+}
+
+/* =====================================================
+   REUSABLE UI COMPONENTS
+===================================================== */
+
+function ActionButton({ icon, label, gradient, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        flex items-center gap-2
+        px-6 py-3 rounded-full
+        text-sm font-semibold text-black
+        bg-gradient-to-r ${gradient}
+        shadow-lg shadow-black/20
+        hover:shadow-xl hover:scale-105
+        active:scale-95
+        transition
+      `}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function ActionLink({ icon, label, gradient, ...props }) {
+  return (
+    <a
+      {...props}
+      className={`
+        flex items-center gap-2
+        px-6 py-3 rounded-full
+        text-sm font-semibold text-black
+        bg-gradient-to-r ${gradient}
+        shadow-lg shadow-black/20
+        hover:shadow-xl hover:scale-105
+        active:scale-95
+        transition
+      `}
+    >
+      {icon}
+      {label}
+    </a>
   );
 }

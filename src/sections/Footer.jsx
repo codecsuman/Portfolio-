@@ -108,7 +108,7 @@ export default function Footer() {
 
           {/* Copyright */}
           <p className="text-center text-xs text-white/50">
-            © {new Date().getFullYear()} Suman Jhanp · Full Stack Developer
+            © {new Date().getFullYear()} Suman Jhanp · Full Stack Developer & Data Analyst
           </p>
         </div>
       </footer>

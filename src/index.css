@@ -1,22 +1,10 @@
 @import "tailwindcss";
 
 /* ------------------------------
-   GLOBAL SMOOTHNESS (OPTIMIZED)
--------------------------------- */
-* {
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
-}
-
-/* ------------------------------
-   COLOR SYSTEM (PREMIUM)
+   DESIGN TOKENS (SYSTEM)
 -------------------------------- */
 :root {
-  /* Base */
+  /* Backgrounds */
   --bg: #ffffffaf;
   --bg-soft: #f8fafc;
   --card: rgba(15, 23, 42, 0.03);
@@ -25,7 +13,7 @@
   --text: #0f172a;
   --text-soft: #475569;
 
-  /* Accents */
+  /* Brand */
   --primary: #000000;
   --secondary: #0baac6;
   --accent: #0c8438;
@@ -39,10 +27,15 @@
   /* Radius */
   --radius-lg: 24px;
   --radius-md: 16px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --speed-fast: 0.2s;
+  --speed-normal: 0.3s;
 }
 
 /* ------------------------------
-   DARK MODE (RICH & DEEP)
+   DARK MODE
 -------------------------------- */
 .dark {
   --bg: #020617;
@@ -58,7 +51,7 @@
 }
 
 /* ------------------------------
-   BASE BODY
+   BASE
 -------------------------------- */
 body {
   font-family: "Poppins", system-ui, sans-serif;
@@ -69,16 +62,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ------------------------------
-   LIGHT MODE TEXT VISIBILITY
--------------------------------- */
+/* Light mode text clarity */
 :root:not(.dark) body {
   font-weight: 600;
   color: #020617;
 }
 
 /* ------------------------------
-   HEADINGS (PREMIUM LOOK)
+   TYPOGRAPHY
 -------------------------------- */
 h1,
 h2,
@@ -88,7 +79,19 @@ h3 {
 }
 
 /* ------------------------------
-   GLASS CARD (APPLE STYLE)
+   MOTION (OPT-IN ONLY)
+-------------------------------- */
+.motion {
+  transition:
+    background-color var(--speed-normal) var(--ease),
+    color var(--speed-normal) var(--ease),
+    border-color var(--speed-normal) var(--ease),
+    box-shadow var(--speed-normal) var(--ease),
+    transform var(--speed-normal) var(--ease);
+}
+
+/* ------------------------------
+   GLASS CARD
 -------------------------------- */
 .card {
   background: var(--card);
@@ -99,6 +102,7 @@ h3 {
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform var(--speed-normal) var(--ease);
 }
 
 .card:hover {
@@ -106,7 +110,7 @@ h3 {
 }
 
 /* ------------------------------
-   PREMIUM BUTTON
+   BUTTONS
 -------------------------------- */
 .btn-primary {
   padding: 14px 38px;
@@ -116,6 +120,9 @@ h3 {
   font-weight: 600;
   letter-spacing: 0.3px;
   box-shadow: 0 10px 40px rgba(99, 102, 241, 0.45);
+  transition:
+    transform var(--speed-fast) var(--ease),
+    box-shadow var(--speed-fast) var(--ease);
 }
 
 .btn-primary:hover {
@@ -124,7 +131,7 @@ h3 {
 }
 
 /* ------------------------------
-   GRADIENT TEXT (LUXURY)
+   GRADIENT TEXT
 -------------------------------- */
 .gradient-text {
   background: var(--grad-main);
@@ -133,7 +140,7 @@ h3 {
 }
 
 /* ------------------------------
-   COLORFUL NAVBAR BUTTONS
+   NAV BUTTONS
 -------------------------------- */
 .nav-btn {
   padding: 8px 18px;
@@ -142,51 +149,39 @@ h3 {
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: capitalize;
-  transition: all 0.3s ease;
+  transition: transform var(--speed-fast) var(--ease), box-shadow var(--speed-fast) var(--ease);
 }
 
-/* Light Mode Nav Buttons */
+/* Light */
 :root:not(.dark) .nav-btn {
   color: #020617;
-  background: linear-gradient(90deg,
-      #6366f1,
-      #22d3ee,
-      #4ade80);
+  background: linear-gradient(90deg, #6366f1, #22d3ee, #4ade80);
   box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
 }
 
-/* Dark Mode Nav Buttons */
+/* Dark */
 .dark .nav-btn {
   color: #020617;
-  background: linear-gradient(90deg,
-      #818cf8,
-      #22d3ee,
-      #34d399);
+  background: linear-gradient(90deg, #818cf8, #22d3ee, #34d399);
   box-shadow: 0 10px 34px rgba(34, 211, 238, 0.45);
 }
 
-/* Hover Effect */
 .nav-btn:hover {
   transform: translateY(-2px) scale(1.08);
 }
 
-/* Active Nav Button */
 .nav-btn.active {
   transform: scale(1.15);
   box-shadow: 0 16px 55px rgba(34, 211, 238, 0.75);
 }
 
 /* ------------------------------
-   PAGE BACKGROUNDS
+   SECTIONS
 -------------------------------- */
 .section-bg {
   background:
-    radial-gradient(circle at top left,
-      rgba(99, 102, 241, 0.15),
-      transparent 50%),
-    radial-gradient(circle at bottom right,
-      rgba(34, 211, 238, 0.15),
-      transparent 50%);
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 50%),
+    radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.15), transparent 50%);
 }
 
 /* ------------------------------

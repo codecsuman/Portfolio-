@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy, useCallback } from "react";
+import { useState, useEffect, Suspense, lazy, useCallback, memo } from "react";
 
 /* ---------- CORE ---------- */
 import Navbar from "./components/Navbar";
@@ -18,7 +18,7 @@ const Experience = lazy(() => import("./sections/Experience"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 
 /* ---------- SECTION LOADER ---------- */
-const SectionLoader = () => (
+const SectionLoader = memo(() => (
   <div
     className="flex justify-center py-28"
     role="status"
@@ -29,7 +29,7 @@ const SectionLoader = () => (
       Loading section…
     </div>
   </div>
-);
+));
 
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -38,7 +38,9 @@ export default function App() {
   /* ---------- LOAD THEME (ONCE) ---------- */
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) setTheme(savedTheme);
+    if (savedTheme === "dark" || savedTheme === "light") {
+      setTheme(savedTheme);
+    }
   }, []);
 
   /* ---------- APPLY THEME ---------- */
@@ -47,6 +49,11 @@ export default function App() {
     root.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  /* ---------- LOCK SCROLL DURING INTRO ---------- */
+  useEffect(() => {
+    document.body.style.overflow = introDone ? "auto" : "hidden";
+  }, [introDone]);
 
   /* ---------- STABLE HANDLERS ---------- */
   const handleIntroFinish = useCallback(() => {
@@ -66,9 +73,7 @@ export default function App() {
       "
     >
       {/* ---------- INTRO OVERLAY ---------- */}
-      {!introDone && (
-        <IntroAnimation onFinish={handleIntroFinish} />
-      )}
+      {!introDone && <IntroAnimation onFinish={handleIntroFinish} />}
 
       {/* ---------- GLOBAL BACKGROUND ---------- */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -84,12 +89,12 @@ export default function App() {
 
       {/* ---------- PAGE CONTENT ---------- */}
       <div className="relative z-10">
-        {/* Critical / Above the fold */}
+        {/* Above the fold */}
         <Home />
         <About />
         <Skills />
 
-        {/* Heavy sections load AFTER intro */}
+        {/* Heavy sections */}
         {introDone && (
           <Suspense fallback={<SectionLoader />}>
             <Projects />

@@ -30,14 +30,10 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ✅ FINAL VIEW RESUME LOGIC
+  // View Resume
   const viewResume = () => {
-    // 1️⃣ Scroll to About section
-    document.getElementById("about")?.scrollIntoView({
-      behavior: "smooth",
-    });
+    document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
 
-    // 2️⃣ Trigger resume modal (About listens to this)
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent("open-resume"));
     }, 400);
@@ -75,7 +71,7 @@ export default function Home() {
               shadow-md shadow-emerald-400/30
             "
           >
-            Full-Stack Developer
+            Full-Stack Developer & Data Analyst
           </span>
 
           {/* HEADING */}
@@ -92,12 +88,23 @@ export default function Home() {
               I build{" "}
               <span className="font-semibold text-emerald-400">modern</span>,{" "}
               <span className="font-semibold text-sky-400">scalable</span>, and{" "}
-              <span className="font-semibold text-green-400">user-focused</span>{" "}
+              <span className="font-semibold text-green-400">
+                data-driven
+              </span>{" "}
               web applications.
             </p>
 
+            <p className="text-sm text-black/70 dark:text-white/70">
+              Alongside full-stack development, I analyze data using{" "}
+              <span className="font-semibold text-indigo-400">Python</span>,{" "}
+              <span className="font-semibold text-emerald-400">SQL</span>,{" "}
+              <span className="font-semibold text-sky-400">Power BI</span>, and{" "}
+              <span className="font-semibold text-pink-400">Excel</span>{" "}
+              to extract insights and support data-driven decisions.
+            </p>
+
             <p className="text-sm uppercase tracking-widest text-black/50 dark:text-white/50">
-              Clean Architecture · Modern Stacks · Performance-First
+              Full Stack · Data Analytics · Clean Architecture · Performance-First
             </p>
           </div>
 
@@ -105,12 +112,11 @@ export default function Home() {
           <div className="mt-10 flex flex-wrap gap-4 justify-center lg:justify-start">
             <ActionButton
               icon={<FaBriefcase />}
-              label="View My Work"
+              label="View My Projects"
               gradient="from-emerald-400 to-sky-400"
               onClick={() => scrollTo("projects")}
             />
 
-            {/* Download still available */}
             <ActionLink
               icon={<FaDownload />}
               label="Download Resume"
@@ -119,7 +125,6 @@ export default function Home() {
               download
             />
 
-            {/* ✅ UPDATED VIEW RESUME */}
             <ActionButton
               icon={<FaEye />}
               label="View Resume"

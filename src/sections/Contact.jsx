@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import emailjs from "@emailjs/browser";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
@@ -9,23 +9,24 @@ const SERVICE_ID = import.meta.env.VITE_SERVICE_ID;
 const TEMPLATE_ID = import.meta.env.VITE_TEMPLATE_ID;
 const PUBLIC_KEY = import.meta.env.VITE_PUBLIC_KEY;
 
-/* ---------- HELPERS ---------- */
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/* ---------- CONSTANTS ---------- */
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const INITIAL_FORM = {
+const INITIAL_FORM = Object.freeze({
   name: "",
   email: "",
   type: "",
   jobRole: "",
   budget: "",
   message: "",
-};
+});
 
 export default function Contact() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
-  const isEmailValid = emailRegex.test(form.email);
+  /* ---------- VALIDATION ---------- */
+  const isEmailValid = EMAIL_REGEX.test(form.email);
 
   const canSubmit = useMemo(() => {
     if (!form.name || !isEmailValid || !form.type) return false;
@@ -34,10 +35,15 @@ export default function Contact() {
   }, [form, isEmailValid, status]);
 
   /* ---------- HANDLERS ---------- */
-  const update = (e) => {
+  const update = useCallback((e) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
-  };
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setForm(INITIAL_FORM);
+    setStatus("idle");
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -61,10 +67,7 @@ export default function Contact() {
       );
 
       setStatus("success");
-      setTimeout(() => {
-        setForm(INITIAL_FORM);
-        setStatus("idle");
-      }, 2500);
+      setTimeout(resetForm, 2500);
     } catch {
       setStatus("error");
     }
@@ -75,7 +78,7 @@ export default function Contact() {
       id="contact"
       className="relative py-28 overflow-hidden bg-[#020617] text-white"
     >
-      {/* 🌌 BACKGROUND GLOW */}
+      {/* BACKGROUND GLOWS */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-40 -left-40 w-[520px] h-[520px] bg-sky-500/20 blur-[180px]" />
         <div className="absolute top-1/3 right-[-20%] w-[520px] h-[520px] bg-emerald-500/25 blur-[180px]" />
@@ -83,11 +86,11 @@ export default function Contact() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-        {/* LEFT */}
+        {/* ================= LEFT ================= */}
         <div className="relative flex justify-center">
           <motion.div
             animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 6, repeat: Infinity }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             className="
               absolute w-[480px] h-[480px] rounded-full
               bg-gradient-to-br from-sky-400/30 via-emerald-400/25 to-purple-500/30
@@ -96,17 +99,18 @@ export default function Contact() {
           />
           <img
             src={Astra}
-            alt="Contact"
+            alt="Contact illustration"
             className="relative max-w-[380px] select-none"
+            loading="lazy"
           />
         </div>
 
-        {/* RIGHT */}
+        {/* ================= RIGHT ================= */}
         <div>
           <h2 className="
             text-4xl md:text-5xl font-bold
-            text-transparent bg-clip-text
             bg-gradient-to-r from-sky-400 via-emerald-400 to-purple-400
+            bg-clip-text text-transparent
           ">
             Let’s Connect
           </h2>
@@ -115,6 +119,7 @@ export default function Contact() {
             Hire me or discuss your next product or business idea.
           </p>
 
+          {/* FORM */}
           <form
             onSubmit={submit}
             className="mt-10 space-y-5 p-8 bg-[#020617]/90 border border-white/15 shadow-2xl"
@@ -140,7 +145,7 @@ export default function Contact() {
                 }`}
             />
 
-            {/* TYPE BUTTONS */}
+            {/* TYPE SELECT */}
             <div className="grid grid-cols-2 gap-3">
               {["Hire Me", "Discuss Project"].map((t) => (
                 <motion.button
@@ -204,19 +209,19 @@ export default function Contact() {
               {status === "sending" ? "Sending..." : "Send Message"}
             </motion.button>
 
-            {/* LOADING */}
+            {/* STATUS */}
             {status === "sending" && (
               <div className="flex justify-center">
                 <div className="w-6 h-6 border-2 border-white/40 border-t-white rounded-full animate-spin" />
               </div>
             )}
 
-            {/* SUCCESS */}
             <AnimatePresence>
               {status === "success" && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
                   className="text-emerald-400 text-center text-3xl"
                 >
                   ✔ Message Sent
@@ -235,6 +240,7 @@ export default function Contact() {
           <motion.a
             href="https://wa.me/918597376239"
             target="_blank"
+            rel="noopener noreferrer"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             className="

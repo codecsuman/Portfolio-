@@ -1,39 +1,68 @@
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import Logo from "../assets/Logo.png";
 
 const DURATION = 2200;
+const CIRC = 276;
 
 export default function IntroAnimation({ onFinish }) {
   const [visible, setVisible] = useState(true);
+  const finishedRef = useRef(false);
+  const timeoutRef = useRef(null);
 
   /* ---------- PROGRESS (NO RE-RENDERS) ---------- */
   const progress = useMotionValue(0);
-  const dashOffset = useTransform(progress, (p) => 276 * (1 - p));
+  const dashOffset = useTransform(progress, (p) => CIRC * (1 - p));
 
   useEffect(() => {
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setVisible(false);
+      return;
+    }
+
     const start = performance.now();
     let raf;
 
     const tick = (now) => {
+      if (finishedRef.current) return;
+
       const p = Math.min((now - start) / DURATION, 1);
       progress.set(p);
 
       if (p < 1) {
         raf = requestAnimationFrame(tick);
       } else {
-        setTimeout(() => setVisible(false), 250);
+        timeoutRef.current = setTimeout(() => {
+          finishedRef.current = true;
+          setVisible(false);
+        }, 250);
       }
     };
 
     raf = requestAnimationFrame(tick);
 
     /* ---------- SOFT SKIP ---------- */
-    const skip = () => setVisible(false);
-    window.addEventListener("click", skip, { once: true });
-    window.addEventListener("keydown", skip, { once: true });
+    const skip = () => {
+      if (finishedRef.current) return;
+      finishedRef.current = true;
+      setVisible(false);
+    };
 
-    return () => cancelAnimationFrame(raf);
+    window.addEventListener("click", skip);
+    window.addEventListener("keydown", skip);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timeoutRef.current);
+      window.removeEventListener("click", skip);
+      window.removeEventListener("keydown", skip);
+    };
   }, [progress]);
 
   return (
@@ -76,10 +105,10 @@ export default function IntroAnimation({ onFinish }) {
             animate={{ y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            {/* ---------- LOGO ---------- */}
+            {/* LOGO */}
             <motion.img
               src={Logo}
-              alt="Logo"
+              alt="Suman logo"
               className="w-20 h-20 object-contain"
               initial={{ scale: 0.9, opacity: 0, filter: "blur(12px)" }}
               animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
@@ -89,7 +118,7 @@ export default function IntroAnimation({ onFinish }) {
               }}
             />
 
-            {/* ---------- NAME ---------- */}
+            {/* NAME */}
             <div className="flex overflow-hidden">
               {"Suman Jhanp".split("").map((char, i) => (
                 <motion.span
@@ -112,8 +141,12 @@ export default function IntroAnimation({ onFinish }) {
               ))}
             </div>
 
-            {/* ---------- PROGRESS RING ---------- */}
-            <svg className="w-14 h-14" viewBox="0 0 100 100">
+            {/* PROGRESS RING */}
+            <svg
+              className="w-14 h-14"
+              viewBox="0 0 100 100"
+              aria-hidden="true"
+            >
               <circle
                 cx="50"
                 cy="50"
@@ -126,15 +159,21 @@ export default function IntroAnimation({ onFinish }) {
                 cx="50"
                 cy="50"
                 r="44"
-                stroke="url(#grad)"
+                stroke="url(#intro-grad)"
                 strokeWidth="6"
                 fill="none"
                 strokeLinecap="round"
-                strokeDasharray={276}
+                strokeDasharray={CIRC}
                 style={{ strokeDashoffset: dashOffset }}
               />
               <defs>
-                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient
+                  id="intro-grad"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
                   <stop offset="0%" stopColor="#6366f1" />
                   <stop offset="100%" stopColor="#22d3ee" />
                 </linearGradient>
@@ -142,7 +181,7 @@ export default function IntroAnimation({ onFinish }) {
             </svg>
           </motion.div>
 
-          {/* ---------- MICRO HAPTIC ---------- */}
+          {/* MICRO HAPTIC */}
           <motion.div
             className="absolute inset-0"
             animate={{ scale: [1, 1.008, 1] }}

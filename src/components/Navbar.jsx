@@ -4,12 +4,12 @@ import OverlayMenu from "./OverlayMenue";
 import { FiSun, FiMoon } from "react-icons/fi";
 
 /* ---------- NAV CONFIG ---------- */
-const NAV_ITEMS = [
+const NAV_ITEMS = Object.freeze([
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
   { id: "projects", label: "Projects" },
-];
+]);
 
 function Navbar({ theme, setTheme }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,6 +22,18 @@ function Navbar({ theme, setTheme }) {
     setTheme((t) => (t === "dark" ? "light" : "dark"));
   }, [setTheme]);
 
+  /* ---------- CLOSE MENU ON ESC ---------- */
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
   /* ---------- ACTIVE SECTION TRACKING ---------- */
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
@@ -29,19 +41,19 @@ function Navbar({ theme, setTheme }) {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        let mostVisible = activeRef.current;
         let maxRatio = 0;
+        let next = activeRef.current;
 
-        entries.forEach((e) => {
+        for (const e of entries) {
           if (e.isIntersecting && e.intersectionRatio > maxRatio) {
             maxRatio = e.intersectionRatio;
-            mostVisible = e.target.id;
+            next = e.target.id;
           }
-        });
+        }
 
-        if (mostVisible !== activeRef.current) {
-          activeRef.current = mostVisible;
-          setActiveSection(mostVisible);
+        if (next !== activeRef.current) {
+          activeRef.current = next;
+          setActiveSection(next);
         }
       },
       {
@@ -64,12 +76,14 @@ function Navbar({ theme, setTheme }) {
           backdrop-blur-2xl
           border-b border-black/10 dark:border-white/10
         "
+        role="navigation"
+        aria-label="Primary"
       >
         {/* LOGO */}
         <a href="#home" className="flex items-center gap-3 group">
           <img
             src={Logo}
-            alt="Logo"
+            alt="Suman logo"
             className="w-9 h-9 rounded-md transition-transform group-hover:scale-105"
           />
           <span className="hidden sm:block text-lg font-semibold tracking-tight">
@@ -85,6 +99,7 @@ function Navbar({ theme, setTheme }) {
               <a
                 key={id}
                 href={`#${id}`}
+                aria-current={active ? "page" : undefined}
                 className={`
                   nav-btn text-sm
                   ${active ? "scale-105 shadow-lg" : "opacity-80"}
@@ -140,6 +155,7 @@ function Navbar({ theme, setTheme }) {
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
+            aria-expanded={menuOpen}
             className="
               lg:hidden w-10 h-10 rounded-full
               flex flex-col items-center justify-center gap-[5px]
@@ -159,7 +175,8 @@ function Navbar({ theme, setTheme }) {
       <OverlayMenu
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
-        items={NAV_ITEMS.map((i) => i.label)}
+        items={NAV_ITEMS}
+        activeId={activeSection}
       />
     </>
   );

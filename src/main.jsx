@@ -4,13 +4,13 @@ import App from "./App";
 import "./index.css";
 
 /* ---------- ROOT ---------- */
-const container = document.getElementById("root");
+const rootElement = document.getElementById("root");
 
-if (!container) {
-  throw new Error("Root container missing in index.html");
+if (!rootElement) {
+  throw new Error("Root element #root not found in index.html");
 }
 
-createRoot(container).render(
+createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>

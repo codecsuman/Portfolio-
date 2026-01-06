@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import ParticlesBackground from "../components/ParticlesBackground";
 
@@ -13,8 +13,8 @@ import s3 from "../assets/s3.png";
 import s4 from "../assets/s4.png";
 import s5 from "../assets/s5.png";
 
-/* ---------- PROJECT DATA ---------- */
-const PROJECTS = [
+/* ---------- PROJECT DATA (IMMUTABLE) ---------- */
+const PROJECTS = Object.freeze([
   {
     title: "Doctor Appointment System",
     subtitle: "Full-Stack MERN Healthcare Platform",
@@ -71,58 +71,69 @@ const PROJECTS = [
     description:
       "A social media app inspired by Instagram with real-time features.",
     features: [
-      "JWT auth",
+      "JWT authentication",
       "Likes & comments",
       "Realtime updates",
       "Cloudinary uploads",
     ],
     stack: ["React", "Node", "MongoDB", "Socket.io"],
   },
-];
+]);
 
 export default function Projects() {
   const [index, setIndex] = useState(0);
-  const project = PROJECTS[index];
+  const reduceMotion = useReducedMotion();
 
+  const project = PROJECTS[index];
   const atStart = index === 0;
   const atEnd = index === PROJECTS.length - 1;
+
+  /* ---------- HANDLERS ---------- */
+  const prev = useCallback(() => {
+    setIndex((i) => Math.max(i - 1, 0));
+  }, []);
+
+  const next = useCallback(() => {
+    setIndex((i) => Math.min(i + 1, PROJECTS.length - 1));
+  }, []);
 
   return (
     <section
       id="projects"
       className="relative min-h-screen flex items-center bg-[#020617] overflow-hidden"
     >
+      {/* BACKGROUND */}
       <ParticlesBackground section="projects" />
 
-      {/* Glow */}
+      {/* GLOWS */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/25 blur-[200px]" />
         <div className="absolute bottom-[-30%] right-[-20%] w-[600px] h-[600px] bg-sky-500/25 blur-[200px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <h2 className="text-center text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">
+        {/* HEADER */}
+        <h2 className="text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
           Projects
         </h2>
 
         <p className="mt-3 text-center text-white/70">
-          Each project shown clearly — image & details separated
+          Carefully designed & engineered full-stack applications
         </p>
 
         {/* MAIN CARD */}
         <AnimatePresence mode="wait">
           <motion.div
             key={project.title}
-            initial={{ opacity: 0 }}
+            initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
           >
-            {/* IMAGE SECTION (X-Axis) */}
+            {/* IMAGE */}
             <motion.div
-              initial={{ x: -60, opacity: 0 }}
+              initial={reduceMotion ? false : { x: -60, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.5 }}
               className="rounded-3xl overflow-hidden shadow-2xl border border-white/10"
@@ -133,13 +144,14 @@ export default function Projects() {
                   src={project.desktop}
                   alt={project.title}
                   className="w-full h-[260px] md:h-[380px] object-cover"
+                  loading="lazy"
                 />
               </picture>
             </motion.div>
 
-            {/* CONTENT SECTION (Y-Axis) */}
+            {/* CONTENT */}
             <motion.div
-              initial={{ y: 60, opacity: 0 }}
+              initial={reduceMotion ? false : { y: 60, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.5 }}
               className="rounded-3xl p-8 bg-white/5 backdrop-blur-2xl border border-white/10 shadow-xl"
@@ -178,16 +190,17 @@ export default function Projects() {
                   <a
                     href={project.live}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="px-5 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-sky-400 text-black font-semibold text-sm hover:scale-105 transition"
                   >
                     Live <FaExternalLinkAlt className="inline ml-1" />
                   </a>
                 )}
+
                 <a
                   href={project.github}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="px-5 py-2 rounded-full border border-white/20 text-sm hover:bg-white/10 transition"
                 >
                   GitHub <FaGithub className="inline ml-1" />
@@ -199,33 +212,36 @@ export default function Projects() {
 
         {/* NAVIGATION */}
         <div className="mt-12 flex justify-center items-center gap-6">
-          <button
-            disabled={atStart}
-            onClick={() => setIndex((i) => i - 1)}
-            className={`px-6 py-2 rounded-full font-semibold transition ${atStart
-              ? "border border-red-400 text-red-400"
-              : "bg-gradient-to-r from-indigo-400 to-cyan-400 text-black hover:scale-105"
-              }`}
-          >
+          <NavButton disabled={atStart} onClick={prev} variant="prev">
             Previous
-          </button>
+          </NavButton>
 
           <span className="text-white/60">
             {index + 1} / {PROJECTS.length}
           </span>
 
-          <button
-            disabled={atEnd}
-            onClick={() => setIndex((i) => i + 1)}
-            className={`px-6 py-2 rounded-full font-semibold transition ${atEnd
-              ? "border border-yellow-400 text-yellow-400"
-              : "bg-gradient-to-r from-emerald-400 to-sky-400 text-black hover:scale-105"
-              }`}
-          >
+          <NavButton disabled={atEnd} onClick={next} variant="next">
             Next
-          </button>
+          </NavButton>
         </div>
       </div>
     </section>
+  );
+}
+
+/* ---------- NAV BUTTON ---------- */
+function NavButton({ disabled, onClick, children, variant }) {
+  const base =
+    "px-6 py-2 rounded-full font-semibold transition";
+  const styles = disabled
+    ? "border border-white/20 text-white/40 cursor-not-allowed"
+    : variant === "prev"
+      ? "bg-gradient-to-r from-indigo-400 to-cyan-400 text-black hover:scale-105"
+      : "bg-gradient-to-r from-emerald-400 to-sky-400 text-black hover:scale-105";
+
+  return (
+    <button disabled={disabled} onClick={onClick} className={`${base} ${styles}`}>
+      {children}
+    </button>
   );
 }

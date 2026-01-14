@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
 import { MdEmail, MdLocationOn } from "react-icons/md";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 /* ---------- SOCIAL LINKS ---------- */
 const SOCIALS = [
@@ -35,6 +35,8 @@ const SOCIALS = [
 ];
 
 export default function Footer() {
+  const reduceMotion = useReducedMotion();
+
   const scrollTop = () =>
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -44,17 +46,17 @@ export default function Footer() {
       <footer className="relative bg-[#020617] text-white border-t border-white/10">
         {/* Background glow */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute left-1/4 -top-32 w-[360px] h-[360px] bg-emerald-500/10 blur-[160px]" />
-          <div className="absolute right-1/4 -top-32 w-[360px] h-[360px] bg-sky-500/10 blur-[160px]" />
+          <div className="absolute left-1/4 -top-32 w-[320px] h-[320px] bg-emerald-500/10 blur-[140px]" />
+          <div className="absolute right-1/4 -top-32 w-[320px] h-[320px] bg-sky-500/10 blur-[140px]" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
           {/* Resume CTA */}
           <div className="flex justify-center mb-10">
             <motion.a
               href="/Resume.pdf"
               download
-              whileHover={{ scale: 1.08 }}
+              whileHover={reduceMotion ? {} : { scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
               className="
                 inline-flex items-center gap-2
@@ -69,7 +71,7 @@ export default function Footer() {
           </div>
 
           {/* Socials */}
-          <div className="flex justify-center gap-6 mb-8 text-xl">
+          <div className="flex justify-center gap-6 mb-8 text-2xl">
             {SOCIALS.map((s) => (
               <motion.a
                 key={s.label}
@@ -77,13 +79,18 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={s.label}
-                whileHover={{
-                  scale: 1.25,
-                  color: "#34d399",
-                  textShadow: "0px 0px 12px rgba(52,211,153,0.8)",
-                }}
+                whileHover={
+                  reduceMotion
+                    ? {}
+                    : {
+                      scale: 1.25,
+                      color: "#34d399",
+                      textShadow:
+                        "0px 0px 12px rgba(52,211,153,0.8)",
+                    }
+                }
                 whileTap={{ scale: 0.9 }}
-                className="text-white/60 transition"
+                className="p-2 text-white/60 transition"
               >
                 {s.icon}
               </motion.a>
@@ -93,7 +100,7 @@ export default function Footer() {
           {/* Contact Info */}
           <div className="text-center space-y-2 text-sm text-white/60">
             <p className="flex justify-center items-center gap-2">
-              <FaWhatsapp /> +91 85973 76239
+              <FaWhatsapp /> +91&nbsp;85973&nbsp;76239
             </p>
             <p className="flex justify-center items-center gap-2">
               <MdEmail /> sumanjhanp1@gmail.com
@@ -117,12 +124,15 @@ export default function Footer() {
       <motion.a
         href="/Resume.pdf"
         download
-        initial={{ scale: 1 }}
-        animate={{ scale: [1, 1.08, 1] }}
+        animate={
+          reduceMotion
+            ? {}
+            : { scale: [1, 1.08, 1] }
+        }
         transition={{ duration: 3, repeat: Infinity }}
         whileHover={{ scale: 1.12 }}
         className="
-          fixed bottom-20 right-6 z-50
+          fixed bottom-24 sm:bottom-20 right-6 z-50
           flex items-center gap-2
           px-4 py-2 rounded-full
           text-sm font-semibold text-black
@@ -137,7 +147,7 @@ export default function Footer() {
       <motion.button
         onClick={scrollTop}
         aria-label="Back to top"
-        whileHover={{ y: -4, scale: 1.1 }}
+        whileHover={reduceMotion ? {} : { y: -4, scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         className="
           fixed bottom-6 right-6 z-50

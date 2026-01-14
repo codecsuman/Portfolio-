@@ -1,185 +1,246 @@
-import { useEffect, useState, useCallback, memo, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Logo from "../assets/Logo.png";
 import OverlayMenu from "./OverlayMenue";
-import { FiSun, FiMoon } from "react-icons/fi";
 
-/* ---------- NAV CONFIG ---------- */
-const NAV_ITEMS = Object.freeze([
-  { id: "home", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "skills", label: "Skills" },
-  { id: "projects", label: "Projects" },
-]);
+/* ==============================
+   NAV CONFIG
+================================ */
+const CENTER_ITEMS = ["home", "about", "skills", "projects"];
+const CONTACT_ITEM = "contact";
 
-function Navbar({ theme, setTheme }) {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-  const activeRef = useRef("home");
+  const logoRef = useRef(null);
+  const rafRef = useRef(null);
 
-  /* ---------- THEME TOGGLE ---------- */
-  const toggleTheme = useCallback(() => {
-    setTheme((t) => (t === "dark" ? "light" : "dark"));
-  }, [setTheme]);
-
-  /* ---------- CLOSE MENU ON ESC ---------- */
+  /* ==============================
+     SCROLL PROGRESS BAR
+  ============================== */
   useEffect(() => {
-    if (!menuOpen) return;
-
-    const onKey = (e) => {
-      if (e.key === "Escape") setMenuOpen(false);
+    const onScroll = () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const total =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (window.scrollY / total) * 100;
+        setScrollProgress(progress);
+      });
     };
 
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [menuOpen]);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
-  /* ---------- ACTIVE SECTION TRACKING ---------- */
+  /* ==============================
+     ACTIVE SECTION TRACK
+  ============================== */
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
     if (!sections.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        let maxRatio = 0;
-        let next = activeRef.current;
-
-        for (const e of entries) {
-          if (e.isIntersecting && e.intersectionRatio > maxRatio) {
-            maxRatio = e.intersectionRatio;
-            next = e.target.id;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
           }
-        }
-
-        if (next !== activeRef.current) {
-          activeRef.current = next;
-          setActiveSection(next);
-        }
+        });
       },
-      {
-        rootMargin: "-35% 0px -35% 0px",
-        threshold: [0.25, 0.5, 0.75],
-      }
+      { threshold: 0.6 }
     );
 
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
   }, []);
 
+  /* ==============================
+     LOGO 3D TILT
+  ============================== */
+  useEffect(() => {
+    const logo = logoRef.current;
+    if (!logo) return;
+
+    const move = (e) => {
+      const r = logo.getBoundingClientRect();
+      const x = e.clientX - (r.left + r.width / 2);
+      const y = e.clientY - (r.top + r.height / 2);
+
+      logo.style.transform = `
+        perspective(600px)
+        rotateY(${x / 18}deg)
+        rotateX(${-y / 18}deg)
+        scale(1.08)
+      `;
+    };
+
+    const reset = () => {
+      logo.style.transform =
+        "perspective(600px) rotateX(0) rotateY(0) scale(1)";
+    };
+
+    logo.addEventListener("pointermove", move);
+    logo.addEventListener("pointerleave", reset);
+
+    return () => {
+      logo.removeEventListener("pointermove", move);
+      logo.removeEventListener("pointerleave", reset);
+    };
+  }, []);
+
+  /* ==============================
+     HANDLERS
+  ============================== */
+  const toggleMenu = useCallback(() => {
+    setMenuOpen((p) => !p);
+  }, []);
+
+  const handleNavClick = (id) => {
+    setMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  /* ==============================
+     BLUE BUTTON STYLES
+  ============================== */
+  const blueBtnBase = `
+    px-5 py-2 rounded-full
+    font-bold text-white text-sm uppercase tracking-wide
+    bg-gradient-to-r from-blue-500 to-cyan-400
+    transition-all duration-300
+    hover:scale-105
+    hover:shadow-lg hover:shadow-blue-500/40
+    active:scale-95
+  `;
+
+  const blueBtnActive = `
+    scale-105
+    shadow-lg shadow-blue-500/50
+    ring-2 ring-blue-400/50
+  `;
+
   return (
     <>
+      {/* ==============================
+         SCROLL PROGRESS BAR
+      ============================== */}
+      <div
+        className="fixed top-0 left-0 z-[60] h-[3px]
+        bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600"
+        style={{ width: `${scrollProgress}%` }}
+      />
+
+      {/* ==============================
+         NAVBAR
+      ============================== */}
       <nav
         className="
-          fixed top-0 left-0 w-full z-50
-          px-6 py-4 flex items-center justify-between
-          bg-white/70 dark:bg-black/60
-          backdrop-blur-2xl
-          border-b border-black/10 dark:border-white/10
+          fixed top-0 left-0 z-50 w-full
+          backdrop-blur-xl bg-black/50
+          border-b border-white/10
+          shadow-lg shadow-black/20
         "
-        role="navigation"
-        aria-label="Primary"
       >
-        {/* LOGO */}
-        <a href="#home" className="flex items-center gap-3 group">
-          <img
-            src={Logo}
-            alt="Suman logo"
-            className="w-9 h-9 rounded-md transition-transform group-hover:scale-105"
-          />
-          <span className="hidden sm:block text-lg font-semibold tracking-tight">
-            SUMAN
-          </span>
-        </a>
+        <div className="relative mx-auto flex h-16 max-w-7xl items-center px-6">
 
-        {/* DESKTOP NAV */}
-        <div className="hidden lg:flex items-center gap-4">
-          {NAV_ITEMS.map(({ id, label }) => {
-            const active = activeSection === id;
-            return (
-              <a
-                key={id}
-                href={`#${id}`}
-                aria-current={active ? "page" : undefined}
-                className={`
-                  nav-btn text-sm
-                  ${active ? "scale-105 shadow-lg" : "opacity-80"}
-                `}
+          {/* ==============================
+             LEFT — LOGO
+          ============================== */}
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => handleNavClick("home")}
+          >
+            <img
+              ref={logoRef}
+              src={Logo}
+              alt="Logo"
+              className="w-10 h-10 select-none"
+            />
+            <span className="hidden sm:block text-lg font-extrabold tracking-wide text-white">
+              SUMAN
+            </span>
+          </div>
+
+          {/* ==============================
+             CENTER — BLUE NAV BUTTONS
+          ============================== */}
+          <div className="absolute left-1/2 hidden -translate-x-1/2 lg:flex items-center gap-4">
+            {CENTER_ITEMS.map((item) => (
+              <button
+                key={item}
+                onClick={() => handleNavClick(item)}
+                className={`${blueBtnBase} ${activeSection === item ? blueBtnActive : ""
+                  }`}
               >
-                {label}
-              </a>
-            );
-          })}
-        </div>
+                {item}
+              </button>
+            ))}
+          </div>
 
-        {/* ACTIONS */}
-        <div className="flex items-center gap-3">
-          {/* THEME TOGGLE */}
+          {/* ==============================
+             RIGHT — CONTACT (UNCHANGED)
+          ============================== */}
+          <div className="ml-auto hidden lg:flex">
+            <button
+              onClick={() => handleNavClick(CONTACT_ITEM)}
+              className="
+                px-5 py-2 rounded-full
+                font-bold text-white text-sm
+                bg-gradient-to-r from-pink-500 to-blue-500
+                hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30
+                transition-all duration-300
+              "
+            >
+              Contact
+            </button>
+          </div>
+
+          {/* ==============================
+             MOBILE — HAMBURGER
+          ============================== */}
           <button
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-            className="
-              w-10 h-10 rounded-full
-              flex items-center justify-center
-              bg-gradient-to-br
-              from-yellow-300/80 to-orange-400/80
-              dark:from-indigo-500/70 dark:to-cyan-400/70
-              text-black dark:text-white
-              shadow-md
-              hover:shadow-xl hover:scale-110
-              active:scale-95
-              transition
-            "
-          >
-            {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
-          </button>
-
-          {/* CONTACT CTA */}
-          <a
-            href="#contact"
-            className="
-              hidden lg:inline-flex
-              items-center justify-center
-              px-5 py-2 rounded-full
-              text-sm font-semibold text-black
-              bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400
-              shadow-lg shadow-cyan-400/30
-              hover:shadow-cyan-400/70 hover:scale-105
-              active:scale-95
-              transition
-            "
-          >
-            Contact
-          </a>
-
-          {/* HAMBURGER */}
-          <button
-            onClick={() => setMenuOpen(true)}
+            onClick={toggleMenu}
             aria-label="Open menu"
-            aria-expanded={menuOpen}
             className="
-              lg:hidden w-10 h-10 rounded-full
-              flex flex-col items-center justify-center gap-[5px]
-              bg-black/10 dark:bg-white/10
-              hover:scale-110 active:scale-95
-              transition
+              lg:hidden ml-auto
+              w-10 h-10
+              flex items-center justify-center
+              relative
             "
           >
-            <span className="w-5 h-[2px] bg-current" />
-            <span className="w-5 h-[2px] bg-current" />
-            <span className="w-5 h-[2px] bg-current" />
+            <span
+              className={`absolute h-[3px] w-7 bg-white transition-all
+                ${menuOpen ? "rotate-45 translate-y-[6px]" : "-translate-y-2"}
+              `}
+            />
+            <span
+              className={`absolute h-[3px] w-7 bg-white transition-all
+                ${menuOpen ? "opacity-0" : ""}
+              `}
+            />
+            <span
+              className={`absolute h-[3px] w-7 bg-white transition-all
+                ${menuOpen ? "-rotate-45 -translate-y-[6px]" : "translate-y-2"}
+              `}
+            />
           </button>
         </div>
       </nav>
 
-      {/* OVERLAY MENU */}
+      {/* ==============================
+         MOBILE OVERLAY MENU
+      ============================== */}
       <OverlayMenu
         isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        items={NAV_ITEMS}
-        activeId={activeSection}
+        onClose={toggleMenu}
+        onNavigate={handleNavClick}
+        items={[...CENTER_ITEMS, CONTACT_ITEM]}
       />
     </>
   );
 }
-
-export default memo(Navbar);

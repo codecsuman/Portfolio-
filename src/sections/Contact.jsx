@@ -31,6 +31,7 @@ export default function Contact() {
   const canSubmit = useMemo(() => {
     if (!form.name || !isEmailValid || !form.type) return false;
     if (form.type === "Hire Me" && !form.jobRole) return false;
+    if (!form.message) return false;
     return status !== "sending";
   }, [form, isEmailValid, status]);
 
@@ -61,7 +62,7 @@ export default function Contact() {
           inquiry_type: form.type,
           job_role: form.jobRole || "N/A",
           budget: form.budget || "N/A",
-          message: form.message || "N/A",
+          message: form.message,
         },
         PUBLIC_KEY
       );
@@ -91,11 +92,9 @@ export default function Contact() {
           <motion.div
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="
-              absolute w-[480px] h-[480px] rounded-full
+            className="absolute w-[480px] h-[480px] rounded-full
               bg-gradient-to-br from-sky-400/30 via-emerald-400/25 to-purple-500/30
-              blur-[160px]
-            "
+              blur-[160px]"
           />
           <img
             src={Astra}
@@ -107,11 +106,9 @@ export default function Contact() {
 
         {/* ================= RIGHT ================= */}
         <div>
-          <h2 className="
-            text-4xl md:text-5xl font-bold
+          <h2 className="text-4xl md:text-5xl font-bold
             bg-gradient-to-r from-sky-400 via-emerald-400 to-purple-400
-            bg-clip-text text-transparent
-          ">
+            bg-clip-text text-transparent">
             Let’s Connect
           </h2>
 
@@ -122,7 +119,8 @@ export default function Contact() {
           {/* FORM */}
           <form
             onSubmit={submit}
-            className="mt-10 space-y-5 p-8 bg-[#020617]/90 border border-white/15 shadow-2xl"
+            className="mt-10 space-y-5 p-8 bg-[#020617]/90
+              border border-white/15 shadow-2xl"
           >
             <input
               name="name"
@@ -153,7 +151,9 @@ export default function Contact() {
                   type="button"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setForm((p) => ({ ...p, type: t }))}
+                  onClick={() =>
+                    setForm((p) => ({ ...p, type: t }))
+                  }
                   className={`py-2.5 font-semibold border transition ${form.type === t
                     ? "bg-gradient-to-r from-sky-400 to-emerald-400 text-black"
                     : "border-white/20 hover:bg-white hover:text-black"
@@ -164,16 +164,30 @@ export default function Contact() {
               ))}
             </div>
 
+            {/* HIRE ME FIELDS */}
             {form.type === "Hire Me" && (
-              <input
-                name="jobRole"
-                placeholder="Job Role"
-                value={form.jobRole}
-                onChange={update}
-                className="w-full px-4 py-3 bg-black/60 border border-white/20"
-              />
+              <>
+                <input
+                  name="jobRole"
+                  placeholder="Job Role"
+                  value={form.jobRole}
+                  onChange={update}
+                  className="w-full px-4 py-3 bg-black/60 border border-white/20"
+                />
+
+                <textarea
+                  name="message"
+                  rows="4"
+                  placeholder="Your message (requirements, expectations, etc.)"
+                  value={form.message}
+                  onChange={update}
+                  className="w-full px-4 py-3 bg-black/60
+                    border border-white/20 resize-none"
+                />
+              </>
             )}
 
+            {/* DISCUSS PROJECT FIELDS */}
             {form.type === "Discuss Project" && (
               <>
                 <input
@@ -183,13 +197,15 @@ export default function Contact() {
                   onChange={update}
                   className="w-full px-4 py-3 bg-black/60 border border-white/20"
                 />
+
                 <textarea
                   name="message"
                   rows="4"
                   placeholder="Describe your project"
                   value={form.message}
                   onChange={update}
-                  className="w-full px-4 py-3 bg-black/60 border border-white/20 resize-none"
+                  className="w-full px-4 py-3 bg-black/60
+                    border border-white/20 resize-none"
                 />
               </>
             )}
@@ -199,12 +215,10 @@ export default function Contact() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               disabled={!canSubmit}
-              className="
-                w-full py-3 font-semibold text-black
+              className="w-full py-3 font-semibold text-black
                 bg-gradient-to-r from-sky-400 via-emerald-400 to-purple-400
                 shadow-lg hover:shadow-emerald-400/40
-                disabled:opacity-40
-              "
+                disabled:opacity-40"
             >
               {status === "sending" ? "Sending..." : "Send Message"}
             </motion.button>
@@ -212,7 +226,8 @@ export default function Contact() {
             {/* STATUS */}
             {status === "sending" && (
               <div className="flex justify-center">
-                <div className="w-6 h-6 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-white/40
+                  border-t-white rounded-full animate-spin" />
               </div>
             )}
 
@@ -243,12 +258,10 @@ export default function Contact() {
             rel="noopener noreferrer"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="
-              mt-6 inline-flex items-center gap-2
+            className="mt-6 inline-flex items-center gap-2
               px-6 py-3 rounded-full
               bg-green-500 text-black font-semibold
-              shadow-lg shadow-green-500/40
-            "
+              shadow-lg shadow-green-500/40"
           >
             <FaWhatsapp size={18} /> Chat on WhatsApp
           </motion.a>

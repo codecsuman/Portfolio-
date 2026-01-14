@@ -1,10 +1,11 @@
 import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
 import ParticlesBackground from "../components/ParticlesBackground";
 
 /* ================================
-   EXPERIENCE DATA (IMMUTABLE)
+   EXPERIENCE DATA
 ================================ */
 const EXPERIENCES = Object.freeze([
   {
@@ -60,37 +61,54 @@ const EXPERIENCES = Object.freeze([
   },
 ]);
 
+/* ---------- LOW-END DEVICE CHECK ---------- */
+function shouldDisableParticles() {
+  if (typeof window === "undefined") return true;
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const smallScreen = window.innerWidth < 768;
+  const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
+
+  return prefersReducedMotion || (isTouch && (smallScreen || lowMemory));
+}
+
 /* ================================
    EXPERIENCE CARD
 ================================ */
 function ExperienceCard({ exp, reduceMotion }) {
   return (
     <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 30 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      whileHover={{ y: -6, scale: 1.02 }}
+      whileHover={reduceMotion ? {} : { y: -6, scale: 1.02 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="
-        rounded-2xl p-4
+        rounded-2xl p-5
         bg-white/5 backdrop-blur-xl
         border border-white/10
         shadow-lg
-        hover:border-emerald-400/30
-        hover:shadow-emerald-400/30
         transition
       "
     >
-      <h3 className="text-sm font-semibold">{exp.role}</h3>
-      <p className="text-xs text-white/60">{exp.org}</p>
+      <h3 className="text-sm sm:text-base font-semibold">
+        {exp.role}
+      </h3>
+      <p className="text-xs sm:text-sm text-white/60">
+        {exp.org}
+      </p>
 
       {/* TECH STACK */}
-      <div className="flex flex-wrap gap-1.5 mt-2">
+      <div className="flex flex-wrap gap-2 mt-3">
         {exp.tech.map((t) => (
           <span
             key={t}
             className="
-              px-2 py-0.5 text-[11px] rounded-full
+              px-2.5 py-1 text-[11px]
+              rounded-full
               bg-emerald-400/10
               border border-emerald-400/20
               text-emerald-300
@@ -102,7 +120,7 @@ function ExperienceCard({ exp, reduceMotion }) {
       </div>
 
       {/* BULLET POINTS */}
-      <ul className="mt-3 text-xs text-white/75 space-y-1 list-disc list-inside">
+      <ul className="mt-3 text-xs sm:text-sm text-white/75 space-y-1 list-disc list-inside">
         {exp.points.map((p) => (
           <li key={p}>{p}</li>
         ))}
@@ -116,44 +134,43 @@ function ExperienceCard({ exp, reduceMotion }) {
 ================================ */
 export default function Experience() {
   const reduceMotion = useReducedMotion();
+  const [particlesEnabled, setParticlesEnabled] = useState(false);
+
+  useEffect(() => {
+    setParticlesEnabled(!shouldDisableParticles());
+  }, []);
 
   return (
     <section
       id="experience"
-      className="
-        relative min-h-screen flex items-center
-        bg-[#020617]
-        overflow-hidden
-      "
+      className="relative min-h-screen py-24 bg-[#020617] overflow-hidden"
     >
       {/* PARTICLES */}
-      <ParticlesBackground section="experience" />
+      {particlesEnabled && <ParticlesBackground section="experience" />}
 
       {/* BACKGROUND GLOWS */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/25 blur-[200px]" />
-        <div className="absolute bottom-[-30%] right-[-20%] w-[600px] h-[600px] bg-sky-500/25 blur-[200px]" />
+        <div className="absolute -top-40 -left-40 w-[420px] h-[420px] bg-emerald-500/25 blur-[160px]" />
+        <div className="absolute bottom-[-30%] right-[-20%] w-[420px] h-[420px] bg-sky-500/25 blur-[160px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
         {/* HEADER */}
-        <div className="text-center mb-10">
-          <h2
-            className="
-              text-3xl md:text-4xl font-bold
-              bg-gradient-to-r from-emerald-400 to-sky-400
-              bg-clip-text text-transparent
-            "
-          >
+        <div className="text-center mb-12">
+          <h2 className="
+            text-3xl sm:text-4xl font-bold
+            bg-gradient-to-r from-emerald-400 to-sky-400
+            bg-clip-text text-transparent
+          ">
             Experience
           </h2>
-          <p className="mt-2 text-sm text-white/60">
+          <p className="mt-2 text-sm sm:text-base text-white/60">
             Full-stack MERN development experience
           </p>
         </div>
 
         {/* GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {EXPERIENCES.map((exp) => (
             <ExperienceCard
               key={exp.role}
@@ -164,7 +181,7 @@ export default function Experience() {
         </div>
 
         {/* SOCIAL LINKS */}
-        <div className="flex justify-center gap-8 mt-12 text-2xl">
+        <div className="flex justify-center gap-10 mt-14 text-3xl">
           <SocialLink
             href="https://github.com/codecsuman"
             color="hover:text-emerald-400"
@@ -204,7 +221,7 @@ function SocialLink({ href, color, label, children }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className={`text-white/50 transition ${color}`}
+      className={`p-2 rounded-full text-white/60 transition ${color}`}
     >
       {children}
     </a>

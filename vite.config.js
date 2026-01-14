@@ -1,27 +1,98 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+export default defineConfig(({ mode }) => {
+  const isProd = mode === "production";
 
-  build: {
-    target: "es2020",
-    chunkSizeWarningLimit: 1200,
+  return {
+    /* ==============================
+       DEPLOYMENT BASE
+    ============================== */
+    // "/" → Netlify / Vercel root deploy
+    // "./" → works for subfolder hosting if needed
+    base: "/",
 
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("react")) return "react";
-            if (id.includes("framer-motion")) return "framer";
-            if (id.includes("react-icons")) return "icons";
-          }
+    /* ==============================
+       PLUGINS
+    ============================== */
+    plugins: [
+      react({
+        fastRefresh: !isProd,
+      }),
+      tailwindcss(),
+    ],
+
+    /* ==============================
+       PATH ALIASES
+    ============================== */
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
+
+    /* ==============================
+       DEV SERVER
+    ============================== */
+    server: {
+      port: 5173,
+      open: true,
+      strictPort: true,
+    },
+
+    /* ==============================
+       PREVIEW (BUILD PREVIEW)
+    ============================== */
+    preview: {
+      port: 4173,
+      open: true,
+      strictPort: true,
+    },
+
+    /* ==============================
+       BUILD OPTIMIZATION
+    ============================== */
+    build: {
+      target: "es2020",
+      sourcemap: false,
+      minify: "esbuild",
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 800,
+      reportCompressedSize: false,
+
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("react")) return "react";
+              if (id.includes("framer-motion")) return "motion";
+              if (id.includes("react-icons")) return "icons";
+              return "vendor";
+            }
+          },
         },
       },
     },
-  },
+
+    /* ==============================
+       DEPENDENCY OPTIMIZATION
+    ============================== */
+    optimizeDeps: {
+      include: [
+        "react",
+        "react-dom",
+        "framer-motion",
+        "react-icons",
+      ],
+    },
+
+    /* ==============================
+       GLOBAL DEFINES
+    ============================== */
+    define: {
+      __DEV__: !isProd,
+    },
+  };
 });

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import ParticlesBackground from "../components/ParticlesBackground";
@@ -13,7 +13,7 @@ import s3 from "../assets/s3.png";
 import s4 from "../assets/s4.png";
 import s5 from "../assets/s5.png";
 
-/* ---------- PROJECT DATA (IMMUTABLE) ---------- */
+/* ---------- PROJECT DATA ---------- */
 const PROJECTS = Object.freeze([
   {
     title: "Doctor Appointment System",
@@ -80,15 +80,33 @@ const PROJECTS = Object.freeze([
   },
 ]);
 
+/* ---------- LOW-END DEVICE CHECK ---------- */
+function shouldDisableParticles() {
+  if (typeof window === "undefined") return true;
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const smallScreen = window.innerWidth < 768;
+  const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
+
+  return prefersReducedMotion || (isTouch && (smallScreen || lowMemory));
+}
+
 export default function Projects() {
   const [index, setIndex] = useState(0);
+  const [particlesEnabled, setParticlesEnabled] = useState(false);
   const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    setParticlesEnabled(!shouldDisableParticles());
+  }, []);
 
   const project = PROJECTS[index];
   const atStart = index === 0;
   const atEnd = index === PROJECTS.length - 1;
 
-  /* ---------- HANDLERS ---------- */
   const prev = useCallback(() => {
     setIndex((i) => Math.max(i - 1, 0));
   }, []);
@@ -100,24 +118,26 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="relative min-h-screen flex items-center bg-[#020617] overflow-hidden"
+      className="relative min-h-screen py-24 bg-[#020617] overflow-hidden"
     >
-      {/* BACKGROUND */}
-      <ParticlesBackground section="projects" />
+      {/* PARTICLES */}
+      {particlesEnabled && <ParticlesBackground section="projects" />}
 
-      {/* GLOWS */}
+      {/* BACKGROUND GLOWS */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/25 blur-[200px]" />
-        <div className="absolute bottom-[-30%] right-[-20%] w-[600px] h-[600px] bg-sky-500/25 blur-[200px]" />
+        <div className="absolute -top-40 -left-40 w-[420px] h-[420px] bg-emerald-500/25 blur-[160px]" />
+        <div className="absolute bottom-[-30%] right-[-20%] w-[420px] h-[420px] bg-sky-500/25 blur-[160px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         {/* HEADER */}
-        <h2 className="text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
+        <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-bold
+          bg-gradient-to-r from-emerald-400 to-sky-400
+          bg-clip-text text-transparent">
           Projects
         </h2>
 
-        <p className="mt-3 text-center text-white/70">
+        <p className="mt-3 text-center text-white/70 text-sm sm:text-base">
           Carefully designed & engineered full-stack applications
         </p>
 
@@ -129,13 +149,13 @@ export default function Projects() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+            className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center"
           >
             {/* IMAGE */}
             <motion.div
-              initial={reduceMotion ? false : { x: -60, opacity: 0 }}
+              initial={reduceMotion ? false : { x: -40, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
               className="rounded-3xl overflow-hidden shadow-2xl border border-white/10"
             >
               <picture>
@@ -143,7 +163,7 @@ export default function Projects() {
                 <img
                   src={project.desktop}
                   alt={project.title}
-                  className="w-full h-[260px] md:h-[380px] object-cover"
+                  className="w-full h-[220px] sm:h-[280px] md:h-[360px] object-cover"
                   loading="lazy"
                 />
               </picture>
@@ -151,12 +171,15 @@ export default function Projects() {
 
             {/* CONTENT */}
             <motion.div
-              initial={reduceMotion ? false : { y: 60, opacity: 0 }}
+              initial={reduceMotion ? false : { y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="rounded-3xl p-8 bg-white/5 backdrop-blur-2xl border border-white/10 shadow-xl"
+              transition={{ duration: 0.4 }}
+              className="rounded-3xl p-6 sm:p-8 bg-white/5 backdrop-blur-xl
+                border border-white/10 shadow-xl"
             >
-              <h3 className="text-3xl font-bold">{project.title}</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold">
+                {project.title}
+              </h3>
               <p className="text-white/60 text-sm mt-1">
                 {project.subtitle}
               </p>
@@ -165,19 +188,19 @@ export default function Projects() {
                 {project.description}
               </p>
 
-              {/* FEATURES */}
-              <ul className="mt-4 grid grid-cols-2 gap-y-1 text-sm text-white/70">
+              <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-y-1 text-sm text-white/70">
                 {project.features.map((f) => (
                   <li key={f}>• {f}</li>
                 ))}
               </ul>
 
-              {/* STACK */}
               <div className="mt-5 flex flex-wrap gap-2">
                 {project.stack.map((s) => (
                   <span
                     key={s}
-                    className="px-3 py-1 text-xs rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-300"
+                    className="px-3 py-1 text-xs rounded-full
+                      bg-emerald-400/10 border border-emerald-400/30
+                      text-emerald-300"
                   >
                     {s}
                   </span>
@@ -185,13 +208,17 @@ export default function Projects() {
               </div>
 
               {/* ACTIONS */}
-              <div className="mt-6 flex flex-wrap gap-4">
+              <div className="mt-6 flex flex-col sm:flex-row gap-4">
                 {project.live && (
                   <a
                     href={project.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-5 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-sky-400 text-black font-semibold text-sm hover:scale-105 transition"
+                    className="w-full sm:w-auto text-center
+                      px-5 py-2 rounded-full
+                      bg-gradient-to-r from-emerald-400 to-sky-400
+                      text-black font-semibold text-sm
+                      hover:scale-105 transition"
                   >
                     Live <FaExternalLinkAlt className="inline ml-1" />
                   </a>
@@ -201,7 +228,10 @@ export default function Projects() {
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2 rounded-full border border-white/20 text-sm hover:bg-white/10 transition"
+                  className="w-full sm:w-auto text-center
+                    px-5 py-2 rounded-full
+                    border border-white/20 text-sm
+                    hover:bg-white/10 transition"
                 >
                   GitHub <FaGithub className="inline ml-1" />
                 </a>
@@ -216,7 +246,7 @@ export default function Projects() {
             Previous
           </NavButton>
 
-          <span className="text-white/60">
+          <span className="text-white/60 text-sm">
             {index + 1} / {PROJECTS.length}
           </span>
 

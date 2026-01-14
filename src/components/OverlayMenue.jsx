@@ -5,6 +5,8 @@ const DEFAULT_CONFIG = Object.freeze({
   enabledSections: ["home"],
   performance: "auto", // low | medium | high | auto
   debug: false,
+  mouseEase: 0.04,
+  nebulaRefresh: 24, // px threshold
 });
 
 export default function ParticlesBackground({
@@ -18,13 +20,14 @@ export default function ParticlesBackground({
   const lastTime = useRef(0);
   const scrollFade = useRef(1);
   const visible = useRef(true);
+  const isDark = useRef(false);
 
   /* FPS debug */
   const fpsTime = useRef(0);
   const fpsCount = useRef(0);
   const fpsValue = useRef(0);
 
-  /* Cached gradient */
+  /* Cached nebula */
   const nebulaGrad = useRef(null);
   const lastGradPos = useRef({ x: 0, y: 0 });
 
@@ -61,6 +64,9 @@ export default function ParticlesBackground({
 
     const FRAME = 1000 / PERF.fps;
 
+    isDark.current =
+      document.documentElement.classList.contains("dark");
+
     /* ---------- PARTICLES ---------- */
     const layers = [0.35, 0.7, 1];
     const perLayer = Math.floor(PERF.count / layers.length);
@@ -73,8 +79,8 @@ export default function ParticlesBackground({
         vx: (-0.5 + Math.random()) * 0.003,
         vy: 0.004 + Math.random() * 0.01,
         depth,
-        alpha: 0.15 + Math.random() * 0.25,
-        hue: 180 + Math.random() * 120,
+        alpha: 0.18 + Math.random() * 0.22,
+        hue: 190 + Math.random() * 100,
       }))
     );
 
@@ -87,7 +93,7 @@ export default function ParticlesBackground({
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      nebulaGrad.current = null; // invalidate
+      nebulaGrad.current = null;
     };
 
     resize();
@@ -95,8 +101,8 @@ export default function ParticlesBackground({
 
     /* ---------- INPUT ---------- */
     const onMove = (e) => {
-      mouse.current.tx = e.clientX / w;
-      mouse.current.ty = e.clientY / h;
+      mouse.current.tx = Math.min(Math.max(e.clientX / w, 0), 1);
+      mouse.current.ty = Math.min(Math.max(e.clientY / h, 0), 1);
     };
 
     const onScroll = () => {
@@ -112,14 +118,13 @@ export default function ParticlesBackground({
     addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
 
-    /* ---------- DRAW LOOP ---------- */
+    /* ---------- DRAW ---------- */
     const draw = (t) => {
       rafRef.current = requestAnimationFrame(draw);
       if (!visible.current) return;
-
       if (t - lastTime.current < FRAME) return;
-      lastTime.current = t;
 
+      lastTime.current = t;
       ctx.clearRect(0, 0, w, h);
 
       /* FPS */
@@ -133,22 +138,23 @@ export default function ParticlesBackground({
       }
 
       /* Mouse inertia */
-      mouse.current.x += (mouse.current.tx - mouse.current.x) * 0.04;
-      mouse.current.y += (mouse.current.ty - mouse.current.y) * 0.04;
+      mouse.current.x +=
+        (mouse.current.tx - mouse.current.x) * config.mouseEase;
+      mouse.current.y +=
+        (mouse.current.ty - mouse.current.y) * config.mouseEase;
 
       const mx = (mouse.current.x - 0.5) * 12;
       const my = (mouse.current.y - 0.5) * 10;
       const fade = scrollFade.current;
-      const dark = document.documentElement.classList.contains("dark");
 
-      /* ---------- NEBULA (CACHED) ---------- */
+      /* ---------- NEBULA ---------- */
       const gx = Math.round(mouse.current.x * w);
       const gy = Math.round(mouse.current.y * h);
 
       if (
         !nebulaGrad.current ||
-        Math.abs(gx - lastGradPos.current.x) > 20 ||
-        Math.abs(gy - lastGradPos.current.y) > 20
+        Math.abs(gx - lastGradPos.current.x) > config.nebulaRefresh ||
+        Math.abs(gy - lastGradPos.current.y) > config.nebulaRefresh
       ) {
         nebulaGrad.current = ctx.createRadialGradient(
           gx,
@@ -160,7 +166,9 @@ export default function ParticlesBackground({
         );
         nebulaGrad.current.addColorStop(
           0,
-          dark ? "rgba(50,100,150,0.06)" : "rgba(120,180,220,0.04)"
+          isDark.current
+            ? "rgba(60,120,180,0.07)"
+            : "rgba(120,190,230,0.05)"
         );
         nebulaGrad.current.addColorStop(1, "transparent");
         lastGradPos.current = { x: gx, y: gy };
@@ -169,7 +177,7 @@ export default function ParticlesBackground({
       ctx.fillStyle = nebulaGrad.current;
       ctx.fillRect(0, 0, w, h);
 
-      /* ---------- PARTICLES ---------- */
+      /* ---------- PARTICLES & LINKS ---------- */
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
@@ -185,30 +193,33 @@ export default function ParticlesBackground({
         const py = p.y * h + my * p.depth;
 
         ctx.beginPath();
-        ctx.fillStyle = `hsla(${p.hue}, ${dark ? 75 : 55
-          }%, ${dark ? 70 : 45}%, ${p.alpha * fade})`;
+        ctx.fillStyle = `hsla(${p.hue}, ${isDark.current ? 75 : 55
+          }%, ${isDark.current ? 70 : 45}%, ${p.alpha * fade})`;
         ctx.arc(px, py, p.r, 0, Math.PI * 2);
         ctx.fill();
 
-        /* ---------- LIMITED CONNECTIONS ---------- */
         let linked = 0;
         for (let j = i + 1; j < particles.length && linked < PERF.links; j++) {
           const q = particles[j];
-          const dx = px - q.x * w;
-          const dy = py - q.y * h;
+          const qx = q.x * w + mx * q.depth;
+          const qy = q.y * h + my * q.depth;
+
+          const dx = px - qx;
+          const dy = py - qy;
+
           if (dx * dx + dy * dy < 14400) {
-            ctx.strokeStyle = `rgba(150,200,255,${0.04 * fade})`;
+            ctx.strokeStyle = `rgba(150,200,255,${0.03 * fade})`;
             ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(px, py);
-            ctx.lineTo(q.x * w, q.y * h);
+            ctx.lineTo(qx, qy);
             ctx.stroke();
             linked++;
           }
         }
       }
 
-      /* ---------- FPS OVERLAY ---------- */
+      /* ---------- FPS HUD ---------- */
       if (config.debug) {
         ctx.fillStyle = "rgba(0,0,0,0.6)";
         ctx.fillRect(10, 10, 90, 30);

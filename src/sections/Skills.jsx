@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 import ParticlesBackground from "../components/ParticlesBackground";
 import {
   FaJava,
@@ -23,7 +24,7 @@ import {
 } from "react-icons/si";
 
 /* ================================
-   SKILLS CONFIG (ATS + SCALABLE)
+   SKILLS CONFIG
 ================================ */
 const SKILLS = Object.freeze([
   {
@@ -52,7 +53,7 @@ const SKILLS = Object.freeze([
       { name: "Node.js", icon: <FaNodeJs className="text-green-400" /> },
       { name: "Express.js", icon: <SiExpress className="text-white" /> },
       { name: "REST APIs", icon: <span className="font-semibold text-emerald-400">API</span> },
-      { name: "JWT Authentication", icon: <span className="font-semibold text-pink-400">JWT</span> },
+      { name: "JWT Auth", icon: <span className="font-semibold text-pink-400">JWT</span> },
     ],
   },
   {
@@ -66,12 +67,10 @@ const SKILLS = Object.freeze([
   {
     title: "Data Analytics",
     items: [
-      { name: "NumPy", icon: <span className="font-semibold text-indigo-400">NP</span> },
-      { name: "Pandas", icon: <span className="font-semibold text-emerald-400">PD</span> },
+      { name: "NumPy", icon: "NP" },
+      { name: "Pandas", icon: "PD" },
       { name: "EDA", icon: "🔍" },
-      { name: "Data Cleaning", icon: "🧹" },
       { name: "Visualization", icon: "📊" },
-      { name: "Matplotlib", icon: "📈" },
       { name: "Excel", icon: "📑" },
       { name: "Power BI", icon: "📊" },
     ],
@@ -82,41 +81,48 @@ const SKILLS = Object.freeze([
       { name: "Git", icon: <FaGitAlt className="text-orange-400" /> },
       { name: "GitHub", icon: <SiGithub className="text-white" /> },
       { name: "Postman", icon: <SiPostman className="text-orange-500" /> },
-      { name: "VS Code", icon: <span className="font-semibold text-blue-400">VS</span> },
+      { name: "VS Code", icon: "VS" },
       { name: "Vercel", icon: <SiVercel className="text-white" /> },
       { name: "Netlify", icon: <SiNetlify className="text-emerald-400" /> },
     ],
   },
-  {
-    title: "Core Skills",
-    items: [
-      { name: "Full Stack Development", icon: "⚙️" },
-      { name: "API Design", icon: "🔗" },
-      { name: "Cloud Deployment", icon: "☁️" },
-      { name: "CI / CD", icon: "🚀" },
-    ],
-  },
 ]);
+
+/* ---------- LOW-END DEVICE CHECK ---------- */
+function shouldDisableParticles() {
+  if (typeof window === "undefined") return true;
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const smallScreen = window.innerWidth < 768;
+  const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
+
+  return prefersReducedMotion || (isTouch && (smallScreen || lowMemory));
+}
 
 export default function Skills() {
   const reduceMotion = useReducedMotion();
+  const [particlesEnabled, setParticlesEnabled] = useState(false);
+
+  useEffect(() => {
+    setParticlesEnabled(!shouldDisableParticles());
+  }, []);
 
   return (
     <section
       id="skills"
-      className="
-        relative min-h-screen py-28 overflow-hidden
-        bg-[#020617] text-white
-      "
+      className="relative min-h-screen py-24 sm:py-28 bg-[#020617] text-white overflow-hidden"
     >
-      {/* PARTICLES */}
-      <ParticlesBackground section="skills" />
+      {/* PARTICLES (AUTO DISABLED) */}
+      {particlesEnabled && <ParticlesBackground section="skills" />}
 
-      {/* BACKGROUND BLOBS */}
+      {/* BACKGROUND BLOBS (REDUCED ON MOBILE) */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-500/30 blur-[200px]" />
-        <div className="absolute top-1/3 right-[-20%] w-[600px] h-[600px] bg-sky-500/30 blur-[200px]" />
-        <div className="absolute bottom-[-30%] left-1/3 w-[600px] h-[600px] bg-cyan-500/20 blur-[200px]" />
+        <div className="absolute -top-40 -left-40 w-[420px] h-[420px] bg-emerald-500/25 blur-[160px]" />
+        <div className="absolute top-1/3 right-[-20%] w-[420px] h-[420px] bg-sky-500/25 blur-[160px]" />
       </div>
 
       {/* HEADING */}
@@ -125,57 +131,51 @@ export default function Skills() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="
-          text-center text-4xl md:text-5xl font-bold
+        className="text-center text-3xl sm:text-4xl md:text-5xl font-bold
           bg-gradient-to-r from-emerald-400 via-green-400 to-sky-400
-          bg-clip-text text-transparent
-        "
+          bg-clip-text text-transparent"
       >
         Skills & Technologies
       </motion.h2>
 
-      <p className="mt-4 text-center text-white/70">
+      <p className="mt-4 text-center text-white/70 text-sm sm:text-base">
         Full Stack Development & Data Analytics Toolkit
       </p>
 
       {/* GRID */}
-      <div className="mt-20 max-w-6xl mx-auto px-6 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-16 max-w-6xl mx-auto px-4 sm:px-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {SKILLS.map((group) => (
           <motion.div
             key={group.title}
-            initial={reduceMotion ? false : { opacity: 0, y: 40 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            whileHover={{ y: -10, scale: 1.02 }}
+            whileHover={reduceMotion ? {} : { y: -8, scale: 1.02 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="
-              rounded-3xl p-6
-              bg-white/5 backdrop-blur-2xl
+            className="rounded-3xl p-6
+              bg-white/5 backdrop-blur-xl
               border border-white/10
-              shadow-xl
-              hover:shadow-emerald-400/30
-              transition
-            "
+              shadow-xl transition"
           >
-            <h3 className="mb-6 text-xl font-semibold">{group.title}</h3>
+            <h3 className="mb-6 text-lg sm:text-xl font-semibold">
+              {group.title}
+            </h3>
 
             <ul className="flex flex-wrap gap-3">
               {group.items.map((item) => (
                 <li
                   key={item.name}
-                  className="
-                    flex items-center gap-2
+                  className="flex items-center gap-2
                     px-4 py-2 rounded-full
-                    bg-white/10
-                    border border-white/10
+                    bg-white/10 border border-white/10
                     text-sm text-white/80
                     hover:text-white
                     hover:bg-gradient-to-r hover:from-emerald-400/20 hover:to-sky-400/20
-                    hover:border-emerald-400/50
-                    transition
-                  "
+                    transition"
                 >
-                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-lg font-semibold">
+                    {item.icon}
+                  </span>
                   <span>{item.name}</span>
                 </li>
               ))}

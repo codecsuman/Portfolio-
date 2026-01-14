@@ -7,8 +7,11 @@ import {
 import { useEffect, useRef, useState } from "react";
 import Logo from "../assets/Logo.png";
 
-const DURATION = 2200;
-const CIRC = 276;
+/* ==============================
+   CONSTANTS
+================================ */
+const INTRO_DURATION = 2200; // ms
+const RING_CIRCUMFERENCE = 276;
 
 export default function IntroAnimation({ onFinish }) {
   const [visible, setVisible] = useState(true);
@@ -17,7 +20,10 @@ export default function IntroAnimation({ onFinish }) {
 
   /* ---------- PROGRESS (NO RE-RENDERS) ---------- */
   const progress = useMotionValue(0);
-  const dashOffset = useTransform(progress, (p) => CIRC * (1 - p));
+  const dashOffset = useTransform(
+    progress,
+    (p) => RING_CIRCUMFERENCE * (1 - p)
+  );
 
   useEffect(() => {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -32,7 +38,7 @@ export default function IntroAnimation({ onFinish }) {
     const tick = (now) => {
       if (finishedRef.current) return;
 
-      const p = Math.min((now - start) / DURATION, 1);
+      const p = Math.min((now - start) / INTRO_DURATION, 1);
       progress.set(p);
 
       if (p < 1) {
@@ -41,17 +47,25 @@ export default function IntroAnimation({ onFinish }) {
         timeoutRef.current = setTimeout(() => {
           finishedRef.current = true;
           setVisible(false);
-        }, 250);
+        }, 280);
       }
     };
 
     raf = requestAnimationFrame(tick);
 
     /* ---------- SOFT SKIP ---------- */
-    const skip = () => {
+    const skip = (e) => {
       if (finishedRef.current) return;
-      finishedRef.current = true;
-      setVisible(false);
+
+      if (
+        e.type === "click" ||
+        e.key === "Escape" ||
+        e.key === "Enter" ||
+        e.key === " "
+      ) {
+        finishedRef.current = true;
+        setVisible(false);
+      }
     };
 
     window.addEventListener("click", skip);
@@ -75,7 +89,7 @@ export default function IntroAnimation({ onFinish }) {
             bg-white dark:bg-black
           "
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
           transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
         >
           {/* ---------- AMBIENT GLOW ---------- */}
@@ -101,7 +115,7 @@ export default function IntroAnimation({ onFinish }) {
           {/* ---------- CONTENT ---------- */}
           <motion.div
             className="relative flex flex-col items-center gap-10"
-            initial={{ y: 8 }}
+            initial={{ y: 10 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
@@ -151,9 +165,10 @@ export default function IntroAnimation({ onFinish }) {
                 cx="50"
                 cy="50"
                 r="44"
-                stroke="rgba(255,255,255,0.15)"
+                stroke="rgba(255,255,255,0.12)"
                 strokeWidth="6"
                 fill="none"
+                className="dark:stroke-white/15 stroke-black/10"
               />
               <motion.circle
                 cx="50"
@@ -163,7 +178,7 @@ export default function IntroAnimation({ onFinish }) {
                 strokeWidth="6"
                 fill="none"
                 strokeLinecap="round"
-                strokeDasharray={CIRC}
+                strokeDasharray={RING_CIRCUMFERENCE}
                 style={{ strokeDashoffset: dashOffset }}
               />
               <defs>
@@ -180,17 +195,6 @@ export default function IntroAnimation({ onFinish }) {
               </defs>
             </svg>
           </motion.div>
-
-          {/* MICRO HAPTIC */}
-          <motion.div
-            className="absolute inset-0"
-            animate={{ scale: [1, 1.008, 1] }}
-            transition={{
-              duration: 1.1,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
         </motion.div>
       )}
     </AnimatePresence>

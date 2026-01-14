@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
 
 import m1 from "../assets/m1.PNG";
@@ -38,85 +39,103 @@ const TESTIMONIALS = [
 ];
 
 /* ---------- CARD ---------- */
-const TestimonialCard = ({ t }) => (
-  <div
-    className="
-      flex gap-3 p-4
-      rounded-xl
-      bg-white/5 backdrop-blur-xl
-      border border-white/10
-      hover:border-emerald-400/30
-      hover:shadow-emerald-400/20
-      transition
-    "
-  >
-    {/* Avatar */}
-    <img
-      src={t.image}
-      alt={t.name}
+function TestimonialCard({ t, reduceMotion }) {
+  return (
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      whileHover={reduceMotion ? {} : { y: -6, scale: 1.02 }}
       className="
-        w-10 h-10 rounded-full
-        object-cover
-        border border-white/20
-        shrink-0
+        flex gap-4 p-5
+        rounded-2xl
+        bg-white/5 backdrop-blur-xl
+        border border-white/10
+        shadow-lg
+        transition
       "
-    />
+    >
+      {/* Avatar */}
+      <img
+        src={t.image}
+        alt={t.name}
+        className="
+          w-12 h-12 rounded-full
+          object-cover
+          border border-white/20
+          shrink-0
+        "
+      />
 
-    {/* Content */}
-    <div className="flex-1">
-      <p className="text-sm text-white/80 leading-snug">
-        “{t.review}”
-      </p>
+      {/* Content */}
+      <div className="flex-1">
+        <p className="text-sm sm:text-base text-white/80 leading-relaxed">
+          “{t.review}”
+        </p>
 
-      {/* Stars */}
-      <div className="flex gap-1 mt-1 text-yellow-400">
-        {[...Array(5)].map((_, i) => (
-          <FaStar
-            key={i}
-            className={i < t.rating ? "opacity-100" : "opacity-20"}
-            size={12}
-          />
-        ))}
+        {/* Stars */}
+        <div className="flex gap-1 mt-2 text-yellow-400">
+          {[...Array(5)].map((_, i) => (
+            <FaStar
+              key={i}
+              size={14}
+              className={i < t.rating ? "opacity-100" : "opacity-25"}
+            />
+          ))}
+        </div>
+
+        <p className="mt-2 text-xs sm:text-sm text-white/60">
+          <span className="font-semibold text-white/80">
+            {t.name}
+          </span>{" "}
+          · {t.role}
+        </p>
       </div>
-
-      <p className="mt-1 text-xs text-white/60">
-        <span className="font-semibold text-white/80">
-          {t.name}
-        </span>{" "}
-        · {t.role}
-      </p>
-    </div>
-  </div>
-);
+    </motion.div>
+  );
+}
 
 /* ---------- SECTION ---------- */
 export default function Testimonials() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section
       id="testimonials"
-      className="relative py-16 bg-black text-white"
+      className="relative py-24 bg-[#020617] text-white overflow-hidden"
     >
-      <div className="max-w-6xl mx-auto px-6">
+      {/* BACKGROUND GLOW */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 -left-32 w-[420px] h-[420px] bg-emerald-500/20 blur-[160px]" />
+        <div className="absolute bottom-[-30%] right-[-20%] w-[420px] h-[420px] bg-sky-500/20 blur-[160px]" />
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Heading */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-12">
           <h2
             className="
-              text-3xl md:text-4xl font-bold
+              text-3xl sm:text-4xl font-bold
               text-transparent bg-clip-text
               bg-gradient-to-r from-emerald-400 to-sky-400
             "
           >
             Testimonials
           </h2>
-          <p className="mt-2 text-sm text-white/60">
+          <p className="mt-2 text-sm sm:text-base text-white/60">
             Feedback from professionals I’ve worked with
           </p>
         </div>
 
         {/* GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {TESTIMONIALS.map((t) => (
-            <TestimonialCard key={t.name} t={t} />
+            <TestimonialCard
+              key={t.name}
+              t={t}
+              reduceMotion={reduceMotion}
+            />
           ))}
         </div>
       </div>

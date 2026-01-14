@@ -1,182 +1,179 @@
 import { useEffect, useRef } from "react";
 
-/* ---------- CONFIG ---------- */
-const DEFAULT_CONFIG = Object.freeze({
-  enabledSections: ["home"],
-  performance: "auto", // auto | low | medium | high
+/* ==============================
+   CONFIG (HOME ONLY)
+================================ */
+const CONFIG = Object.freeze({
+  section: "home",
+  fps: { high: 60, medium: 40, low: 24 },
+  particles: { high: 120, medium: 80, low: 50 },
+  mouseEase: 0.08,
 });
 
-export default function ParticlesBackground({
-  section = "home",
-  config = DEFAULT_CONFIG,
-}) {
+export default function ParticlesBackground({ section = "home" }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
 
-  const mouse = useRef({ x: 0.5, y: 0.5, vx: 0, vy: 0 });
-  const lastMouse = useRef({ x: 0.5, y: 0.5 });
+  const mouse = useRef({
+    x: 0.5,
+    y: 0.5,
+    tx: 0.5,
+    ty: 0.5,
+  });
+
   const lastTime = useRef(0);
-  const scrollFade = useRef(1);
   const visible = useRef(true);
+  const isDark = useRef(false);
 
   useEffect(() => {
-    if (!config.enabledSections.includes(section)) return;
-    if (section !== "home") return;
+    if (section !== CONFIG.section) return;
 
-    /* ---------- HARD PERFORMANCE GUARDS ---------- */
-    const prefersReduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* ===== Guards ===== */
+    const prefersReduced = matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const isMobile = matchMedia("(max-width: 768px)").matches;
     const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
     const lowCPU = navigator.hardwareConcurrency <= 4;
-    const mobile = matchMedia("(max-width: 768px)").matches;
 
-    if (prefersReduced || mobile) return;
+    if (prefersReduced || isMobile) return;
 
-    const ultraLow = lowMemory || lowCPU;
+    const quality = lowMemory || lowCPU ? "low" : "medium";
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: true });
+    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
 
-    let w = 0;
-    let h = 0;
+    let width = 0;
+    let height = 0;
 
-    const DPR = ultraLow ? 1 : Math.min(devicePixelRatio || 1, 1.5);
+    const FPS = CONFIG.fps[quality];
+    const PARTICLE_COUNT = CONFIG.particles[quality];
+    const FRAME_TIME = 1000 / FPS;
 
-    /* ---------- PERFORMANCE PRESETS ---------- */
-    const PERF =
-      ultraLow
-        ? { fps: 12, particles: 30 }
-        : config.performance === "high"
-          ? { fps: 60, particles: 140 }
-          : config.performance === "medium"
-            ? { fps: 36, particles: 90 }
-            : { fps: 24, particles: 60 };
+    isDark.current =
+      document.documentElement.classList.contains("dark");
 
-    const FRAME_TIME = 1000 / PERF.fps;
+    /* ===== Particles ===== */
+    const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: 1.2 + Math.random() * 2.8,
+      vx: (-0.5 + Math.random()) * 0.02,
+      vy: 0.02 + Math.random() * 0.06,
+      depth: 0.4 + Math.random() * 0.6,
+      alpha: 0.25 + Math.random() * 0.35,
+    }));
 
-    /* ---------- PARTICLES (IMMUTABLE) ---------- */
-    const particles = Object.freeze(
-      Array.from({ length: PERF.particles }, () => ({
-        x: Math.random(),
-        y: Math.random(),
-        r: 1.5 + Math.random() * 2.5,
-        vy: 0.02 + Math.random() * 0.05,
-        vx: (-0.5 + Math.random()) * 0.01,
-        depth: 0.3 + Math.random() * 0.7,
-        hue: Math.floor(180 + Math.random() * 120),
-        alpha: 0.25 + Math.random() * 0.4,
-      }))
-    );
-
-    /* ---------- RESIZE ---------- */
+    /* ===== Resize ===== */
     const resize = () => {
-      w = innerWidth;
-      h = innerHeight;
-      canvas.width = w * DPR;
-      canvas.height = h * DPR;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
+      width = window.innerWidth;
+      height = window.innerHeight;
+
+      canvas.width = width * DPR;
+      canvas.height = height * DPR;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     };
 
     resize();
-    addEventListener("resize", resize);
+    window.addEventListener("resize", resize);
 
-    /* ---------- MOUSE (ACTIVE ONLY WHEN VISIBLE) ---------- */
+    /* ===== Mouse ===== */
     const onMove = (e) => {
-      const nx = e.clientX / w;
-      const ny = e.clientY / h;
-
-      mouse.current.vx = nx - lastMouse.current.x;
-      mouse.current.vy = ny - lastMouse.current.y;
-
-      mouse.current.x = nx;
-      mouse.current.y = ny;
-      lastMouse.current = { x: nx, y: ny };
+      mouse.current.tx = Math.min(Math.max(e.clientX / width, 0), 1);
+      mouse.current.ty = Math.min(Math.max(e.clientY / height, 0), 1);
     };
 
-    /* ---------- SCROLL FADE ---------- */
-    const onScroll = () => {
-      const max = innerHeight * 0.9;
-      scrollFade.current = Math.max(0, 1 - scrollY / max);
-    };
+    window.addEventListener("mousemove", onMove, { passive: true });
 
-    /* ---------- VISIBILITY ---------- */
+    /* ===== Visibility ===== */
     const onVisibility = () => {
       visible.current = !document.hidden;
       lastTime.current = performance.now();
     };
 
     document.addEventListener("visibilitychange", onVisibility);
-    addEventListener("scroll", onScroll, { passive: true });
-    addEventListener("mousemove", onMove, { passive: true });
 
-    /* ---------- DRAW LOOP ---------- */
+    /* ===== Draw ===== */
     const draw = (time) => {
-      if (!visible.current) {
-        rafRef.current = requestAnimationFrame(draw);
-        return;
-      }
+      rafRef.current = requestAnimationFrame(draw);
 
-      if (time - lastTime.current < FRAME_TIME) {
-        rafRef.current = requestAnimationFrame(draw);
-        return;
-      }
+      if (!visible.current) return;
+      if (time - lastTime.current < FRAME_TIME) return;
 
       lastTime.current = time;
-      ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, width, height);
 
-      const fade = scrollFade.current;
-      const isDark = document.documentElement.classList.contains("dark");
+      // Mouse easing
+      mouse.current.x +=
+        (mouse.current.tx - mouse.current.x) * CONFIG.mouseEase;
+      mouse.current.y +=
+        (mouse.current.ty - mouse.current.y) * CONFIG.mouseEase;
 
-      const speed =
-        Math.min(1, Math.abs(mouse.current.vx) + Math.abs(mouse.current.vy)) * 18;
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        p.y += p.vy * p.depth;
+      for (const p of particles) {
         p.x += p.vx * p.depth;
+        p.y += p.vy * p.depth;
 
         if (p.y > 1.2) {
           p.y = -0.2;
           p.x = Math.random();
         }
+        if (p.x > 1.2) p.x = -0.2;
+        if (p.x < -0.2) p.x = 1.2;
 
-        const mx = (mouse.current.x - 0.5) * (8 + speed) * p.depth;
-        const my = (mouse.current.y - 0.5) * (6 + speed) * p.depth;
+        const cx =
+          p.x * width +
+          (mouse.current.x - 0.5) * 18 * p.depth;
+        const cy =
+          p.y * height +
+          (mouse.current.y - 0.5) * 14 * p.depth;
 
+        const glow = ctx.createRadialGradient(
+          cx,
+          cy,
+          0,
+          cx,
+          cy,
+          p.r * 4.5
+        );
+
+        glow.addColorStop(
+          0,
+          isDark.current
+            ? `rgba(56,189,248,${p.alpha})`
+            : `rgba(99,102,241,${p.alpha})`
+        );
+        glow.addColorStop(1, "rgba(0,0,0,0)");
+
+        ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.fillStyle = `hsla(
-          ${p.hue},
-          ${isDark ? 80 : 60}%,
-          ${isDark ? 70 : 40}%,
-          ${p.alpha * fade}
-        )`;
-
-        ctx.arc(p.x * w + mx, p.y * h + my, p.r, 0, Math.PI * 2);
+        ctx.arc(cx, cy, p.r * 4.5, 0, Math.PI * 2);
         ctx.fill();
       }
-
-      rafRef.current = requestAnimationFrame(draw);
     };
 
     rafRef.current = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      removeEventListener("resize", resize);
-      removeEventListener("mousemove", onMove);
-      removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMove);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [section, config.performance]);
+  }, [section]);
+
+  if (section !== "home") return null;
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 -z-10 pointer-events-none"
+      aria-hidden="true"
+      className="particles-canvas"
     />
   );
 }

@@ -2,71 +2,84 @@
 <html lang="en">
 
 <head>
-  <!-- ==============================
-         META
-  =============================== -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+       <!-- META -->
+       <meta charset="UTF-8" />
+       <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="description"
-    content="Suman Jhanp – Frontend Developer portfolio showcasing projects, skills, and experience in React, Tailwind, and modern web technologies." />
+       <title>Suman Jhanp | Full Stack Developer & Data Analyst</title>
 
-  <meta name="theme-color" content="#020617" />
-  <meta name="color-scheme" content="dark light" />
+       <meta name="description"
+              content="Suman Jhanp – Full Stack Developer & Data Analyst. Portfolio showcasing MERN projects, skills, and contact details." />
 
-  <title>Suman Jhanp | Frontend Developer</title>
+       <!-- Ocean theme color for mobile browser chrome -->
+       <meta name="theme-color" content="#020c1b" />
 
-  <!-- ==============================
-         FAVICON
-  =============================== -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+       <!-- Open Graph (looks good when shared on social) -->
+       <meta property="og:title" content="Suman Jhanp | Full Stack Developer" />
+       <meta property="og:description" content="MERN Developer & Data Analyst — building scalable web apps." />
+       <meta property="og:type" content="website" />
 
-  <!-- ==============================
-         OPEN GRAPH (SEO / SHARE)
-  =============================== -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Suman Jhanp | Frontend Developer" />
-  <meta property="og:description" content="Modern, animated portfolio showcasing projects, skills, and experience." />
-  <meta property="og:image" content="/og-image.png" />
-  <meta property="og:url" content="https://your-portfolio.netlify.app" />
+       <!-- FAVICON -->
+       <link rel="icon" href="/favicon.svg" />
 
-  <meta name="twitter:card" content="summary_large_image" />
+       <!-- GOOGLE FONTS — Syne (display) + DM Sans (body) -->
+       <link rel="preconnect" href="https://fonts.googleapis.com" />
+       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+              rel="stylesheet" />
 
-  <!-- ==============================
-         PERFORMANCE: GOOGLE FONTS
-  =============================== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+       <style>
+              /* Apply fonts globally before React mounts — prevents FOUT */
+              *,
+              *::before,
+              *::after {
+                     box-sizing: border-box;
+              }
 
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Special+Gothic+Expanded+One&display=swap" />
+              html {
+                     font-family: 'DM Sans', system-ui, sans-serif;
+              }
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Special+Gothic+Expanded+One&display=swap"
-    rel="stylesheet" media="print" onload="this.media='all'" />
+              h1,
+              h2,
+              h3,
+              h4,
+              h5,
+              h6 {
+                     font-family: 'Syne', sans-serif;
+              }
 
-  <noscript>
-    <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Special+Gothic+Expanded+One&display=swap" />
-  </noscript>
+              /* Initial page background matches ocean theme so no white flash */
+              body {
+                     margin: 0;
+                     background-color: #020c1b;
+                     color: #e0f2fe;
+              }
 
-  <!-- ==============================
-         PRELOAD ENTRY (MICRO BOOST)
-  =============================== -->
-  <link rel="modulepreload" href="/src/main.jsx" />
+              /* Minimal loading state while React hydrates */
+              #root:empty::after {
+                     content: "";
+                     display: block;
+                     width: 40px;
+                     height: 40px;
+                     margin: 48vh auto 0;
+                     border-radius: 50%;
+                     border: 3px solid rgba(14, 165, 233, 0.15);
+                     border-top-color: #0ea5e9;
+                     animation: spin 0.7s linear infinite;
+              }
+
+              @keyframes spin {
+                     to {
+                            transform: rotate(360deg);
+                     }
+              }
+       </style>
 </head>
 
 <body>
-  <!-- ==============================
-         REACT ROOT
-  =============================== -->
-  <div id="root"></div>
-
-  <!-- ==============================
-         VITE ENTRY
-  =============================== -->
-  <script type="module" src="/src/main.jsx"></script>
+       <div id="root"></div>
+       <script type="module" src="/src/main.jsx"></script>
 </body>
 
 </html>

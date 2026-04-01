@@ -1,229 +1,102 @@
-import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
-import ParticlesBackground from "../components/ParticlesBackground";
 
-/* ================================
-   EXPERIENCE DATA
-================================ */
-const EXPERIENCES = Object.freeze([
+const EXPERIENCES = [
   {
-    role: "Full Stack Web Developer (MERN)",
-    org: "Academic & Personal Projects · 2025",
-    points: [
-      "Built scalable MERN applications",
-      "JWT-secured REST APIs",
-      "MongoDB schema optimization",
-      "Vercel & Render deployment",
-    ],
-    tech: ["React", "Node", "Express", "MongoDB", "JWT"],
+    title: "Full Stack Developer (MERN)",
+    org: "Projects · 2025",
+    points: ["Built MERN applications", "Created REST APIs with JWT", "Worked with MongoDB"],
+    color: "#0ea5e9",
+    icon: "💻",
   },
   {
-    role: "Doctor Appointment System",
-    org: "Healthcare MERN Platform",
-    points: [
-      "Patient, Doctor & Admin dashboards",
-      "Real-time slot booking",
-      "Payment integration",
-    ],
-    tech: ["React", "Node", "MongoDB", "Stripe"],
+    title: "Doctor Appointment System",
+    org: "MERN Project",
+    points: ["Dashboard for users & admin", "Online booking system"],
+    color: "#10b981",
+    icon: "🏥",
   },
   {
-    role: "Job Portal Application",
-    org: "MERN Stack Project",
-    points: [
-      "Role-based authentication",
-      "Recruiter dashboard",
-      "Optimized APIs",
-    ],
-    tech: ["Node", "Express", "MongoDB", "JWT"],
+    title: "Job Portal",
+    org: "MERN Project",
+    points: ["Authentication system", "Recruiter dashboard"],
+    color: "#06b6d4",
+    icon: "💼",
   },
-  {
-    role: "Instagram Clone",
-    org: "Real-Time MERN App",
-    points: [
-      "Likes & comments",
-      "Socket.IO real-time updates",
-      "Optimized feed loading",
-    ],
-    tech: ["React", "Node", "Socket.IO", "MongoDB"],
-  },
-  {
-    role: "Restaurant Website",
-    org: "Frontend Project",
-    points: [
-      "Responsive UI",
-      "Performance-focused layout",
-      "Clean design system",
-    ],
-    tech: ["HTML", "CSS", "JavaScript"],
-  },
-]);
+];
 
-/* ---------- LOW-END DEVICE CHECK ---------- */
-function shouldDisableParticles() {
-  if (typeof window === "undefined") return true;
+const SOCIALS = [
+  { icon: <FaGithub />, href: "https://github.com/codecsuman", color: "#38bdf8" },
+  { icon: <FaLinkedin />, href: "https://www.linkedin.com/in/sumanjhanp/", color: "#34d399" },
+  { icon: <SiLeetcode />, href: "https://leetcode.com/u/sumanjhanp1/", color: "#06b6d4" },
+];
 
-  const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-  const isTouch = window.matchMedia("(pointer: coarse)").matches;
-  const smallScreen = window.innerWidth < 768;
-  const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
-
-  return prefersReducedMotion || (isTouch && (smallScreen || lowMemory));
-}
-
-/* ================================
-   EXPERIENCE CARD
-================================ */
-function ExperienceCard({ exp, reduceMotion }) {
-  return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      whileHover={reduceMotion ? {} : { y: -6, scale: 1.02 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="
-        rounded-2xl p-5
-        bg-white/5 backdrop-blur-xl
-        border border-white/10
-        shadow-lg
-        transition
-      "
-    >
-      <h3 className="text-sm sm:text-base font-semibold">
-        {exp.role}
-      </h3>
-      <p className="text-xs sm:text-sm text-white/60">
-        {exp.org}
-      </p>
-
-      {/* TECH STACK */}
-      <div className="flex flex-wrap gap-2 mt-3">
-        {exp.tech.map((t) => (
-          <span
-            key={t}
-            className="
-              px-2.5 py-1 text-[11px]
-              rounded-full
-              bg-emerald-400/10
-              border border-emerald-400/20
-              text-emerald-300
-            "
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-
-      {/* BULLET POINTS */}
-      <ul className="mt-3 text-xs sm:text-sm text-white/75 space-y-1 list-disc list-inside">
-        {exp.points.map((p) => (
-          <li key={p}>{p}</li>
-        ))}
-      </ul>
-    </motion.div>
-  );
-}
-
-/* ================================
-   EXPERIENCE SECTION
-================================ */
 export default function Experience() {
-  const reduceMotion = useReducedMotion();
-  const [particlesEnabled, setParticlesEnabled] = useState(false);
-
-  useEffect(() => {
-    setParticlesEnabled(!shouldDisableParticles());
-  }, []);
-
   return (
-    <section
-      id="experience"
-      className="relative min-h-screen py-24 bg-[#020617] overflow-hidden"
-    >
-      {/* PARTICLES */}
-      {particlesEnabled && <ParticlesBackground section="experience" />}
+    <section id="experience" className="section">
 
-      {/* BACKGROUND GLOWS */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 -left-40 w-[420px] h-[420px] bg-emerald-500/25 blur-[160px]" />
-        <div className="absolute bottom-[-30%] right-[-20%] w-[420px] h-[420px] bg-sky-500/25 blur-[160px]" />
+      <h2 className="section-title">Experience</h2>
+
+      <div className="grid md:grid-cols-3 gap-5">
+        {EXPERIENCES.map((exp, i) => (
+          <div key={i} className="card"
+            style={{ borderColor: `${exp.color}22`, transition: "all 0.3s ease", position: "relative", overflow: "hidden" }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = `${exp.color}55`;
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = `0 0 24px ${exp.color}33, 0 8px 32px rgba(0,0,0,0.5)`;
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = `${exp.color}22`;
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.4)";
+            }}>
+            <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl"
+              style={{ background: `linear-gradient(90deg, ${exp.color}, transparent)` }} />
+
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg"
+                style={{ background: `${exp.color}18`, border: `1px solid ${exp.color}33` }}>
+                {exp.icon}
+              </div>
+              <div>
+                <h3 className="text-sm font-bold leading-tight" style={{ color: "#e0f2fe" }}>{exp.title}</h3>
+                <p className="text-xs mt-0.5" style={{ color: exp.color }}>{exp.org}</p>
+              </div>
+            </div>
+
+            <ul className="space-y-1.5">
+              {exp.points.map((p, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: "#94a3b8" }}>
+                  <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: exp.color }} />
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
-        {/* HEADER */}
-        <div className="text-center mb-12">
-          <h2 className="
-            text-3xl sm:text-4xl font-bold
-            bg-gradient-to-r from-emerald-400 to-sky-400
-            bg-clip-text text-transparent
-          ">
-            Experience
-          </h2>
-          <p className="mt-2 text-sm sm:text-base text-white/60">
-            Full-stack MERN development experience
-          </p>
-        </div>
-
-        {/* GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-          {EXPERIENCES.map((exp) => (
-            <ExperienceCard
-              key={exp.role}
-              exp={exp}
-              reduceMotion={reduceMotion}
-            />
-          ))}
-        </div>
-
-        {/* SOCIAL LINKS */}
-        <div className="flex justify-center gap-10 mt-14 text-3xl">
-          <SocialLink
-            href="https://github.com/codecsuman"
-            color="hover:text-emerald-400"
-            label="GitHub"
-          >
-            <FaGithub />
-          </SocialLink>
-
-          <SocialLink
-            href="https://www.linkedin.com/in/sumanjhanp/"
-            color="hover:text-sky-400"
-            label="LinkedIn"
-          >
-            <FaLinkedin />
-          </SocialLink>
-
-          <SocialLink
-            href="https://leetcode.com/u/sumanjhanp1/"
-            color="hover:text-yellow-400"
-            label="LeetCode"
-          >
-            <SiLeetcode />
-          </SocialLink>
-        </div>
+      {/* Socials */}
+      <div className="flex justify-center gap-4 mt-10">
+        {SOCIALS.map(({ icon, href, color }, i) => (
+          <a key={i} href={href} target="_blank"
+            className="w-11 h-11 flex items-center justify-center rounded-xl text-lg transition-all duration-200"
+            style={{ background: `${color}10`, border: `1px solid ${color}25`, color }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = `${color}25`;
+              e.currentTarget.style.boxShadow = `0 0 16px ${color}44`;
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = `${color}10`;
+              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}>
+            {icon}
+          </a>
+        ))}
       </div>
     </section>
-  );
-}
-
-/* ================================
-   SOCIAL LINK
-================================ */
-function SocialLink({ href, color, label, children }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      className={`p-2 rounded-full text-white/60 transition ${color}`}
-    >
-      {children}
-    </a>
   );
 }

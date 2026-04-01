@@ -1,188 +1,242 @@
-import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
-import ParticlesBackground from "../components/ParticlesBackground";
-import {
-  FaJava,
-  FaJs,
-  FaReact,
-  FaNodeJs,
-  FaGitAlt,
-  FaPython,
-} from "react-icons/fa";
-import {
-  SiTypescript,
-  SiMongodb,
-  SiMysql,
-  SiExpress,
-  SiPostman,
-  SiTailwindcss,
-  SiGithub,
-  SiHtml5,
-  SiCss3,
-  SiVercel,
-  SiNetlify,
-} from "react-icons/si";
+import { useEffect, useRef, useState } from "react";
 
-/* ================================
-   SKILLS CONFIG
-================================ */
-const SKILLS = Object.freeze([
+const SKILLS = [
   {
-    title: "Languages",
+    title: "Languages", icon: "⌨️", color: "#38bdf8",
     items: [
-      { name: "Java", icon: <FaJava className="text-orange-400" /> },
-      { name: "JavaScript", icon: <FaJs className="text-yellow-300" /> },
-      { name: "TypeScript", icon: <SiTypescript className="text-blue-400" /> },
-      { name: "Python", icon: <FaPython className="text-sky-400" /> },
-      { name: "C", icon: <span className="font-bold text-cyan-400">C</span> },
+      { name: "JavaScript", level: 90 },
+      { name: "TypeScript", level: 78 },
+      { name: "Python", level: 80 },
+      { name: "Java", level: 70 },
+      { name: "C", level: 60 },
     ],
   },
   {
-    title: "Frontend",
+    title: "Frontend", icon: "🎨", color: "#34d399",
     items: [
-      { name: "React.js", icon: <FaReact className="text-cyan-400" /> },
-      { name: "Next.js", icon: <span className="font-bold text-white">N</span> },
-      { name: "HTML5", icon: <SiHtml5 className="text-orange-500" /> },
-      { name: "CSS3", icon: <SiCss3 className="text-blue-500" /> },
-      { name: "Tailwind CSS", icon: <SiTailwindcss className="text-sky-400" /> },
+      { name: "React", level: 92 },
+      { name: "Tailwind", level: 88 },
+      { name: "HTML/CSS", level: 95 },
     ],
   },
   {
-    title: "Backend & APIs",
+    title: "Backend", icon: "⚙️", color: "#06b6d4",
     items: [
-      { name: "Node.js", icon: <FaNodeJs className="text-green-400" /> },
-      { name: "Express.js", icon: <SiExpress className="text-white" /> },
-      { name: "REST APIs", icon: <span className="font-semibold text-emerald-400">API</span> },
-      { name: "JWT Auth", icon: <span className="font-semibold text-pink-400">JWT</span> },
+      { name: "Node.js", level: 85 },
+      { name: "Express", level: 83 },
+      { name: "REST APIs", level: 88 },
+      { name: "JWT", level: 80 },
     ],
   },
   {
-    title: "Databases",
+    title: "Databases", icon: "🗄️", color: "#2dd4bf",
     items: [
-      { name: "MongoDB", icon: <SiMongodb className="text-emerald-400" /> },
-      { name: "MySQL", icon: <SiMysql className="text-sky-400" /> },
-      { name: "SQL", icon: <span className="font-semibold text-cyan-400">SQL</span> },
+      { name: "MongoDB", level: 85 },
+      { name: "MySQL", level: 75 },
+      { name: "SQL", level: 78 },
     ],
   },
   {
-    title: "Data Analytics",
+    title: "Data Analytics", icon: "📊", color: "#a78bfa",
     items: [
-      { name: "NumPy", icon: "NP" },
-      { name: "Pandas", icon: "PD" },
-      { name: "EDA", icon: "🔍" },
-      { name: "Visualization", icon: "📊" },
-      { name: "Excel", icon: "📑" },
-      { name: "Power BI", icon: "📊" },
+      { name: "Pandas", level: 80 },
+      { name: "NumPy", level: 75 },
+      { name: "Power BI", level: 70 },
+      { name: "Excel", level: 82 },
     ],
   },
   {
-    title: "Tools & Platforms",
+    title: "Tools", icon: "🛠️", color: "#f472b6",
     items: [
-      { name: "Git", icon: <FaGitAlt className="text-orange-400" /> },
-      { name: "GitHub", icon: <SiGithub className="text-white" /> },
-      { name: "Postman", icon: <SiPostman className="text-orange-500" /> },
-      { name: "VS Code", icon: "VS" },
-      { name: "Vercel", icon: <SiVercel className="text-white" /> },
-      { name: "Netlify", icon: <SiNetlify className="text-emerald-400" /> },
+      { name: "Git/GitHub", level: 90 },
+      { name: "Postman", level: 82 },
+      { name: "Vercel", level: 80 },
     ],
   },
-]);
+];
 
-/* ---------- LOW-END DEVICE CHECK ---------- */
-function shouldDisableParticles() {
-  if (typeof window === "undefined") return true;
-
-  const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  const isTouch = window.matchMedia("(pointer: coarse)").matches;
-  const smallScreen = window.innerWidth < 768;
-  const lowMemory = navigator.deviceMemory && navigator.deviceMemory <= 4;
-
-  return prefersReducedMotion || (isTouch && (smallScreen || lowMemory));
+/* ── animated progress bar ── */
+function ProgressBar({ level, color, animate }) {
+  return (
+    <div style={{
+      height: "5px", borderRadius: "999px",
+      background: "rgba(255,255,255,0.07)",
+      overflow: "hidden", flexShrink: 0, width: "80px",
+    }}>
+      <div style={{
+        height: "100%", borderRadius: "999px",
+        background: `linear-gradient(90deg, ${color}, ${color}99)`,
+        width: animate ? `${level}%` : "0%",
+        transition: "width 1s cubic-bezier(0.4,0,0.2,1)",
+        boxShadow: `0 0 6px ${color}66`,
+      }} />
+    </div>
+  );
 }
 
-export default function Skills() {
-  const reduceMotion = useReducedMotion();
-  const [particlesEnabled, setParticlesEnabled] = useState(false);
+/* ── single skill card ── */
+function SkillCard({ group, animate }) {
+  const [hovered, setHovered] = useState(false);
 
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        borderRadius: "18px",
+        padding: "22px",
+        background: hovered
+          ? `linear-gradient(135deg, rgba(13,33,55,0.95), rgba(13,40,65,0.95))`
+          : "rgba(13,33,55,0.8)",
+        border: `1px solid ${hovered ? group.color + "44" : group.color + "1a"}`,
+        boxShadow: hovered
+          ? `0 0 28px ${group.color}22, 0 12px 40px rgba(0,0,0,0.5)`
+          : "0 4px 24px rgba(0,0,0,0.35)",
+        transform: hovered ? "translateY(-5px)" : "translateY(0)",
+        transition: "all 0.28s ease",
+        position: "relative", overflow: "hidden",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      {/* top accent line */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+        background: `linear-gradient(90deg, ${group.color}, transparent)`,
+        opacity: hovered ? 1 : 0.4,
+        transition: "opacity 0.3s",
+      }} />
+
+      {/* corner glow */}
+      <div style={{
+        position: "absolute", top: "-30px", right: "-30px",
+        width: "120px", height: "120px", borderRadius: "50%",
+        background: `radial-gradient(circle, ${group.color}12, transparent 70%)`,
+        pointerEvents: "none",
+        opacity: hovered ? 1 : 0,
+        transition: "opacity 0.3s",
+      }} />
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "18px" }}>
+        <div style={{
+          width: "40px", height: "40px", borderRadius: "12px", flexShrink: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: "1.1rem",
+          background: `${group.color}15`,
+          border: `1px solid ${group.color}30`,
+          boxShadow: hovered ? `0 0 12px ${group.color}33` : "none",
+          transition: "box-shadow 0.3s",
+        }}>
+          {group.icon}
+        </div>
+        <div>
+          <h3 style={{
+            margin: 0, fontWeight: 800, fontSize: "0.85rem",
+            color: group.color, letterSpacing: "0.08em", textTransform: "uppercase",
+          }}>
+            {group.title}
+          </h3>
+          <p style={{ margin: 0, fontSize: "0.68rem", color: "#7ecfcf", marginTop: "1px" }}>
+            {group.items.length} technologies
+          </p>
+        </div>
+      </div>
+
+      {/* Skill rows with progress */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {group.items.map(({ name, level }, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {/* dot */}
+            <span style={{
+              width: "5px", height: "5px", borderRadius: "50%", flexShrink: 0,
+              background: group.color,
+              boxShadow: `0 0 5px ${group.color}88`,
+            }} />
+            {/* name */}
+            <span style={{
+              flex: 1, fontSize: "0.8rem", fontWeight: 500,
+              color: hovered ? "#e0f2fe" : "#94a3b8",
+              transition: "color 0.25s",
+            }}>
+              {name}
+            </span>
+            {/* progress bar */}
+            <ProgressBar level={level} color={group.color} animate={animate} />
+            {/* percent */}
+            <span style={{
+              fontSize: "0.65rem", fontWeight: 700,
+              color: group.color, minWidth: "28px", textAlign: "right",
+              opacity: animate ? 1 : 0,
+              transition: "opacity 0.5s 0.8s",
+            }}>
+              {level}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── main section ── */
+export default function Skills() {
+  const [animate, setAnimate] = useState(false);
+  const ref = useRef(null);
+
+  /* trigger bar animation when section scrolls into view */
   useEffect(() => {
-    setParticlesEnabled(!shouldDisableParticles());
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setAnimate(true); },
+      { threshold: 0.15 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <section
-      id="skills"
-      className="relative min-h-screen py-24 sm:py-28 bg-[#020617] text-white overflow-hidden"
-    >
-      {/* PARTICLES (AUTO DISABLED) */}
-      {particlesEnabled && <ParticlesBackground section="skills" />}
+    <section id="skills" className="section" ref={ref} style={{ position: "relative" }}>
 
-      {/* BACKGROUND BLOBS (REDUCED ON MOBILE) */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 -left-40 w-[420px] h-[420px] bg-emerald-500/25 blur-[160px]" />
-        <div className="absolute top-1/3 right-[-20%] w-[420px] h-[420px] bg-sky-500/25 blur-[160px]" />
+      {/* Ambient glows */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+        <div style={{
+          position: "absolute", top: "-60px", left: "20%",
+          width: "420px", height: "420px",
+          background: "radial-gradient(circle, rgba(14,165,233,0.07), transparent 70%)",
+          filter: "blur(50px)",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-40px", right: "10%",
+          width: "360px", height: "360px",
+          background: "radial-gradient(circle, rgba(16,185,129,0.07), transparent 70%)",
+          filter: "blur(50px)",
+        }} />
       </div>
 
-      {/* HEADING */}
-      <motion.h2
-        initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center text-3xl sm:text-4xl md:text-5xl font-bold
-          bg-gradient-to-r from-emerald-400 via-green-400 to-sky-400
-          bg-clip-text text-transparent"
-      >
-        Skills & Technologies
-      </motion.h2>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <h2 className="section-title">Skills</h2>
+        <p style={{ color: "#7ecfcf", fontSize: "0.88rem", marginTop: "-1.2rem", marginBottom: "2.8rem" }}>
+          Technologies I work with daily
+        </p>
 
-      <p className="mt-4 text-center text-white/70 text-sm sm:text-base">
-        Full Stack Development & Data Analytics Toolkit
-      </p>
-
-      {/* GRID */}
-      <div className="mt-16 max-w-6xl mx-auto px-4 sm:px-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {SKILLS.map((group) => (
-          <motion.div
-            key={group.title}
-            initial={reduceMotion ? false : { opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            whileHover={reduceMotion ? {} : { y: -8, scale: 1.02 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="rounded-3xl p-6
-              bg-white/5 backdrop-blur-xl
-              border border-white/10
-              shadow-xl transition"
-          >
-            <h3 className="mb-6 text-lg sm:text-xl font-semibold">
-              {group.title}
-            </h3>
-
-            <ul className="flex flex-wrap gap-3">
-              {group.items.map((item) => (
-                <li
-                  key={item.name}
-                  className="flex items-center gap-2
-                    px-4 py-2 rounded-full
-                    bg-white/10 border border-white/10
-                    text-sm text-white/80
-                    hover:text-white
-                    hover:bg-gradient-to-r hover:from-emerald-400/20 hover:to-sky-400/20
-                    transition"
-                >
-                  <span className="text-lg font-semibold">
-                    {item.icon}
-                  </span>
-                  <span>{item.name}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "16px",
+        }} className="skills-grid">
+          {SKILLS.map((group, i) => (
+            <SkillCard key={i} group={group} animate={animate} />
+          ))}
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 900px) {
+          .skills-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 560px) {
+          .skills-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 }

@@ -1,202 +1,127 @@
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "../assets/Logo.png";
 
-/* ==============================
-   CONSTANTS
-================================ */
-const INTRO_DURATION = 2200; // ms
-const RING_CIRCUMFERENCE = 276;
-
-export default function IntroAnimation({ onFinish }) {
+export default function Intro() {
   const [visible, setVisible] = useState(true);
-  const finishedRef = useRef(false);
-  const timeoutRef = useRef(null);
-
-  /* ---------- PROGRESS (NO RE-RENDERS) ---------- */
-  const progress = useMotionValue(0);
-  const dashOffset = useTransform(
-    progress,
-    (p) => RING_CIRCUMFERENCE * (1 - p)
-  );
+  const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setVisible(false);
-      return;
-    }
-
-    const start = performance.now();
-    let raf;
-
-    const tick = (now) => {
-      if (finishedRef.current) return;
-
-      const p = Math.min((now - start) / INTRO_DURATION, 1);
-      progress.set(p);
-
-      if (p < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        timeoutRef.current = setTimeout(() => {
-          finishedRef.current = true;
-          setVisible(false);
-        }, 280);
-      }
-    };
-
-    raf = requestAnimationFrame(tick);
-
-    /* ---------- SOFT SKIP ---------- */
-    const skip = (e) => {
-      if (finishedRef.current) return;
-
-      if (
-        e.type === "click" ||
-        e.key === "Escape" ||
-        e.key === "Enter" ||
-        e.key === " "
-      ) {
-        finishedRef.current = true;
-        setVisible(false);
-      }
-    };
-
-    window.addEventListener("click", skip);
-    window.addEventListener("keydown", skip);
-
+    const fadeTimer = setTimeout(() => setFadeOut(true), 2000);
+    const hideTimer = setTimeout(() => setVisible(false), 2600);
     return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(timeoutRef.current);
-      window.removeEventListener("click", skip);
-      window.removeEventListener("keydown", skip);
+      clearTimeout(fadeTimer);
+      clearTimeout(hideTimer);
     };
-  }, [progress]);
+  }, []);
+
+  if (!visible) return null;
 
   return (
-    <AnimatePresence onExitComplete={onFinish}>
-      {visible && (
-        <motion.div
-          className="
-            fixed inset-0 z-[9999]
-            flex items-center justify-center
-            bg-white dark:bg-black
-          "
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
-          transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {/* ---------- AMBIENT GLOW ---------- */}
-          <div className="pointer-events-none absolute inset-0">
-            <motion.div
-              className="
-                absolute top-1/2 left-1/2
-                -translate-x-1/2 -translate-y-1/2
-                h-[360px] w-[360px]
-                rounded-full
-                bg-gradient-to-br from-indigo-500/25 to-cyan-400/20
-                blur-[180px]
-              "
-              animate={{ scale: [1, 1.08, 1] }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </div>
+    <div
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-600"
+      style={{
+        background: "linear-gradient(135deg, #020c1b 0%, #0a2a4a 50%, #0d3b2e 100%)",
+        opacity: fadeOut ? 0 : 1,
+        transition: "opacity 0.6s ease",
+        pointerEvents: fadeOut ? "none" : "auto",
+      }}
+    >
+      {/* Ripple rings */}
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="absolute rounded-full border"
+          style={{
+            width: `${i * 120}px`,
+            height: `${i * 120}px`,
+            borderColor: `rgba(14, 165, 233, ${0.2 - i * 0.05})`,
+            animation: `ping ${1 + i * 0.3}s cubic-bezier(0,0,0.2,1) infinite`,
+            animationDelay: `${i * 0.15}s`,
+          }}
+        />
+      ))}
 
-          {/* ---------- CONTENT ---------- */}
-          <motion.div
-            className="relative flex flex-col items-center gap-10"
-            initial={{ y: 10 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            {/* LOGO */}
-            <motion.img
-              src={Logo}
-              alt="Suman logo"
-              className="w-20 h-20 object-contain"
-              initial={{ scale: 0.9, opacity: 0, filter: "blur(12px)" }}
-              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-              transition={{
-                duration: 1,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            />
+      {/* Logo with glow */}
+      <div className="relative z-10 mb-5">
+        <div
+          className="absolute inset-0 rounded-full blur-2xl opacity-70"
+          style={{ background: "linear-gradient(135deg, #0ea5e9, #10b981)" }}
+        />
+        <img
+          src={Logo}
+          alt="Suman logo"
+          className="relative z-10 rounded-full"
+          style={{
+            width: "72px",
+            height: "72px",
+            boxShadow: "0 0 32px rgba(14,165,233,0.6), 0 0 64px rgba(16,185,129,0.3)",
+            animation: "scaleIn 0.6s ease forwards",
+          }}
+        />
+      </div>
 
-            {/* NAME */}
-            <div className="flex overflow-hidden">
-              {"Suman Jhanp".split("").map((char, i) => (
-                <motion.span
-                  key={i}
-                  className="
-                    text-3xl md:text-4xl
-                    font-semibold tracking-tight
-                    text-black dark:text-white
-                  "
-                  initial={{ y: 36, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{
-                    delay: 0.55 + i * 0.055,
-                    duration: 0.45,
-                    ease: "easeOut",
-                  }}
-                >
-                  {char === " " ? "\u00A0" : char}
-                </motion.span>
-              ))}
-            </div>
+      {/* Name */}
+      <h1
+        className="text-2xl font-bold tracking-widest z-10"
+        style={{
+          background: "linear-gradient(90deg, #38bdf8, #34d399, #06b6d4)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          animation: "fadeUp 0.6s ease 0.3s forwards",
+          opacity: 0,
+        }}
+      >
+        Suman Jhanp
+      </h1>
 
-            {/* PROGRESS RING */}
-            <svg
-              className="w-14 h-14"
-              viewBox="0 0 100 100"
-              aria-hidden="true"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="44"
-                stroke="rgba(255,255,255,0.12)"
-                strokeWidth="6"
-                fill="none"
-                className="dark:stroke-white/15 stroke-black/10"
-              />
-              <motion.circle
-                cx="50"
-                cy="50"
-                r="44"
-                stroke="url(#intro-grad)"
-                strokeWidth="6"
-                fill="none"
-                strokeLinecap="round"
-                strokeDasharray={RING_CIRCUMFERENCE}
-                style={{ strokeDashoffset: dashOffset }}
-              />
-              <defs>
-                <linearGradient
-                  id="intro-grad"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#22d3ee" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      {/* Role */}
+      <p
+        className="text-sm mt-2 z-10 tracking-widest uppercase"
+        style={{
+          color: "#7ecfcf",
+          animation: "fadeUp 0.6s ease 0.5s forwards",
+          opacity: 0,
+        }}
+      >
+        MERN Developer &amp; Data Analyst
+      </p>
+
+      {/* Loading bar */}
+      <div
+        className="mt-8 z-10 rounded-full overflow-hidden"
+        style={{
+          width: "160px",
+          height: "3px",
+          background: "rgba(14,165,233,0.15)",
+        }}
+      >
+        <div
+          className="h-full rounded-full"
+          style={{
+            background: "linear-gradient(90deg, #0ea5e9, #10b981)",
+            animation: "loadBar 1.8s ease forwards",
+          }}
+        />
+      </div>
+
+      <style>{`
+        @keyframes scaleIn {
+          from { transform: scale(0.6); opacity: 0; }
+          to   { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes fadeUp {
+          from { transform: translateY(16px); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes loadBar {
+          from { width: 0%; }
+          to   { width: 100%; }
+        }
+        @keyframes ping {
+          0%   { transform: scale(0.9); opacity: 0.6; }
+          100% { transform: scale(1.4); opacity: 0; }
+        }
+      `}</style>
+    </div>
   );
 }

@@ -3,22 +3,19 @@ import { FaGithub, FaLinkedin, FaEnvelope, FaTimes, FaDownload } from "react-ico
 import { SiLeetcode } from "react-icons/si";
 
 const SOCIALS = [
-  { icon: <FaGithub />, href: "https://github.com/codecsuman", label: "GitHub", color: "#38bdf8" },
-  { icon: <FaLinkedin />, href: "https://www.linkedin.com/in/sumanjhanp/", label: "LinkedIn", color: "#34d399" },
-  { icon: <SiLeetcode />, href: "https://leetcode.com/u/sumanjhanp1/", label: "LeetCode", color: "#06b6d4" },
-  { icon: <FaEnvelope />, href: "mailto:sumanjhanp1@gmail.com", label: "Email", color: "#2dd4bf" },
+  { icon: <FaGithub />, href: "https://github.com/codecsuman", label: "GitHub", color: "#8b5cf6" },
+  { icon: <FaLinkedin />, href: "https://www.linkedin.com/in/sumanjhanp/", label: "LinkedIn", color: "#06b6d4" },
+  { icon: <SiLeetcode />, href: "https://leetcode.com/u/sumanjhanp1/", label: "LeetCode", color: "#f43f5e" },
+  { icon: <FaEnvelope />, href: "mailto:sumanjhanp1@gmail.com", label: "Email", color: "#f59e0b" },
 ];
 
-/* ── Resume Modal ─────────────────────────────────────────────────────────── */
+/* ── Resume Modal ── */
 function ResumeModal({ onClose }) {
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", handler);
-      document.body.style.overflow = "";
-    };
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
   }, [onClose]);
 
   return (
@@ -26,30 +23,25 @@ function ResumeModal({ onClose }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       style={{
         position: "fixed", inset: 0, zIndex: 2000,
-        background: "rgba(2,12,27,0.93)",
-        backdropFilter: "blur(14px)",
+        background: "rgba(10,10,15,0.94)",
+        backdropFilter: "blur(16px)",
         display: "flex", flexDirection: "column",
         alignItems: "center", padding: "16px",
-        animation: "modalIn 0.25s ease forwards",
+        animation: "revealScale 0.25s ease forwards",
       }}
     >
       {/* Toolbar */}
       <div style={{
         width: "100%", maxWidth: "920px",
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
         marginBottom: "12px", padding: "10px 16px",
         borderRadius: "14px",
-        background: "rgba(13,33,55,0.95)",
-        border: "1px solid rgba(14,165,233,0.2)",
+        background: "rgba(17,17,24,0.95)",
+        border: "1px solid rgba(139,92,246,0.15)",
         backdropFilter: "blur(8px)",
         flexWrap: "wrap", gap: "8px",
       }}>
-        <span style={{
-          fontWeight: 700, fontSize: "0.9rem",
-          background: "linear-gradient(90deg, #38bdf8, #34d399)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-        }}>
+        <span className="gradient-text" style={{ fontWeight: 700, fontSize: "0.9rem" }}>
           📄 Suman Jhanp — Resume
         </span>
 
@@ -58,14 +50,14 @@ function ResumeModal({ onClose }) {
             style={{
               display: "flex", alignItems: "center", gap: "6px",
               padding: "7px 16px", borderRadius: "9px",
-              background: "linear-gradient(135deg, #0ea5e9, #10b981)",
+              background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
               color: "white", fontWeight: 700, fontSize: "0.8rem",
               textDecoration: "none",
-              boxShadow: "0 2px 14px rgba(14,165,233,0.4)",
+              boxShadow: "0 2px 14px rgba(139,92,246,0.4)",
               transition: "opacity 0.2s, transform 0.2s",
             }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.transform = "scale(1.03)"; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.transform = "scale(1.03)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
           >
             <FaDownload size={12} /> Download
           </a>
@@ -75,11 +67,11 @@ function ResumeModal({ onClose }) {
               width: "34px", height: "34px", borderRadius: "9px", border: "none",
               display: "flex", alignItems: "center", justifyContent: "center",
               cursor: "pointer",
-              background: "rgba(248,113,113,0.12)", color: "#f87171",
+              background: "rgba(244,63,94,0.12)", color: "var(--rose-light)",
               transition: "background 0.2s, transform 0.2s",
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(248,113,113,0.28)"; e.currentTarget.style.transform = "scale(1.08)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "rgba(248,113,113,0.12)"; e.currentTarget.style.transform = "scale(1)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(244,63,94,0.28)"; e.currentTarget.style.transform = "scale(1.08)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(244,63,94,0.12)"; e.currentTarget.style.transform = "scale(1)"; }}
           >
             <FaTimes size={14} />
           </button>
@@ -90,8 +82,8 @@ function ResumeModal({ onClose }) {
       <div style={{
         width: "100%", maxWidth: "920px", flex: 1,
         borderRadius: "16px", overflow: "hidden",
-        border: "1px solid rgba(14,165,233,0.18)",
-        boxShadow: "0 0 48px rgba(14,165,233,0.12), 0 24px 64px rgba(0,0,0,0.6)",
+        border: "1px solid rgba(139,92,246,0.15)",
+        boxShadow: "0 0 48px rgba(139,92,246,0.1), 0 24px 64px rgba(0,0,0,0.6)",
       }}>
         <iframe
           src="/Resume.pdf"
@@ -105,108 +97,137 @@ function ResumeModal({ onClose }) {
         />
       </div>
 
-      <p style={{ color: "#1e3a5f", fontSize: "0.7rem", marginTop: "8px" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.7rem", marginTop: "8px" }}>
         Press{" "}
         <kbd style={{
           padding: "1px 6px", borderRadius: "4px",
-          background: "#0d2137", color: "#7ecfcf",
-          border: "1px solid rgba(14,165,233,0.25)", fontSize: "0.68rem",
+          background: "var(--bg-card)", color: "var(--text-secondary)",
+          border: "1px solid rgba(139,92,246,0.2)", fontSize: "0.68rem",
         }}>Esc</kbd>{" "}
-        or click outside to close · Use browser controls to zoom
+        or click outside to close
       </p>
-
-      <style>{`
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.96); }
-          to   { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
     </div>
   );
 }
 
-/* ── Footer ───────────────────────────────────────────────────────────────── */
+/* ── Footer ── */
 export default function Footer() {
   const [showResume, setShowResume] = useState(false);
 
   return (
     <footer style={{
-      borderTop: "1px solid rgba(14,165,233,0.15)",
-      background: "rgba(2,12,27,0.8)",
+      borderTop: "1px solid rgba(139,92,246,0.12)",
+      background: "rgba(10,10,15,0.85)",
       marginTop: "4rem",
       backdropFilter: "blur(12px)",
+      position: "relative",
     }}>
       {showResume && <ResumeModal onClose={() => setShowResume(false)} />}
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      {/* Top gradient line */}
+      <div style={{
+        width: "100%", height: "1px",
+        background: "linear-gradient(90deg, transparent, rgba(139,92,246,0.4), rgba(6,182,212,0.4), transparent)",
+      }} />
 
-        {/* Top divider glow */}
-        <div className="w-full h-px mb-8 rounded-full"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(14,165,233,0.4), rgba(16,185,129,0.4), transparent)" }} />
-
-        <div className="flex flex-col items-center gap-6">
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 24px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
 
           {/* Brand */}
-          <div className="text-center">
-            <p className="text-lg font-black tracking-wider"
-              style={{
-                background: "linear-gradient(90deg, #38bdf8, #34d399, #06b6d4)",
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-              }}>
+          <div style={{ textAlign: "center" }}>
+            <p style={{
+              fontSize: "1.125rem", fontWeight: 900, letterSpacing: "0.06em",
+              background: "linear-gradient(90deg, #a78bfa, #67e8f9)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              margin: 0,
+            }}>
               Suman Jhanp
             </p>
-            <p className="text-xs mt-1 tracking-widest uppercase" style={{ color: "#7ecfcf" }}>
+            <p style={{
+              fontSize: "0.7rem", marginTop: "4px",
+              letterSpacing: "0.14em", textTransform: "uppercase",
+              color: "var(--text-secondary)", fontWeight: 500,
+            }}>
               MERN Developer · Data Analyst
             </p>
           </div>
 
           {/* Social Icons */}
-          <div className="flex gap-3">
+          <div style={{ display: "flex", gap: "10px" }}>
             {SOCIALS.map(({ icon, href, label, color }) => (
-              <a key={label} href={href} target="_blank"
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                 title={label}
-                className="w-10 h-10 flex items-center justify-center rounded-xl text-base transition-all duration-200"
-                style={{ background: `${color}10`, border: `1px solid ${color}25`, color }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = `${color}25`;
-                  e.currentTarget.style.boxShadow = `0 0 14px ${color}44`;
+                style={{
+                  width: "40px", height: "40px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  borderRadius: "12px", fontSize: "1rem",
+                  background: `${color}10`,
+                  border: `1px solid ${color}20`,
+                  color,
+                  transition: "all 0.2s ease",
+                  textDecoration: "none",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${color}22`;
+                  e.currentTarget.style.boxShadow = `0 0 14px ${color}33`;
                   e.currentTarget.style.transform = "translateY(-2px)";
                 }}
-                onMouseLeave={e => {
+                onMouseLeave={(e) => {
                   e.currentTarget.style.background = `${color}10`;
                   e.currentTarget.style.boxShadow = "none";
                   e.currentTarget.style.transform = "translateY(0)";
-                }}>
+                }}
+              >
                 {icon}
               </a>
             ))}
           </div>
 
           {/* Resume buttons */}
-          <div className="flex gap-3 flex-wrap justify-center">
-            {/* View inline — opens modal */}
-            <button
-              onClick={() => setShowResume(true)}
-              className="btn-outline text-sm"
-              style={{ display: "flex", alignItems: "center", gap: "6px" }}
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
+            <button onClick={() => setShowResume(true)}
+              style={{
+                display: "flex", alignItems: "center", gap: "6px",
+                padding: "9px 20px", borderRadius: "10px",
+                fontSize: "0.82rem", fontWeight: 600,
+                background: "transparent", color: "var(--violet-light)",
+                border: "1.5px solid rgba(139,92,246,0.3)",
+                cursor: "pointer", transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.1)";
+                e.currentTarget.style.borderColor = "var(--violet)";
+                e.currentTarget.style.boxShadow = "0 0 16px rgba(139,92,246,0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.3)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             >
               📄 View Resume
             </button>
-
-            {/* Direct download */}
             <a href="/Resume.pdf" download
-              className="btn text-sm"
-              style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              style={{
+                display: "flex", alignItems: "center", gap: "6px",
+                padding: "9px 20px", borderRadius: "10px",
+                fontSize: "0.82rem", fontWeight: 700,
+                background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
+                color: "white", textDecoration: "none",
+                boxShadow: "0 2px 14px rgba(139,92,246,0.35)",
+                transition: "opacity 0.2s, transform 0.2s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <FaDownload size={11} /> Download CV
             </a>
           </div>
 
           {/* Copyright */}
-          <p className="text-xs" style={{ color: "#334155" }}>
+          <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", margin: 0 }}>
             © {new Date().getFullYear()} Suman Jhanp · Built with React &amp; Tailwind
           </p>
-
         </div>
       </div>
     </footer>

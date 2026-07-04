@@ -1,132 +1,71 @@
-import { useEffect, useState } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import avatar from "../assets/avator.png";
-import { FaGithub, FaLinkedin, FaTimes, FaDownload } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaArrowDown, FaCode, FaDatabase, FaChartLine, FaLightbulb } from "react-icons/fa";
 
 const ROLES = ["Full Stack Developer", "MERN Specialist", "Data Analyst", "Problem Solver"];
 
-/* ── Resume Modal (same as About.jsx) ───────────────────────────────────── */
-function ResumeModal({ onClose }) {
+// Animated counter hook
+function useCountUp(end, duration = 2000) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const hasAnimated = useRef(false);
+
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", handler);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      style={{
-        position: "fixed", inset: 0, zIndex: 2000,
-        background: "rgba(2,12,27,0.93)",
-        backdropFilter: "blur(14px)",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", padding: "16px",
-        animation: "modalIn 0.25s ease forwards",
-      }}
-    >
-      {/* Toolbar */}
-      <div style={{
-        width: "100%", maxWidth: "920px",
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: "12px", padding: "10px 16px",
-        borderRadius: "14px",
-        background: "rgba(13,33,55,0.95)",
-        border: "1px solid rgba(14,165,233,0.2)",
-        backdropFilter: "blur(8px)",
-        flexWrap: "wrap", gap: "8px",
-      }}>
-        <span style={{
-          fontWeight: 700, fontSize: "0.9rem",
-          background: "linear-gradient(90deg, #38bdf8, #34d399)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-        }}>
-          📄 Suman Jhanp — Resume
-        </span>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <a href="/Resume.pdf" download
-            style={{
-              display: "flex", alignItems: "center", gap: "6px",
-              padding: "7px 16px", borderRadius: "9px",
-              background: "linear-gradient(135deg, #0ea5e9, #10b981)",
-              color: "white", fontWeight: 700, fontSize: "0.8rem",
-              textDecoration: "none",
-              boxShadow: "0 2px 14px rgba(14,165,233,0.4)",
-              transition: "opacity 0.2s, transform 0.2s",
-            }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; e.currentTarget.style.transform = "scale(1.03)"; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "scale(1)"; }}
-          >
-            <FaDownload size={12} /> Download
-          </a>
-
-          <button onClick={onClose}
-            style={{
-              width: "34px", height: "34px", borderRadius: "9px", border: "none",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer",
-              background: "rgba(248,113,113,0.12)", color: "#f87171",
-              transition: "background 0.2s, transform 0.2s",
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(248,113,113,0.28)"; e.currentTarget.style.transform = "scale(1.08)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "rgba(248,113,113,0.12)"; e.currentTarget.style.transform = "scale(1)"; }}
-          >
-            <FaTimes size={14} />
-          </button>
-        </div>
-      </div>
-
-      {/* PDF iframe */}
-      <div style={{
-        width: "100%", maxWidth: "920px", flex: 1,
-        borderRadius: "16px", overflow: "hidden",
-        border: "1px solid rgba(14,165,233,0.18)",
-        boxShadow: "0 0 48px rgba(14,165,233,0.12), 0 24px 64px rgba(0,0,0,0.6)",
-      }}>
-        <iframe
-          src="/Resume.pdf"
-          title="Suman Jhanp Resume"
-          style={{
-            width: "100%",
-            height: "calc(100vh - 130px)",
-            minHeight: "500px",
-            border: "none", display: "block", borderRadius: "16px",
-          }}
-        />
-      </div>
-
-      <p style={{ color: "#1e3a5f", fontSize: "0.7rem", marginTop: "8px" }}>
-        Press{" "}
-        <kbd style={{
-          padding: "1px 6px", borderRadius: "4px",
-          background: "#0d2137", color: "#7ecfcf",
-          border: "1px solid rgba(14,165,233,0.25)", fontSize: "0.68rem",
-        }}>Esc</kbd>{" "}
-        or click outside to close · Use browser controls to zoom
-      </p>
-
-      <style>{`
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.96); }
-          to   { opacity: 1; transform: scale(1); }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const startTime = Date.now();
+          const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * end));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
         }
-      `}</style>
-    </div>
-  );
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  return [count, ref];
 }
 
-/* ── Home Section ─────────────────────────────────────────────────────────── */
 export default function Home() {
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [typing, setTyping] = useState(true);
-  const [showResume, setShowResume] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const sectionRef = useRef(null);
 
+  // Entrance animation
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Parallax mouse effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      setMousePos({
+        x: (e.clientX - rect.left - rect.width / 2) / rect.width,
+        y: (e.clientY - rect.top - rect.height / 2) / rect.height,
+      });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Typewriter effect
   useEffect(() => {
     const current = ROLES[roleIndex];
     let i = typing ? displayed.length : displayed.length - 1;
@@ -145,274 +84,517 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [displayed, typing, roleIndex]);
 
-  const scrollTo = (id) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  const [projectCount, projectRef] = useCountUp(25);
+  const [clientCount, clientRef] = useCountUp(15);
+  const [expCount, expCountRef] = useCountUp(3);
 
   return (
     <section
+      ref={sectionRef}
       id="home"
-      className="min-h-screen flex items-center"
-      style={{ paddingTop: "80px", position: "relative", overflow: "hidden" }}
+      className="min-h-screen flex items-center relative overflow-hidden"
+      style={{ paddingTop: "80px" }}
     >
-      {showResume && <ResumeModal onClose={() => setShowResume(false)} />}
-
-      {/* ── Background layers ── */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-        <div style={{
-          position: "absolute", right: "-5%", top: "5%",
-          width: "65vw", height: "90vh",
-          background: "radial-gradient(ellipse at 60% 50%, rgba(14,165,233,0.13) 0%, rgba(16,185,129,0.07) 40%, transparent 70%)",
-          filter: "blur(40px)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: 0, right: "10%",
-          width: "50vw", height: "30vh",
-          background: "radial-gradient(ellipse at 50% 100%, rgba(6,182,212,0.12), transparent 70%)",
-          filter: "blur(30px)",
-        }} />
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: "radial-gradient(rgba(14,165,233,0.07) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-          maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
-        }} />
+      {/* ===== ANIMATED BACKGROUND ===== */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Primary gradient orb - follows mouse slightly */}
+        <div
+          className="absolute transition-transform duration-700 ease-out"
+          style={{
+            right: "-5%",
+            top: "5%",
+            width: "60vw",
+            height: "75vh",
+            background: "radial-gradient(ellipse at 60% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)",
+            filter: "blur(80px)",
+            transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)`,
+          }}
+        />
+        {/* Secondary gradient orb */}
+        <div
+          className="absolute transition-transform duration-1000 ease-out"
+          style={{
+            bottom: "5%",
+            right: "10%",
+            width: "40vw",
+            height: "30vh",
+            background: "radial-gradient(ellipse at 50% 100%, rgba(6,182,212,0.08), transparent 70%)",
+            filter: "blur(60px)",
+            transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)`,
+          }}
+        />
+        {/* Floating particles */}
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: `${2 + (i % 3)}px`,
+              height: `${2 + (i % 3)}px`,
+              background: i % 2 === 0 ? "rgba(139,92,246,0.4)" : "rgba(6,182,212,0.4)",
+              left: `${15 + i * 14}%`,
+              top: `${20 + (i * 13) % 50}%`,
+              animation: `floatParticle ${8 + i * 2}s ease-in-out infinite`,
+              animationDelay: `${i * 0.8}s`,
+            }}
+          />
+        ))}
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(139,92,246,0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(139,92,246,0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
       </div>
 
-      {/* ── Main grid ── */}
+      {/* ===== MAIN CONTENT GRID ===== */}
       <div
-        className="home-grid"
+        className="home-grid relative z-10 mx-auto px-6"
         style={{
-          maxWidth: "1100px", margin: "0 auto", padding: "0 24px",
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: "0", alignItems: "center", width: "100%",
-          position: "relative", zIndex: 1,
+          maxWidth: "1200px",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "0",
+          alignItems: "center",
+          width: "100%",
           minHeight: "calc(100vh - 80px)",
         }}
       >
-
-        {/* ── LEFT ── */}
-        <div style={{ animation: "fadeUp 0.8s ease forwards", opacity: 0, paddingRight: "24px" }}>
-
-          {/* Available badge */}
-          <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
+        {/* ===== LEFT — Text Content ===== */}
+        <div
+          className="pr-6"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? "translateX(0)" : "translateX(-40px)",
+            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          {/* Available badge with pulse */}
+          <div
+            className="inline-flex items-center gap-2.5 mb-6 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
             style={{
-              background: "rgba(14,165,233,0.1)",
-              border: "1px solid rgba(14,165,233,0.3)",
-              color: "#38bdf8",
-            }}>
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#10b981" }} />
+              background: "rgba(139,92,246,0.08)",
+              border: "1px solid rgba(139,92,246,0.2)",
+              color: "var(--violet-light)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <span
+              className="w-2 h-2 rounded-full relative"
+              style={{ background: "#10b981" }}
+            >
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: "#10b981",
+                  animation: "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+                }}
+              />
+            </span>
             Available for Work
           </div>
 
-          {/* Name */}
-          <h1 className="font-black mb-3 leading-tight"
-            style={{ fontSize: "clamp(2.6rem, 4.5vw, 4rem)" }}>
-            <span style={{ color: "#e0f2fe" }}>Hi, I'm </span>
-            <span style={{
-              background: "linear-gradient(90deg, #38bdf8, #34d399, #06b6d4)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>Suman</span>
+          {/* Name with staggered reveal */}
+          <h1
+            className="font-black mb-4 leading-[1.1]"
+            style={{ fontSize: "clamp(2.6rem, 5vw, 4.2rem)" }}
+          >
+            <span style={{ color: "var(--text)" }}>Hi, I'm </span>
+            <span
+              className="gradient-text inline-block"
+              style={{
+                animation: "gradientShift 4s ease infinite",
+                backgroundSize: "200% 200%",
+              }}
+            >
+              Suman
+            </span>
           </h1>
 
-          {/* Typewriter */}
-          <div className="flex items-center gap-2 mb-5" style={{ minHeight: "2.2rem" }}>
-            <span className="font-semibold" style={{ color: "#7ecfcf", fontSize: "clamp(1rem, 1.8vw, 1.25rem)" }}>
+          {/* Typewriter with enhanced cursor */}
+          <div
+            className="flex items-center gap-2.5 mb-6"
+            style={{ minHeight: "2.2rem" }}
+          >
+            <span
+              className="font-semibold"
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: "clamp(1rem, 1.8vw, 1.3rem)",
+              }}
+            >
               {displayed}
             </span>
-            <span className="inline-block w-0.5 h-5 animate-pulse rounded"
-              style={{ background: "#0ea5e9" }} />
+            <span
+              className="inline-block w-[2px] h-5 rounded-full"
+              style={{
+                background: "linear-gradient(180deg, var(--violet), var(--cyan))",
+                animation: "blink 1s step-end infinite",
+              }}
+            />
           </div>
 
-          <p className="mb-8 leading-relaxed" style={{ color: "#94a3b8", maxWidth: "420px", fontSize: "0.95rem" }}>
+          {/* Description */}
+          <p
+            className="mb-8 leading-relaxed"
+            style={{
+              color: "var(--text-secondary)",
+              maxWidth: "440px",
+              fontSize: "0.95rem",
+              lineHeight: "1.7",
+            }}
+          >
             I build scalable web applications using the MERN stack and analyze
-            data to drive smart decisions. Clean code, thoughtful design.
+            data to drive smart, data-informed decisions.
           </p>
 
-          {/* ── Buttons row ── */}
-          <div className="flex flex-wrap gap-3 mb-8">
-            <button onClick={() => scrollTo("projects")} className="btn">
-              View Projects
-            </button>
+          {/* Quick stats */}
+          <div
+            className="flex gap-6 mb-8"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(20px)",
+              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s",
+            }}
+          >
+            {[
+              { ref: projectRef, count: projectCount, label: "Projects", icon: <FaCode /> },
+              { ref: clientRef, count: clientCount, label: "Clients", icon: <FaDatabase /> },
+              { ref: expCountRef, count: expCount, label: "Years Exp.", icon: <FaChartLine /> },
+            ].map(({ ref, count, label, icon }) => (
+              <div
+                key={label}
+                ref={ref}
+                className="flex flex-col items-center gap-1 px-4 py-3 rounded-xl"
+                style={{
+                  background: "rgba(139,92,246,0.04)",
+                  border: "1px solid rgba(139,92,246,0.1)",
+                  minWidth: "80px",
+                }}
+              >
+                <span style={{ color: "var(--violet-light)", fontSize: "0.75rem" }}>{icon}</span>
+                <span
+                  className="font-bold text-lg"
+                  style={{ color: "var(--text)" }}
+                >
+                  {count}+
+                </span>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
 
-            {/* View Resume — opens modal */}
+          {/* Buttons with hover effects */}
+          <div className="flex flex-wrap gap-3 mb-8">
             <button
-              onClick={() => setShowResume(true)}
-              className="btn-outline"
-              style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              onClick={() => scrollTo("projects")}
+              className="group relative px-6 py-3 rounded-xl font-semibold text-sm overflow-hidden transition-all duration-300"
+              style={{
+                background: "linear-gradient(135deg, var(--violet), var(--violet-dark))",
+                color: "white",
+                boxShadow: "0 4px 20px rgba(139,92,246,0.3)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 8px 30px rgba(139,92,246,0.45)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 20px rgba(139,92,246,0.3)";
+              }}
             >
-              📄 View Resume
+              <span className="relative z-10 flex items-center gap-2">
+                View Projects
+                <FaArrowDown className="text-xs transition-transform duration-300 group-hover:translate-y-0.5" />
+              </span>
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: "linear-gradient(135deg, var(--violet-light), var(--violet))",
+                }}
+              />
+            </button>
+            <button
+              onClick={() => scrollTo("contact")}
+              className="group px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300"
+              style={{
+                color: "var(--violet-light)",
+                border: "1.5px solid rgba(139,92,246,0.3)",
+                background: "rgba(139,92,246,0.05)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.12)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.5)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.05)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.3)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <FaLightbulb className="text-xs" />
+                Get In Touch
+              </span>
             </button>
           </div>
 
-          {/* Socials */}
+          {/* Social links */}
           <div className="flex gap-3">
             {[
               { href: "https://github.com/codecsuman", icon: <FaGithub />, label: "GitHub" },
               { href: "https://www.linkedin.com/in/sumanjhanp/", icon: <FaLinkedin />, label: "LinkedIn" },
             ].map(({ href, icon, label }) => (
-              <a key={label} href={href} target="_blank"
-                className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition-all duration-200"
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 text-sm px-4 py-2.5 rounded-xl transition-all duration-300"
                 style={{
-                  color: "#7ecfcf",
-                  border: "1px solid rgba(20,184,166,0.25)",
-                  background: "rgba(20,184,166,0.07)",
+                  color: "var(--text-muted)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
                 }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = "rgba(20,184,166,0.18)";
-                  e.currentTarget.style.color = "#2dd4bf";
-                  e.currentTarget.style.boxShadow = "0 0 16px rgba(20,184,166,0.3)";
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(139,92,246,0.1)";
+                  e.currentTarget.style.color = "var(--violet-light)";
+                  e.currentTarget.style.borderColor = "rgba(139,92,246,0.25)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
                 }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = "rgba(20,184,166,0.07)";
-                  e.currentTarget.style.color = "#7ecfcf";
-                  e.currentTarget.style.boxShadow = "none";
-                }}>
-                {icon} {label}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                  e.currentTarget.style.color = "var(--text-muted)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                <span className="transition-transform duration-300 group-hover:scale-110">
+                  {icon}
+                </span>
+                {label}
               </a>
             ))}
           </div>
         </div>
 
-        {/* ── RIGHT — Robot ── */}
-        <div style={{
-          display: "flex", justifyContent: "center", alignItems: "flex-end",
-          animation: "fadeUp 0.9s ease 0.15s forwards", opacity: 0,
-          position: "relative",
-          height: "clamp(460px, 72vh, 680px)",
-        }}>
-          {/* Spinning conic ring */}
-          <div style={{
-            position: "absolute",
-            bottom: "0", left: "50%", transform: "translateX(-50%)",
-            width: "clamp(340px, 44vw, 520px)",
-            height: "clamp(340px, 44vw, 520px)",
-            borderRadius: "50%",
-            background: "conic-gradient(from 0deg, #0ea5e9, #10b981, #06b6d4, #14b8a6, #0ea5e9)",
-            animation: "spinRing 8s linear infinite",
-            filter: "blur(2px)", opacity: 0.55, zIndex: 1,
-          }} />
+        {/* ===== RIGHT — Avatar Visual ===== */}
+        <div
+          className="flex justify-center items-end relative"
+          style={{
+            height: "clamp(400px, 60vh, 580px)",
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? "translateX(0) scale(1)" : "translateX(40px) scale(0.95)",
+            transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s",
+          }}
+        >
+          {/* Animated rings */}
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                bottom: `${i * 2}%`,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: `clamp(${280 + i * 30}px, ${32 + i * 4}vw, ${420 + i * 40}px)`,
+                height: `clamp(${280 + i * 30}px, ${32 + i * 4}vw, ${420 + i * 40}px)`,
+                border: `${1 - i * 0.2}px solid ${
+                  i % 2 === 0
+                    ? `rgba(139,92,246,${0.15 - i * 0.04})`
+                    : `rgba(6,182,212,${0.1 - i * 0.02})`
+                }`,
+                animation: `ringPulse ${4 + i}s ease-in-out infinite`,
+                animationDelay: `${i * 0.5}s`,
+                zIndex: 1,
+              }}
+            />
+          ))}
 
-          {/* Inner dark mask */}
-          <div style={{
-            position: "absolute",
-            bottom: "8px", left: "50%", transform: "translateX(-50%)",
-            width: "clamp(326px, 42.5vw, 506px)",
-            height: "clamp(326px, 42.5vw, 506px)",
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse at 50% 40%, #0a2a4a 0%, #020c1b 80%)",
-            zIndex: 2,
-          }} />
-
-          {/* Glow halo */}
-          <div style={{
-            position: "absolute",
-            bottom: "0", left: "50%", transform: "translateX(-50%)",
-            width: "clamp(380px, 48vw, 560px)",
-            height: "clamp(380px, 48vw, 560px)",
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse at 50% 60%, rgba(14,165,233,0.22) 0%, rgba(16,185,129,0.12) 40%, transparent 70%)",
-            filter: "blur(24px)", zIndex: 1,
-          }} />
-
-          {/* Floor reflection */}
-          <div style={{
-            position: "absolute",
-            bottom: "-12px", left: "50%", transform: "translateX(-50%)",
-            width: "clamp(260px, 34vw, 420px)", height: "40px",
-            borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(14,165,233,0.35) 0%, transparent 70%)",
-            filter: "blur(16px)", zIndex: 1,
-          }} />
-
-          {/* Robot image */}
-          <img
-            src={avatar}
-            alt="Suman avatar"
+          {/* Rotating dashed ring */}
+          <div
+            className="absolute rounded-full"
             style={{
-              position: "relative", zIndex: 3,
-              height: "clamp(420px, 66vh, 640px)",
-              width: "auto", maxWidth: "100%",
-              objectFit: "contain", objectPosition: "bottom",
-              filter: "drop-shadow(0 0 32px rgba(14,165,233,0.5)) drop-shadow(0 0 64px rgba(16,185,129,0.25))",
-              animation: "floatRobot 5s ease-in-out infinite",
+              bottom: "5%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "clamp(340px, 42vw, 500px)",
+              height: "clamp(340px, 42vw, 500px)",
+              border: "1.5px dashed rgba(139,92,246,0.1)",
+              animation: "spin 30s linear infinite",
+              zIndex: 1,
             }}
           />
 
-          {/* MERN + Data badge */}
-          <div style={{
-            position: "absolute",
-            bottom: "clamp(60px, 9vh, 110px)",
-            right: "clamp(0px, 3vw, 40px)",
-            zIndex: 4, padding: "8px 16px", borderRadius: "12px",
-            background: "linear-gradient(135deg, #0ea5e9, #10b981)",
-            boxShadow: "0 4px 20px rgba(14,165,233,0.55)",
-            color: "white", fontWeight: 800, fontSize: "0.78rem",
-            letterSpacing: "0.04em",
-            animation: "floatBadge 4s ease-in-out infinite",
-          }}>
+          {/* Glow behind avatar */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              bottom: "5%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "clamp(300px, 38vw, 450px)",
+              height: "clamp(300px, 38vw, 450px)",
+              background:
+                "radial-gradient(ellipse at 50% 60%, rgba(139,92,246,0.12) 0%, transparent 60%)",
+              filter: "blur(40px)",
+              zIndex: 1,
+              animation: "glowPulse 4s ease-in-out infinite",
+            }}
+          />
+
+          {/* Avatar */}
+          <img
+            src={avatar}
+            alt="Suman avatar"
+            className="relative z-10"
+            style={{
+              height: "clamp(380px, 58vh, 560px)",
+              width: "auto",
+              maxWidth: "100%",
+              objectFit: "contain",
+              objectPosition: "bottom",
+              animation: "float 6s ease-in-out infinite",
+              filter: "drop-shadow(0 20px 40px rgba(139,92,246,0.15))",
+            }}
+          />
+
+          {/* Floating tech badge */}
+          <div
+            className="absolute z-20 px-4 py-2 rounded-xl flex items-center gap-2"
+            style={{
+              bottom: "clamp(50px, 8vh, 90px)",
+              right: "clamp(5px, 1.5vw, 25px)",
+              background: "rgba(17,17,24,0.85)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(139,92,246,0.2)",
+              color: "var(--violet-light)",
+              fontWeight: 700,
+              fontSize: "0.75rem",
+              letterSpacing: "0.05em",
+              animation: "badgeFloat 5s ease-in-out infinite",
+            }}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: "var(--cyan)", animation: "pulseGlow 2s ease-in-out infinite" }}
+            />
             MERN + Data
           </div>
 
-          {/* Open to Roles badge */}
-          <div style={{
-            position: "absolute",
-            top: "clamp(20px, 4vh, 50px)",
-            left: "clamp(0px, 2vw, 30px)",
-            zIndex: 4, padding: "6px 14px", borderRadius: "10px",
-            background: "rgba(13,33,55,0.85)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid rgba(14,165,233,0.3)",
-            color: "#38bdf8", fontWeight: 700, fontSize: "0.72rem",
-            letterSpacing: "0.05em",
-            animation: "floatBadge 4s ease-in-out 1s infinite",
-          }}>
-            ⚡ Open to Roles
+          {/* Secondary floating element */}
+          <div
+            className="absolute z-20 px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+            style={{
+              top: "clamp(60px, 12vh, 120px)",
+              left: "clamp(10px, 2vw, 30px)",
+              background: "rgba(17,17,24,0.8)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(6,182,212,0.15)",
+              color: "var(--cyan)",
+              fontWeight: 600,
+              fontSize: "0.7rem",
+              animation: "badgeFloat 6s ease-in-out infinite 1s",
+            }}
+          >
+            <FaCode className="text-xs" />
+            React.js
           </div>
         </div>
-
       </div>
 
-      {/* Scroll cue */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-        style={{ color: "#7ecfcf", opacity: 0.45, zIndex: 2 }}>
-        <span className="text-xs tracking-widest uppercase">Scroll</span>
-        <div className="w-px h-8 rounded-full"
-          style={{ background: "linear-gradient(180deg, #0ea5e9, transparent)", animation: "scrollPulse 1.5s ease-in-out infinite" }} />
+      {/* ===== SCROLL INDICATOR ===== */}
+      <div
+        className="absolute bottom-8 left-1/2 flex flex-col items-center gap-2 z-10"
+        style={{
+          transform: "translateX(-50%)",
+          color: "var(--text-muted)",
+          opacity: isVisible ? 0.5 : 0,
+          transition: "opacity 1s ease 1s",
+        }}
+      >
+        <span className="text-xs tracking-[0.2em] uppercase" style={{ fontSize: "0.65rem" }}>
+          Scroll
+        </span>
+        <div
+          className="w-5 h-8 rounded-full flex justify-center pt-1.5"
+          style={{
+            border: "1.5px solid rgba(139,92,246,0.25)",
+          }}
+        >
+          <div
+            className="w-1 h-2 rounded-full"
+            style={{
+              background: "var(--violet)",
+              animation: "scrollBounce 2s ease-in-out infinite",
+            }}
+          />
+        </div>
       </div>
 
+      {/* ===== STYLES ===== */}
       <style>{`
-        @keyframes fadeUp {
-          from { transform: translateY(28px); opacity: 0; }
-          to   { transform: translateY(0);    opacity: 1; }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-12px); }
         }
-        @keyframes spinRing {
-          from { transform: translateX(-50%) rotate(0deg);   }
-          to   { transform: translateX(-50%) rotate(360deg); }
+        @keyframes floatParticle {
+          0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+          25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+          50% { transform: translateY(-10px) translateX(-5px); opacity: 0.5; }
+          75% { transform: translateY(-30px) translateX(15px); opacity: 0.7; }
         }
-        @keyframes floatRobot {
-          0%, 100% { transform: translateY(0px);   }
-          50%       { transform: translateY(-18px); }
+        @keyframes ringPulse {
+          0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+          50% { transform: translateX(-50%) scale(1.03); opacity: 0.7; }
         }
-        @keyframes floatBadge {
-          0%, 100% { transform: translateY(0px);  }
-          50%       { transform: translateY(-8px); }
+        @keyframes glowPulse {
+          0%, 100% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+          50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
         }
-        @keyframes scrollPulse {
-          0%, 100% { opacity: 0.4; transform: scaleY(1);    }
-          50%       { opacity: 1;   transform: scaleY(1.15); }
+        @keyframes badgeFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
         }
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.96); }
-          to   { opacity: 1; transform: scale(1); }
+        @keyframes spin {
+          from { transform: translateX(-50%) rotate(0deg); }
+          to { transform: translateX(-50%) rotate(360deg); }
         }
-
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        @keyframes scrollBounce {
+          0%, 100% { transform: translateY(0); opacity: 1; }
+          50% { transform: translateY(8px); opacity: 0.5; }
+        }
+        @keyframes ping {
+          75%, 100% { transform: scale(2.5); opacity: 0; }
+        }
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
         @media (max-width: 768px) {
           .home-grid {
             grid-template-columns: 1fr !important;
             grid-template-rows: auto auto;
-            padding-top: 16px !important;
-            gap: 0 !important;
+            padding-top: 20px !important;
+            gap: 32px !important;
           }
           .home-grid > div:first-child {
             padding-right: 0 !important;
@@ -420,7 +602,7 @@ export default function Home() {
           }
           .home-grid > div:last-child {
             order: 1;
-            height: clamp(300px, 52vw, 420px) !important;
+            height: clamp(300px, 50vw, 400px) !important;
           }
         }
       `}</style>

@@ -1,9 +1,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import avatar from "../assets/avator.png";
-import { FaGithub, FaLinkedin, FaArrowDown, FaCode, FaDatabase, FaChartLine, FaLightbulb } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaArrowDown, FaCode, FaDatabase, FaChartLine, FaLightbulb, FaServer, FaCloud } from "react-icons/fa";
 
-const ROLES = ["Full Stack Developer", "MERN Specialist", "Data Analyst", "Problem Solver"];
+const ROLES = ["Full Stack Developer", "MERN Specialist", "Backend Engineer", "Data Analyst", "Problem Solver"];
 
 // Animated counter hook
 function useCountUp(end, duration = 2000) {
@@ -86,9 +86,10 @@ export default function Home() {
 
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
-  const [projectCount, projectRef] = useCountUp(25);
-  const [clientCount, clientRef] = useCountUp(15);
-  const [expCount, expCountRef] = useCountUp(3);
+  const [projectCount, projectRef] = useCountUp(12);
+  const [clientCount, clientRef] = useCountUp(8);
+  const [expCount, expCountRef] = useCountUp(1);
+  const [dsaCount, dsaRef] = useCountUp(240);
 
   return (
     <section
@@ -268,6 +269,7 @@ export default function Home() {
               { ref: projectRef, count: projectCount, label: "Projects", icon: <FaCode /> },
               { ref: clientRef, count: clientCount, label: "Clients", icon: <FaDatabase /> },
               { ref: expCountRef, count: expCount, label: "Years Exp.", icon: <FaChartLine /> },
+              { ref: dsaRef, count: dsaCount, label: "DSA Solved", icon: <FaLightbulb /> },
             ].map(({ ref, count, label, icon }) => (
               <div
                 key={label}
@@ -276,7 +278,7 @@ export default function Home() {
                 style={{
                   background: "rgba(139,92,246,0.04)",
                   border: "1px solid rgba(139,92,246,0.1)",
-                  minWidth: "80px",
+                  minWidth: "90px",
                 }}
               >
                 <span style={{ color: "var(--violet-light)", fontSize: "0.75rem" }}>{icon}</span>
@@ -357,6 +359,7 @@ export default function Home() {
             {[
               { href: "https://github.com/codecsuman", icon: <FaGithub />, label: "GitHub" },
               { href: "https://www.linkedin.com/in/sumanjhanp/", icon: <FaLinkedin />, label: "LinkedIn" },
+              { href: "https://leetcode.com/u/sumanjhanp1/", icon: <FaCode />, label: "LeetCode" },
             ].map(({ href, icon, label }) => (
               <a
                 key={label}

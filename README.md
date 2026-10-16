@@ -12,6 +12,9 @@
   <a href="https://sumanjhanp.netlify.app/" target="_blank">
     <img src="https://img.shields.io/badge/⬢ Netlify-Live Portfolio-00C7B7?style=for-the-badge&logo=netlify&logoColor=white">
   </a>
+  <a href="https://portfolio-codecsumans-projects.vercel.app/Resume.pdf" target="_blank">
+    <img src="https://img.shields.io/badge/📄 Download Resume-blue?style=for-the-badge&logo=adobeacrobatreader&logoColor=white">
+  </a>
 </p>
 
 <p align="center">

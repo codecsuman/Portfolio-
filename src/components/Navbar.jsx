@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { FaSun, FaMoon } from "react-icons/fa";
+import { useTheme } from "../context/ThemeContext";
 import Logo from "../assets/Logo.png";
 
-const NAV_ITEMS = ["home", "about", "skills", "projects", "contact"];
+const NAV_ITEMS = ["home", "about", "skills", "projects", "experience", "contact"];
 
 export default function Navbar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,10 +35,55 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const handleNavClick = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setActive(id);
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+      setActive(id);
+    }
+  };
+
+  const handleNavClick = (e, id) => {
+    const isOnMainPage = location.pathname === "/";
+    
+    if (isOnMainPage) {
+      // On main page - prevent NavLink navigation, just scroll
+      e.preventDefault();
+      scrollToSection(id);
+    } else {
+      // On other page - let NavLink navigate, but pass scroll state
+      // The NavLink will handle navigation, we just ensure state is passed
+    }
     setMenuOpen(false);
+  };
+
+  // Handle scroll restoration after navigation to home page
+  useEffect(() => {
+    if (location.pathname === "/" && location.state?.scrollTo) {
+      setTimeout(() => scrollToSection(location.state.scrollTo), 100);
+    }
+  }, [location.pathname, location.state]);
+
+  // For NavLinks on main page, we need to pass state when NOT on main page
+  const getNavLinkProps = (item) => {
+    const isOnMainPage = location.pathname === "/";
+    if (isOnMainPage) {
+      return {
+        onClick: (e) => handleNavClick(e, item),
+        // Don't set 'to' on main page, we handle scroll manually
+      };
+    } else {
+      return {
+        to: `/${item}`,
+        state: { scrollTo: item },
+        onClick: () => setMenuOpen(false),
+      };
+    }
+  };
+
+  const isActiveSection = (item) => {
+    if (item === "home") return location.pathname === "/";
+    return location.pathname === `/${item}`;
   };
 
   return (
@@ -51,13 +102,17 @@ export default function Navbar() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: "64px" }}>
 
           {/* Logo */}
-          <div onClick={() => handleNavClick("home")} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
+          <div onClick={() => {
+            const isOnMainPage = location.pathname === "/";
+            if (isOnMainPage) {
+              scrollToSection("home");
+            } else {
+              navigate("/", { state: { scrollTo: "home" } });
+            }
+            setMenuOpen(false);
+          }} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
             <div style={{ position: "relative", flexShrink: 0 }}>
-              <div style={{
-                position: "absolute", inset: "-4px", borderRadius: "50%",
-                background: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
-                filter: "blur(8px)", opacity: 0.5,
-              }} />
+              <div style={{ position: "absolute", inset: "-4px", borderRadius: "50%", background: "linear-gradient(135deg, #8b5cf6, #06b6d4)", filter: "blur(8px)", opacity: 0.5 }} />
               <img src={Logo} alt="Logo" style={{ width: "34px", height: "34px", borderRadius: "50%", position: "relative", zIndex: 1 }} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
@@ -69,43 +124,114 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <ul className="hidden md:flex" style={{ display: "flex", gap: "4px", listStyle: "none", margin: 0, padding: 0 }}>
             {NAV_ITEMS.map((item) => {
-              const isActive = active === item;
+              const isActive = isActiveSection(item);
+              const navProps = getNavLinkProps(item);
+              
               return (
-                <li key={item}
-                  onClick={() => handleNavClick(item)}
-                  style={{
+                <NavLink
+                  key={item}
+                  {...navProps}
+                  style={({ isActive: active }) => ({
                     cursor: "pointer",
                     padding: "7px 18px",
                     borderRadius: "10px",
                     fontSize: "0.82rem",
-                    fontWeight: isActive ? 700 : 400,
-                    letterSpacing: isActive ? "0.04em" : "0.02em",
+                    fontWeight: (active || isActive) ? 700 : 400,
+                    letterSpacing: (active || isActive) ? "0.04em" : "0.02em",
                     textTransform: "capitalize",
                     position: "relative",
-                    color: isActive ? "var(--violet-light)" : "var(--text-secondary)",
-                    background: isActive ? "rgba(139,92,246,0.1)" : "transparent",
-                    border: isActive ? "1px solid rgba(139,92,246,0.2)" : "1px solid transparent",
+                    color: (active || isActive) ? "var(--violet-light)" : "var(--text-secondary)",
+                    background: (active || isActive) ? "rgba(139,92,246,0.1)" : "transparent",
+                    border: (active || isActive) ? "1px solid rgba(139,92,246,0.2)" : "1px solid transparent",
                     transition: "all 0.2s ease",
                     userSelect: "none",
-                  }}
+                    textDecoration: "none",
+                  })}
                   onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.color = "var(--text)"; e.currentTarget.style.background = "rgba(139,92,246,0.06)"; }}}
                   onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.background = "transparent"; }}}
                 >
                   {item}
                   {isActive && (
-                    <span style={{
-                      position: "absolute", bottom: "4px", left: "50%", transform: "translateX(-50%)",
-                      width: "4px", height: "4px", borderRadius: "50%",
-                      background: "linear-gradient(90deg, #8b5cf6, #06b6d4)",
-                    }} />
+                    <span style={{ position: "absolute", bottom: "4px", left: "50%", transform: "translateX(-50%)", width: "4px", height: "4px", borderRadius: "50%", background: "linear-gradient(90deg, #8b5cf6, #06b6d4)" }} />
                   )}
-                </li>
+                </NavLink>
               );
             })}
+            {/* Resume Link - always navigates to /resume route */}
+            <NavLink
+              to="/resume"
+              onClick={() => setMenuOpen(false)}
+              style={({ isActive }) => ({
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                cursor: "pointer",
+                padding: "7px 16px",
+                borderRadius: "10px",
+                fontSize: "0.82rem",
+                fontWeight: isActive ? 700 : 600,
+                letterSpacing: "0.03em",
+                textTransform: "capitalize",
+                position: "relative",
+                color: isActive ? "white" : "var(--violet-light)",
+                background: isActive ? "linear-gradient(135deg, #8b5cf6, #06b6d4)" : "rgba(139,92,246,0.1)",
+                border: isActive ? "1px solid rgba(139,92,246,0.4)" : "1px solid rgba(139,92,246,0.2)",
+                transition: "all 0.2s ease",
+                textDecoration: "none",
+                userSelect: "none",
+                boxShadow: isActive ? "0 2px 16px rgba(139,92,246,0.4)" : "none",
+              })}
+              onMouseEnter={(e) => {
+                if (!location.pathname.includes("resume")) {
+                  e.currentTarget.style.background = "rgba(139,92,246,0.18)";
+                  e.currentTarget.style.borderColor = "rgba(139,92,246,0.35)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!location.pathname.includes("resume")) {
+                  e.currentTarget.style.background = "rgba(139,92,246,0.1)";
+                  e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)";
+                }
+              }}
+            >
+              📄 Resume
+            </NavLink>
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              onMouseDown={(e) => e.preventDefault()} // Prevent focus styles on mousedown
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "40px",
+                height: "40px",
+                borderRadius: "10px",
+                border: "1px solid rgba(139,92,246,0.2)",
+                background: "rgba(139,92,246,0.1)",
+                color: "var(--violet-light)",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.2)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)";
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.1)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <FaSun size={18} /> : <FaMoon size={18} />}
+            </button>
           </ul>
 
           {/* Desktop CTA */}
-          <a href="mailto:sumanjhanp1@gmail.com" className="hidden md:flex"
+          <a href="https://www.linkedin.com/in/sumanjhanp/" target="_blank" rel="noopener noreferrer" className="hidden md:flex"
             style={{
               alignItems: "center", gap: "6px",
               padding: "8px 20px", borderRadius: "10px",
@@ -147,26 +273,31 @@ export default function Navbar() {
 
         {/* Mobile dropdown */}
         <div style={{
-          maxHeight: menuOpen ? "340px" : "0px",
-          overflow: "hidden",
+          maxHeight: menuOpen ? "500px" : "0px",
+          overflow: "auto",
           transition: "max-height 0.35s ease",
           background: "rgba(10,10,15,0.97)",
           backdropFilter: "blur(20px)",
           borderTop: menuOpen ? "1px solid rgba(139,92,246,0.1)" : "none",
         }}>
-          <div style={{ padding: "12px 20px 16px" }}>
+          <div style={{ padding: "16px 20px 20px" }}>
             {NAV_ITEMS.map((item, i) => {
-              const isActive = active === item;
+              const isActive = isActiveSection(item);
+              const navProps = getNavLinkProps(item);
+              
               return (
-                <div key={item} onClick={() => handleNavClick(item)}
-                  style={{
+                <NavLink
+                  key={item}
+                  {...navProps}
+                  style={({ isActive: active }) => ({
                     display: "flex", alignItems: "center", gap: "12px",
                     padding: "12px 16px", borderRadius: "12px", marginBottom: "4px",
                     cursor: "pointer",
-                    background: isActive ? "rgba(139,92,246,0.1)" : "transparent",
-                    border: isActive ? "1px solid rgba(139,92,246,0.2)" : "1px solid transparent",
+                    background: (active || isActive) ? "rgba(139,92,246,0.1)" : "transparent",
+                    border: (active || isActive) ? "1px solid rgba(139,92,246,0.2)" : "1px solid transparent",
                     transition: "all 0.2s ease",
-                  }}
+                    textDecoration: "none",
+                  })}
                 >
                   <span style={{ fontSize: "0.65rem", fontWeight: 700, color: isActive ? "var(--violet-light)" : "var(--text-muted)", minWidth: "18px" }}>
                     0{i + 1}
@@ -177,10 +308,52 @@ export default function Navbar() {
                   {isActive && (
                     <span style={{ marginLeft: "auto", width: "6px", height: "6px", borderRadius: "50%", background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }} />
                   )}
-                </div>
+                </NavLink>
               );
             })}
-            <a href="mailto:sumanjhanp1@gmail.com"
+            {/* Mobile Resume Link */}
+            <NavLink
+              to="/resume"
+              onClick={() => setMenuOpen(false)}
+              style={({ isActive }) => ({
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                marginTop: "8px", padding: "12px", borderRadius: "12px",
+                background: isActive ? "linear-gradient(135deg, #8b5cf6, #06b6d4)" : "rgba(139,92,246,0.15)",
+                color: isActive ? "white" : "var(--violet-light)",
+                fontWeight: 700, fontSize: "0.85rem", textDecoration: "none",
+                boxShadow: isActive ? "0 4px 16px rgba(139,92,246,0.4)" : "0 2px 10px rgba(139,92,246,0.2)",
+                border: isActive ? "none" : "1px solid rgba(139,92,246,0.2)",
+                transition: "all 0.2s ease",
+              })}
+            >
+              📄 Resume
+            </NavLink>
+            {/* Mobile Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                marginTop: "8px", padding: "12px", borderRadius: "12px",
+                background: "rgba(139,92,246,0.15)",
+                color: "var(--violet-light)",
+                fontWeight: 600, fontSize: "0.85rem",
+                border: "1px solid rgba(139,92,246,0.2)",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.25)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(139,92,246,0.15)";
+                e.currentTarget.style.borderColor = "rgba(139,92,246,0.2)";
+              }}
+            >
+              {theme === "dark" ? <FaSun size={16} /> : <FaMoon size={16} />}
+              <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+            </button>
+            <a href="https://www.linkedin.com/in/sumanjhanp/" target="_blank" rel="noopener noreferrer"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 gap: "6px", marginTop: "8px", padding: "12px", borderRadius: "12px",

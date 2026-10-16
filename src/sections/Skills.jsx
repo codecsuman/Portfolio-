@@ -1,29 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 
+/* ───────── Icon helpers ───────── */
 const icon = (id) => `https://skillicons.dev/icons?i=${id}`;
+const si = (slug) => `https://cdn.simpleicons.org/${slug}/ffffff`;
 
-const SKILLS = [
-  {
-    title: "Languages",
-    emoji: "⌨️",
-    color: "#8b5cf6",
-    items: [
-      { name: "JavaScript", level: 90, logo: icon("js") },
-      { name: "TypeScript", level: 78, logo: icon("ts") },
-      { name: "Python",     level: 80, logo: icon("python") },
-      { name: "Java",       level: 70, logo: icon("java") },
-      { name: "C",          level: 60, logo: icon("c") },
-    ],
-  },
+/* ───────── Data ───────── */
+const SKILL_CATEGORIES = [
   {
     title: "Frontend",
     emoji: "🎨",
     color: "#06b6d4",
     items: [
-      { name: "React",       level: 92, logo: icon("react") },
-      { name: "Tailwind",    level: 88, logo: icon("tailwind") },
-      { name: "HTML",        level: 95, logo: icon("html") },
-      { name: "CSS",         level: 92, logo: icon("css") },
+      { name: "React.js", logo: icon("react") },
+      { name: "TypeScript", logo: icon("ts") },
+      { name: "JavaScript", logo: icon("js") },
+      { name: "Tailwind CSS", logo: icon("tailwind") },
+      { name: "HTML5", logo: icon("html") },
+      { name: "CSS3", logo: icon("css") },
+      { name: "Redux Toolkit", logo: icon("redux") },
+      { name: "Vite", logo: icon("vite") },
     ],
   },
   {
@@ -31,225 +26,381 @@ const SKILLS = [
     emoji: "⚙️",
     color: "#f43f5e",
     items: [
-      { name: "Node.js",  level: 85, logo: icon("nodejs") },
-      { name: "Express",  level: 83, logo: icon("express") },
-      { name: "REST API", level: 88, logo: icon("postman") },
-      { name: "JWT",      level: 80, logo: icon("nodejs") },
+      { name: "Node.js", logo: icon("nodejs") },
+      { name: "Express.js", logo: icon("express") },
+      { name: "NestJS", logo: icon("nestjs") },
+      { name: "REST APIs", logo: icon("postman") },
+      { name: "JWT Auth", logo: si("jsonwebtokens") },
+      { name: "WebSockets", logo: si("websocket") },
+      { name: "Socket.IO", logo: si("socketdotio") },
     ],
   },
   {
-    title: "Databases",
+    title: "Databases & Caching",
     emoji: "🗄️",
     color: "#f59e0b",
     items: [
-      { name: "MongoDB", level: 85, logo: icon("mongodb") },
-      { name: "MySQL",   level: 75, logo: icon("mysql") },
-      { name: "SQL",     level: 78, logo: icon("sqlite") },
+      { name: "MongoDB", logo: icon("mongodb") },
+      { name: "Mongoose", logo: si("mongoose") },
+      { name: "MySQL", logo: icon("mysql") },
+      { name: "PostgreSQL", logo: icon("postgresql") },
+      { name: "Redis", logo: icon("redis") },
+      { name: "SQLite", logo: icon("sqlite") },
     ],
   },
   {
-    title: "Cloud & DevOps",
+    title: "DevOps & Cloud",
     emoji: "☁️",
     color: "#10b981",
     items: [
-      { name: "Docker", level: 70, logo: icon("docker") },
-      { name: "AWS",    level: 65, logo: icon("aws") },
-      { name: "Git",    level: 90, logo: icon("git") },
-      { name: "GitHub", level: 90, logo: icon("github") },
-      { name: "Vercel", level: 82, logo: icon("vercel") },
+      { name: "Docker", logo: icon("docker") },
+      { name: "Kubernetes", logo: icon("kubernetes") },
+      { name: "AWS", logo: icon("aws") },
+      { name: "Vercel", logo: icon("vercel") },
+      { name: "Render", logo: si("render") },
+      { name: "Linux", logo: icon("linux") },
+      { name: "Git", logo: icon("git") },
+      { name: "GitHub Actions", logo: icon("githubactions") },
+      { name: "Nginx", logo: icon("nginx") },
+      { name: "Jenkins", logo: si("jenkins") },
+      { name: "CircleCI", logo: si("circleci") },
+      { name: "GitLab CI", logo: si("gitlab") },
+      { name: "Azure DevOps", logo: si("azuredevops") },
+      { name: "ArgoCD", logo: si("argocd") },
     ],
   },
   {
-    title: "Data & Analytics",
-    emoji: "📊",
+    title: "Messaging & Security",
+    emoji: "🔐",
     color: "#ec4899",
     items: [
-      { name: "Pandas",   level: 80, logo: icon("python") },
-      { name: "NumPy",    level: 75, logo: icon("python") },
-      { name: "Power BI", level: 70, logo: "https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg" },
-      { name: "Excel",    level: 82, logo: "https://upload.wikimedia.org/wikipedia/commons/3/34/Microsoft_Office_Excel_%282019–present%29.svg" },
-      { name: "Jupyter",  level: 78, logo: "https://upload.wikimedia.org/wikipedia/commons/3/38/Jupyter_logo.svg" },
+      { name: "RabbitMQ", logo: si("rabbitmq") },
+      { name: "OAuth2", logo: si("auth0") },
+      { name: "Bcrypt", logo: null },
+      { name: "Rate Limiting", logo: null },
+    ],
+  },
+  {
+    title: "Testing & Quality",
+    emoji: "✅",
+    color: "#8b5cf6",
+    items: [
+      { name: "Playwright", logo: icon("playwright") },
+      { name: "React Testing Library", logo: si("testinglibrary") },
+    ],
+  },
+  {
+    title: "Data Analysis",
+    emoji: "📊",
+    color: "#22c55e",
+    items: [
+      { name: "Python", logo: icon("python") },
+      { name: "Pandas", logo: si("pandas") },
+      { name: "NumPy", logo: si("numpy") },
+      { name: "Matplotlib", logo: si("matplotlib") },
+      { name: "Plotly", logo: si("plotly") },
+      { name: "Power BI", logo: si("powerbi") },
+      { name: "Excel", logo: si("microsoftexcel") },
+      { name: "Jupyter", logo: si("jupyter") },
+      { name: "SQL", logo: icon("sqlite") },
+    ],
+  },
+  {
+    title: "Payments & Media",
+    emoji: "💳",
+    color: "#f97316",
+    items: [
+      { name: "Stripe", logo: si("stripe") },
+      { name: "Razorpay", logo: si("razorpay") },
+      { name: "Cloudinary", logo: si("cloudinary") },
+      { name: "Multer", logo: icon("nodejs") },
+    ],
+  },
+  {
+    title: "Core CS",
+    emoji: "🧠",
+    color: "#6366f1",
+    items: [
+      { name: "DSA", logo: si("leetcode") },
+      { name: "System Design", logo: si("architect") },
+      { name: "OOP", logo: icon("java") },
+      { name: "DBMS", logo: icon("mysql") },
+      { name: "OS & CN", logo: icon("linux") },
+      { name: "Software Eng", logo: icon("github") },
     ],
   },
 ];
 
-/* ── Animated progress bar ── */
-function Bar({ level, color, animate }) {
-  return (
-    <div style={{
-      flex: 1, height: "4px", borderRadius: "999px",
-      background: "rgba(255,255,255,0.06)", overflow: "hidden",
-    }}>
-      <div style={{
-        height: "100%", borderRadius: "999px",
-        background: `linear-gradient(90deg, ${color}, ${color}88)`,
-        width: animate ? `${level}%` : "0%",
-        transition: "width 1.1s cubic-bezier(0.4,0,0.2,1)",
-        boxShadow: `0 0 6px ${color}44`,
-      }} />
-    </div>
-  );
+/* ───────── Scroll animation hook ───────── */
+function useInView(threshold = 0.1) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return [ref, inView];
 }
 
-/* ── Single skill row ── */
-function SkillRow({ name, level, logo, color, animate, index }) {
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: "10px",
-      opacity: animate ? 1 : 0,
-      transform: animate ? "translateX(0)" : "translateX(-10px)",
-      transition: `opacity 0.4s ease ${index * 0.07}s, transform 0.4s ease ${index * 0.07}s`,
-    }}>
-      <img src={logo} alt={name}
-        style={{ width: "22px", height: "22px", objectFit: "contain", flexShrink: 0, borderRadius: "4px" }}
-        onError={(e) => { e.currentTarget.style.display = "none"; }}
-      />
-      <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--text-secondary)", minWidth: "68px", whiteSpace: "nowrap" }}>
-        {name}
-      </span>
-      <Bar level={level} color={color} animate={animate} />
-      <span style={{
-        fontSize: "0.65rem", fontWeight: 700,
-        color, minWidth: "30px", textAlign: "right",
-        opacity: animate ? 1 : 0,
-        transition: `opacity 0.4s ease ${0.8 + index * 0.05}s`,
-      }}>
-        {level}%
-      </span>
-    </div>
-  );
-}
-
-/* ── Skill card ── */
-function SkillCard({ group, animate }) {
-  const [hovered, setHovered] = useState(false);
+/* ───────── Single logo ───────── */
+function SkillLogo({ name, logo, animate, index }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = logo && !failed;
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        borderRadius: "18px",
-        padding: "22px",
-        background: hovered ? "rgba(17,17,24,0.98)" : "rgba(17,17,24,0.7)",
-        border: `1px solid ${hovered ? group.color + "40" : group.color + "15"}`,
-        boxShadow: hovered
-          ? `0 0 32px ${group.color}18, 0 12px 40px rgba(0,0,0,0.5)`
-          : "0 4px 24px rgba(0,0,0,0.3)",
-        transform: hovered ? "translateY(-5px)" : "translateY(0)",
-        transition: "all 0.28s ease",
-        position: "relative", overflow: "hidden",
-        backdropFilter: "blur(12px)",
-      }}
+      className={`skill-logo ${animate ? "is-visible" : ""}`}
+      style={{ transitionDelay: `${index * 0.05}s` }}
+      title={name}
     >
-      {/* Top accent line */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, height: "2px",
-        background: `linear-gradient(90deg, ${group.color}, transparent)`,
-        opacity: hovered ? 1 : 0.4,
-        transition: "opacity 0.3s",
-      }} />
+      <div className="skill-logo__box">
+        {showImage ? (
+          <img
+            src={logo}
+            alt={name}
+            className="skill-logo__img"
+            loading="lazy"
+            onError={() => setFailed(true)}
+          />
+        ) : (
+          <span className="skill-logo__fallback">{name.charAt(0)}</span>
+        )}
+      </div>
+      <span className="skill-logo__name">{name}</span>
+    </div>
+  );
+}
 
-      {/* Corner glow */}
-      <div style={{
-        position: "absolute", top: "-30px", right: "-30px",
-        width: "120px", height: "120px", borderRadius: "50%",
-        background: `radial-gradient(circle, ${group.color}12, transparent 70%)`,
-        opacity: hovered ? 1 : 0,
-        transition: "opacity 0.3s", pointerEvents: "none",
-      }} />
+/* ───────── Category card ───────── */
+function SkillCategory({ group, animate }) {
+  const c = group.color;
 
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-        <div style={{
-          width: "38px", height: "38px", borderRadius: "10px", flexShrink: 0,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "1rem",
-          background: `${group.color}15`,
-          border: `1px solid ${group.color}30`,
-          boxShadow: hovered ? `0 0 12px ${group.color}28` : "none",
-          transition: "box-shadow 0.3s",
-        }}>
-          {group.emoji}
-        </div>
+  const vars = {
+    "--accent": c,
+    "--accent-bg": `${c}12`,
+    "--accent-border": `${c}25`,
+    "--accent-card-border": `${c}18`,
+    "--accent-card-border-hover": `${c}40`,
+    "--accent-glow": `${c}18`,
+    "--accent-corner": `${c}12`,
+    "--accent-icon-bg": `${c}15`,
+    "--accent-icon-border": `${c}30`,
+  };
+
+  return (
+    <div className="skill-card" style={vars}>
+      <div className="skill-card__line" />
+      <div className="skill-card__glow" />
+
+      <div className="skill-card__header">
+        <div className="skill-card__emoji">{group.emoji}</div>
         <div>
-          <h3 style={{
-            margin: 0, fontWeight: 800, fontSize: "0.82rem",
-            color: group.color, letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}>
-            {group.title}
-          </h3>
-          <p style={{ margin: 0, fontSize: "0.65rem", color: "var(--text-secondary)", marginTop: "1px" }}>
-            {group.items.length} technologies
-          </p>
+          <h3 className="skill-card__title">{group.title}</h3>
+          <p className="skill-card__count">{group.items.length} technologies</p>
         </div>
       </div>
 
-      {/* Skill rows */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div className="skill-card__grid">
         {group.items.map((item, i) => (
-          <SkillRow key={i} index={i} name={item.name} level={item.level} logo={item.logo} color={group.color} animate={animate} />
+          <SkillLogo
+            key={item.name}
+            name={item.name}
+            logo={item.logo}
+            animate={animate}
+            index={i}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-/* ── Main section ── */
+/* ───────── Main section ───────── */
 export default function Skills() {
-  const [animate, setAnimate] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setAnimate(true); },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+  const [ref, inView] = useInView(0.1);
 
   return (
-    <section id="skills" className="section" ref={ref} style={{ position: "relative" }}>
-
-      {/* Ambient glows */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-        <div style={{
-          position: "absolute", top: "-60px", left: "20%",
-          width: "400px", height: "400px",
-          background: "radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%)",
-          filter: "blur(50px)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: "-40px", right: "10%",
-          width: "360px", height: "360px",
-          background: "radial-gradient(circle, rgba(236,72,153,0.06), transparent 70%)",
-          filter: "blur(50px)",
-        }} />
+    <section id="skills" className="section skills" ref={ref}>
+      <div className="skills__glows">
+        <div className="skills__glow skills__glow--purple" />
+        <div className="skills__glow skills__glow--pink" />
+        <div className="skills__glow skills__glow--cyan" />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <h2 className="section-title reveal">Skills</h2>
-        <p className="section-subtitle reveal" style={{ transitionDelay: "0.1s" }}>
-          Technologies I work with — including cloud & DevOps
+      <div className="skills__content">
+        <h2 className="section-title">Technical Skills</h2>
+        <p className="section-subtitle">
+          Technologies & tools I work with across full-stack development,
+          DevOps, data analysis & system design
         </p>
 
-        <div className="skills-grid reveal-stagger"
-          style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}
-        >
-          {SKILLS.map((group, i) => (
-            <SkillCard key={i} group={group} animate={animate} />
+        <div className="skills__grid">
+          {SKILL_CATEGORIES.map((group) => (
+            <SkillCategory key={group.title} group={group} animate={inView} />
           ))}
         </div>
+
+        <p className="skills__note">
+          Hover over any logo to see the glow effect
+        </p>
       </div>
 
       <style>{`
-        @media (max-width: 900px) {
-          .skills-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        .skills { position: relative; }
+        .skills__content { position: relative; z-index: 1; }
+        .skills__grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
         }
-        @media (max-width: 560px) {
-          .skills-grid { grid-template-columns: 1fr !important; }
+        .skills__note {
+          margin-top: 40px;
+          text-align: center;
+          font-size: 0.75rem;
+          color: var(--text-muted, #71717a);
+        }
+
+        /* Background glows */
+        .skills__glows {
+          position: absolute; inset: 0;
+          pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .skills__glow { position: absolute; filter: blur(50px); }
+        .skills__glow--purple {
+          top: -60px; left: 20%; width: 400px; height: 400px;
+          background: radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%);
+        }
+        .skills__glow--pink {
+          bottom: -40px; right: 10%; width: 360px; height: 360px;
+          background: radial-gradient(circle, rgba(236,72,153,0.06), transparent 70%);
+        }
+        .skills__glow--cyan {
+          top: 50%; left: 5%; width: 300px; height: 300px;
+          background: radial-gradient(circle, rgba(6,182,212,0.05), transparent 70%);
+        }
+
+        /* Category card */
+        .skill-card {
+          position: relative; overflow: hidden;
+          padding: 24px; border-radius: 18px;
+          background: rgba(17,17,24,0.7);
+          border: 1px solid var(--accent-card-border);
+          box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+          -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+          transition: all 0.3s ease;
+        }
+        .skill-card:hover {
+          transform: translateY(-5px);
+          border-color: var(--accent-card-border-hover);
+          box-shadow: 0 0 32px var(--accent-glow), 0 12px 40px rgba(0,0,0,0.5);
+        }
+        .skill-card__line {
+          position: absolute; top: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, var(--accent), transparent);
+          opacity: 0.5;
+        }
+        .skill-card__glow {
+          position: absolute; top: -40px; right: -40px;
+          width: 140px; height: 140px; border-radius: 50%;
+          background: radial-gradient(circle, var(--accent-corner), transparent 70%);
+          pointer-events: none;
+        }
+        .skill-card__header {
+          position: relative;
+          display: flex; align-items: center; gap: 10px;
+          margin-bottom: 20px;
+        }
+        .skill-card__emoji {
+          width: 42px; height: 42px; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1.1rem; border-radius: 12px;
+          background: var(--accent-icon-bg);
+          border: 1px solid var(--accent-icon-border);
+        }
+        .skill-card__title {
+          margin: 0; font-size: 0.85rem; font-weight: 800;
+          letter-spacing: 0.08em; text-transform: uppercase;
+          color: var(--accent);
+        }
+        .skill-card__count {
+          margin: 1px 0 0; font-size: 0.65rem;
+          color: var(--text-secondary, #a1a1aa);
+        }
+        .skill-card__grid {
+          position: relative;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+          gap: 12px;
+        }
+
+        /* Single logo */
+        .skill-logo {
+          display: flex; flex-direction: column; align-items: center;
+          gap: 6px; cursor: default;
+          opacity: 0; transform: translateY(15px);
+          transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1),
+                      transform 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        .skill-logo.is-visible { opacity: 1; transform: translateY(0); }
+        .skill-logo__box {
+          position: relative; width: 56px; height: 56px;
+          display: flex; align-items: center; justify-content: center;
+          overflow: hidden; border-radius: 14px;
+          background: var(--accent-bg);
+          border: 1px solid var(--accent-border);
+          transition: all 0.3s ease;
+        }
+        .skill-logo__box::before {
+          content: ""; position: absolute; inset: 0;
+          background: radial-gradient(circle at center, var(--accent-glow), transparent 70%);
+          opacity: 0; transition: opacity 0.3s ease;
+        }
+        .skill-logo:hover .skill-logo__box::before { opacity: 1; }
+        .skill-logo:hover .skill-logo__box { border-color: var(--accent); }
+        .skill-logo__img {
+          position: relative; z-index: 1;
+          width: 28px; height: 28px; object-fit: contain;
+          transition: transform 0.3s ease;
+        }
+        .skill-logo:hover .skill-logo__img { transform: scale(1.15); }
+        .skill-logo__fallback {
+          position: relative; z-index: 1;
+          font-size: 1.1rem; font-weight: 700; color: var(--accent);
+        }
+        .skill-logo__name {
+          max-width: 70px; overflow: hidden;
+          white-space: nowrap; text-overflow: ellipsis;
+          text-align: center; font-size: 0.68rem; font-weight: 500;
+          color: var(--text-secondary, #a1a1aa);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+          .skills__grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+          .skills__grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </section>

@@ -1,8 +1,81 @@
 import { useEffect, useRef, useState } from "react";
+import { LIGHT_EFFECTS } from "../utils/perf";
+
+const light = LIGHT_EFFECTS;
 
 /* ───────── Icon helpers ───────── */
 const icon = (id) => `https://skillicons.dev/icons?i=${id}`;
 const si = (slug) => `https://cdn.simpleicons.org/${slug}/ffffff`;
+const mix = (slug) => `https://api.iconify.design/simple-icons:${slug}.svg?color=%23ffffff`;
+const mdi = (name) => `https://api.iconify.design/mdi:${name}.svg?color=%23ffffff`;
+const devicon = (name, variant = "original") =>
+  `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}/${name}-${variant}.svg`;
+
+/* ───────── Official free / open-source documentation links ───────── */
+const DOCS = {
+  "React.js": "https://react.dev/learn",
+  TypeScript: "https://www.typescriptlang.org/docs/handbook/intro.html",
+  JavaScript: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+  "Tailwind CSS": "https://tailwindcss.com/docs",
+  HTML5: "https://developer.mozilla.org/en-US/docs/Web/HTML",
+  CSS3: "https://developer.mozilla.org/en-US/docs/Web/CSS",
+  "Redux Toolkit": "https://redux-toolkit.js.org/introduction/getting-started",
+  Vite: "https://vite.dev/guide",
+  "Node.js": "https://nodejs.org/docs/latest/api",
+  "Express.js": "https://expressjs.com/en/starter/installing.html",
+  NestJS: "https://docs.nestjs.com",
+  "REST APIs": "https://developer.mozilla.org/en-US/docs/Web/HTTP",
+  "JWT Auth": "https://jwt.io/introduction",
+  WebSockets: "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API",
+  "Socket.IO": "https://socket.io/docs/v4",
+  MongoDB: "https://www.mongodb.com/docs/manual",
+  Mongoose: "https://mongoosejs.com/docs/guide.html",
+  MySQL: "https://dev.mysql.com/doc/refman/en",
+  PostgreSQL: "https://www.postgresql.org/docs/current",
+  Redis: "https://redis.io/docs/latest/develop",
+  SQLite: "https://www.sqlite.org/docs.html",
+  Docker: "https://docs.docker.com/get-started",
+  Kubernetes: "https://kubernetes.io/docs/tutorials",
+  AWS: "https://docs.aws.amazon.com/index.html",
+  Vercel: "https://vercel.com/docs",
+  Render: "https://render.com/docs",
+  Linux: "https://www.kernel.org/doc/html/latest",
+  Git: "https://git-scm.com/doc",
+  "GitHub Actions": "https://docs.github.com/en/actions",
+  Nginx: "https://nginx.org/en/docs",
+  Jenkins: "https://www.jenkins.io/doc",
+  CircleCI: "https://circleci.com/docs",
+  "GitLab CI": "https://docs.gitlab.com/ci",
+  "Azure DevOps": "https://learn.microsoft.com/en-us/azure/devops",
+  ArgoCD: "https://argo-cd.readthedocs.io/en/stable",
+  RabbitMQ: "https://www.rabbitmq.com/tutorials",
+  OAuth2: "https://oauth.net/2",
+  Bcrypt: "https://github.com/kelektiv/node.bcrypt.js",
+  "Rate Limiting": "https://github.com/expressjs/express-rate-limit",
+  Playwright: "https://playwright.dev/docs/intro",
+  "React Testing Library":
+    "https://testing-library.com/docs/react-testing-library/intro",
+  Python: "https://docs.python.org/3/tutorial",
+  Pandas: "https://pandas.pydata.org/docs/user_guide/index.html",
+  NumPy: "https://numpy.org/doc/stable/user/index.html",
+  Matplotlib: "https://matplotlib.org/stable/tutorials/index.html",
+  Plotly: "https://plotly.com/python/getting-started",
+  "Power BI":
+    "https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-what-is-desktop",
+  Excel: "https://support.microsoft.com/en-us/excel",
+  Jupyter: "https://docs.jupyter.org/en/latest",
+  SQL: "https://www.sqlite.org/lang.html",
+  Stripe: "https://docs.stripe.com",
+  Razorpay: "https://razorpay.com/docs",
+  Cloudinary: "https://cloudinary.com/documentation",
+  Multer: "https://github.com/expressjs/multer",
+  DSA: "https://cp-algorithms.com",
+  "System Design": "https://github.com/donnemartin/system-design-primer",
+  OOP: "https://docs.oracle.com/javase/tutorial/java/concepts",
+  "OS & CN": "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+  "Software Eng": "https://abseil.io/resources/swe-book",
+  DBMS: "https://dev.mysql.com/doc/refman/en",
+};
 
 /* ───────── Data ───────── */
 const SKILL_CATEGORIES = [
@@ -31,7 +104,7 @@ const SKILL_CATEGORIES = [
       { name: "NestJS", logo: icon("nestjs") },
       { name: "REST APIs", logo: icon("postman") },
       { name: "JWT Auth", logo: si("jsonwebtokens") },
-      { name: "WebSockets", logo: si("websocket") },
+      { name: "WebSockets", logo: mdi("lan-connect") },
       { name: "Socket.IO", logo: si("socketdotio") },
     ],
   },
@@ -65,8 +138,8 @@ const SKILL_CATEGORIES = [
       { name: "Jenkins", logo: si("jenkins") },
       { name: "CircleCI", logo: si("circleci") },
       { name: "GitLab CI", logo: si("gitlab") },
-      { name: "Azure DevOps", logo: si("azuredevops") },
-      { name: "ArgoCD", logo: si("argocd") },
+      { name: "Azure DevOps", logo: mix("azuredevops") },
+      { name: "ArgoCD", logo: si("argo") },
     ],
   },
   {
@@ -76,8 +149,8 @@ const SKILL_CATEGORIES = [
     items: [
       { name: "RabbitMQ", logo: si("rabbitmq") },
       { name: "OAuth2", logo: si("auth0") },
-      { name: "Bcrypt", logo: null },
-      { name: "Rate Limiting", logo: null },
+      { name: "Bcrypt", logo: mdi("shield-lock") },
+      { name: "Rate Limiting", logo: mdi("speedometer") },
     ],
   },
   {
@@ -85,7 +158,7 @@ const SKILL_CATEGORIES = [
     emoji: "✅",
     color: "#8b5cf6",
     items: [
-      { name: "Playwright", logo: icon("playwright") },
+      { name: "Playwright", logo: mix("playwright") },
       { name: "React Testing Library", logo: si("testinglibrary") },
     ],
   },
@@ -97,10 +170,10 @@ const SKILL_CATEGORIES = [
       { name: "Python", logo: icon("python") },
       { name: "Pandas", logo: si("pandas") },
       { name: "NumPy", logo: si("numpy") },
-      { name: "Matplotlib", logo: si("matplotlib") },
+      { name: "Matplotlib", logo: devicon("matplotlib") },
       { name: "Plotly", logo: si("plotly") },
-      { name: "Power BI", logo: si("powerbi") },
-      { name: "Excel", logo: si("microsoftexcel") },
+      { name: "Power BI", logo: mix("powerbi") },
+      { name: "Excel", logo: mix("microsoftexcel") },
       { name: "Jupyter", logo: si("jupyter") },
       { name: "SQL", logo: icon("sqlite") },
     ],
@@ -122,7 +195,7 @@ const SKILL_CATEGORIES = [
     color: "#6366f1",
     items: [
       { name: "DSA", logo: si("leetcode") },
-      { name: "System Design", logo: si("architect") },
+      { name: "System Design", logo: mdi("sitemap") },
       { name: "OOP", logo: icon("java") },
       { name: "DBMS", logo: icon("mysql") },
       { name: "OS & CN", logo: icon("linux") },
@@ -132,7 +205,7 @@ const SKILL_CATEGORIES = [
 ];
 
 /* ───────── Scroll animation hook ───────── */
-function useInView(threshold = 0.1) {
+function useInView(threshold = 0.1, rootMargin = "0px") {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
 
@@ -152,12 +225,12 @@ function useInView(threshold = 0.1) {
           observer.disconnect();
         }
       },
-      { threshold },
+      { threshold, rootMargin },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold]);
+  }, [threshold, rootMargin]);
 
   return [ref, inView];
 }
@@ -166,13 +239,10 @@ function useInView(threshold = 0.1) {
 function SkillLogo({ name, logo, animate, index }) {
   const [failed, setFailed] = useState(false);
   const showImage = logo && !failed;
+  const docs = DOCS[name];
 
-  return (
-    <div
-      className={`skill-logo ${animate ? "is-visible" : ""}`}
-      style={{ transitionDelay: `${index * 0.05}s` }}
-      title={name}
-    >
+  const content = (
+    <>
       <div className="skill-logo__box">
         {showImage ? (
           <img
@@ -187,6 +257,29 @@ function SkillLogo({ name, logo, animate, index }) {
         )}
       </div>
       <span className="skill-logo__name">{name}</span>
+    </>
+  );
+
+  return (
+    <div
+      className={`skill-logo ${animate ? "is-visible" : ""} ${
+        docs ? "skill-logo--link" : ""
+      }`}
+      style={{ transitionDelay: `${index * 0.05}s` }}
+      title={name}
+    >
+      {docs ? (
+        <a
+          href={docs}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${name} documentation (opens in new tab)`}
+        >
+          {content}
+        </a>
+      ) : (
+        content
+      )}
     </div>
   );
 }
@@ -237,15 +330,17 @@ function SkillCategory({ group, animate }) {
 
 /* ───────── Main section ───────── */
 export default function Skills() {
-  const [ref, inView] = useInView(0.1);
+  const [ref, inView] = useInView(0, "0px 0px -10% 0px");
 
   return (
     <section id="skills" className="section skills" ref={ref}>
-      <div className="skills__glows">
-        <div className="skills__glow skills__glow--purple" />
-        <div className="skills__glow skills__glow--pink" />
-        <div className="skills__glow skills__glow--cyan" />
-      </div>
+      {!light && (
+        <div className="skills__glows">
+          <div className="skills__glow skills__glow--purple" />
+          <div className="skills__glow skills__glow--pink" />
+          <div className="skills__glow skills__glow--cyan" />
+        </div>
+      )}
 
       <div className="skills__content">
         <h2 className="section-title">Technical Skills</h2>
@@ -261,7 +356,7 @@ export default function Skills() {
         </div>
 
         <p className="skills__note">
-          Hover over any logo to see the glow effect
+          Click any skill to open its official documentation ↗
         </p>
       </div>
 
@@ -299,15 +394,16 @@ export default function Skills() {
           background: radial-gradient(circle, rgba(6,182,212,0.05), transparent 70%);
         }
 
-        /* Category card */
+        /* Category card (backdrop blur skipped on phones/low-end devices) */
         .skill-card {
           position: relative; overflow: hidden;
           padding: 24px; border-radius: 18px;
-          background: rgba(17,17,24,0.7);
+          background: ${light ? "rgba(18,18,26,0.97)" : "rgba(17,17,24,0.7)"};
           border: 1px solid var(--accent-card-border);
           box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-          -webkit-backdrop-filter: blur(12px);
-          backdrop-filter: blur(12px);
+          ${light
+            ? ""
+            : "-webkit-backdrop-filter: blur(12px);\n          backdrop-filter: blur(12px);"}
           transition: all 0.3s ease;
         }
         .skill-card:hover {
@@ -345,7 +441,7 @@ export default function Skills() {
         }
         .skill-card__count {
           margin: 1px 0 0; font-size: 0.65rem;
-          color: var(--text-secondary, #a1a1aa);
+          color: #9d9db5;
         }
         .skill-card__grid {
           position: relative;
@@ -363,8 +459,19 @@ export default function Skills() {
                       transform 0.5s cubic-bezier(0.4,0,0.2,1);
         }
         .skill-logo.is-visible { opacity: 1; transform: translateY(0); }
+        .skill-logo--link { cursor: pointer; }
+        .skill-logo--link > a {
+          display: flex; flex-direction: column; align-items: center;
+          gap: 6px; text-decoration: none; color: inherit;
+          border-radius: 10px;
+        }
+        .skill-logo--link:hover .skill-logo__name { color: var(--accent); }
+        .skill-logo--link > a:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: 3px;
+        }
         .skill-logo__box {
-          position: relative; width: 56px; height: 56px;
+          position: relative; width: 60px; height: 60px;
           display: flex; align-items: center; justify-content: center;
           overflow: hidden; border-radius: 14px;
           background: var(--accent-bg);
@@ -380,7 +487,7 @@ export default function Skills() {
         .skill-logo:hover .skill-logo__box { border-color: var(--accent); }
         .skill-logo__img {
           position: relative; z-index: 1;
-          width: 28px; height: 28px; object-fit: contain;
+          width: 32px; height: 32px; object-fit: contain;
           transition: transform 0.3s ease;
         }
         .skill-logo:hover .skill-logo__img { transform: scale(1.15); }
@@ -389,10 +496,11 @@ export default function Skills() {
           font-size: 1.1rem; font-weight: 700; color: var(--accent);
         }
         .skill-logo__name {
-          max-width: 70px; overflow: hidden;
-          white-space: nowrap; text-overflow: ellipsis;
-          text-align: center; font-size: 0.68rem; font-weight: 500;
-          color: var(--text-secondary, #a1a1aa);
+          max-width: 100%;
+          text-align: center;
+          font-size: 0.7rem; font-weight: 500;
+          line-height: 1.25;
+          color: #b3b3cc;
         }
 
         /* Responsive */

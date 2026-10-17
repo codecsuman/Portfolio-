@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import P from "../assets/P.jpg";
+import P from "../assets/P.webp";
+import { useLiveStats } from "../utils/liveStats";
 import {
   FaDownload,
   FaGraduationCap,
@@ -10,12 +10,7 @@ import {
 } from "react-icons/fa";
 
 /* ───────── Data ───────── */
-const STATS = [
-  { value: "12+", label: "Projects Built" },
-  { value: "1+", label: "Years Exp." },
-  { value: "8+", label: "Tech Stacks" },
-  { value: "240+", label: "DSA Solved" },
-];
+
 
 const EDUCATION = [
   {
@@ -35,7 +30,7 @@ const EDUCATION = [
   {
     degree: "Secondary (WBBSE)",
     school: "Gourhati Haradas Institution, Kolkata",
-    period: "2018 – 2020",
+    period: "2019 – 2020",
     grade: "87%",
     color: "#f43f5e",
   },
@@ -59,12 +54,12 @@ const SKILL_ITEMS = [
 const badgeClass = (i) =>
   `badge ${
     i % 4 === 1
-      ? "badge-cyan"
+      ? "badge-blue"
       : i % 4 === 2
-        ? "badge-rose"
+        ? "badge-red"
         : i % 4 === 3
-          ? "badge-amber"
-          : ""
+          ? "badge-yellow"
+          : "badge-purple"
   }`;
 
 /* ───────── Small heading used in every block ───────── */
@@ -94,6 +89,15 @@ function ResumeButton({ className = "" }) {
 
 /* ───────── About Section ───────── */
 export default function About() {
+  const stats = useLiveStats();
+
+  const statsList = [
+    { value: `${stats.repos}+`, label: "Projects Built", from: "Live from GitHub" },
+    { value: `${stats.years}+`, label: "Years Exp.", from: "Professional experience" },
+    { value: `${SKILL_ITEMS.length}+`, label: "Tech Stacks", from: `${SKILL_ITEMS.length} technology stacks` },
+    { value: `${stats.solved}+`, label: "DSA Solved", from: "Live from LeetCode" },
+  ];
+
   return (
     <section id="about" className="section about">
 
@@ -119,6 +123,8 @@ export default function About() {
             <img
               src={P}
               alt="Suman Jhanp"
+              loading="lazy"
+              decoding="async"
               className="rounded-xl object-cover"
               style={{
                 width: "240px",
@@ -149,15 +155,16 @@ export default function About() {
               . Skilled in RESTful API development, JWT authentication,
               role-based authorization, database design, real-time
               communication, payment integration, and cloud deployment. Strong
-              foundation in Data Structures & Algorithms (240+ LeetCode), OOP,
-              SQL, DBMS, Operating Systems, Computer Networks, Software
-              Engineering, Docker, Linux, Git, and System Design.
+              foundation in Data Structures & Algorithms ({stats.solved}+
+              {" "}LeetCode), OOP, SQL, DBMS, Operating Systems, Computer
+              Networks, Software Engineering, Docker, Linux, Git, and System
+              Design.
             </p>
           </div>
 
           <div className="about-stats reveal-stagger">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="about-stat">
+            {statsList.map(({ value, label, from }) => (
+              <div key={label} className="about-stat" title={from}>
                 <div className="text-xl font-black gradient-text">{value}</div>
                 <div className="about-stat__label">{label}</div>
               </div>
@@ -304,7 +311,7 @@ export default function About() {
           background: linear-gradient(90deg, rgba(139,92,246,0.25), transparent);
         }
 
-        /* Education cards */
+        /* Education cards (theme-aware: dark card only in dark mode) */
         .about-edu-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -316,16 +323,22 @@ export default function About() {
           padding: 22px;
           border-radius: 16px;
           background: rgba(17,17,24,0.7);
-          border: 1px solid color-mix(in srgb, var(--c) 12%, transparent);
-          border: 1px solid var(--c);
-          border-color: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.06);
           box-shadow: 0 4px 24px rgba(0,0,0,0.4);
           transition: all 0.3s ease;
+        }
+        [data-theme="light"] .about-card {
+          background: rgba(255,255,255,0.95);
+          border-color: rgba(15,23,42,0.08);
+          box-shadow: 0 4px 24px rgba(15,23,42,0.1);
         }
         .about-card:hover {
           transform: translateY(-5px);
           border-color: var(--c);
           box-shadow: 0 0 24px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.5);
+        }
+        [data-theme="light"] .about-card:hover {
+          box-shadow: 0 0 24px rgba(15,23,42,0.08), 0 12px 40px rgba(15,23,42,0.12);
         }
         .about-card__line {
           position: absolute;
@@ -345,6 +358,9 @@ export default function About() {
           color: var(--c);
           background: rgba(255,255,255,0.04);
           border: 1px solid var(--c);
+        }
+        [data-theme="light"] .about-card__icon {
+          background: rgba(0,0,0,0.03);
         }
         .about-card__title {
           margin: 0;
@@ -369,6 +385,9 @@ export default function About() {
           border-top: 1px solid rgba(255,255,255,0.06);
           font-size: 0.75rem;
           font-weight: 600;
+        }
+        [data-theme="light"] .about-card__meta {
+          border-top-color: rgba(15,23,42,0.1);
         }
         .about-card__period { color: var(--c); }
         .about-card__grade { color: var(--text-muted); }

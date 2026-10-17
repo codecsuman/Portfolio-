@@ -11,6 +11,7 @@ import Experience from "./sections/Experience";
 import Contact from "./sections/Contact";
 import ResumePage from "./sections/ResumePage";
 import Intro from "./components/IntroAnimation";
+import { useStaticBackground } from "./utils/perf";
 
 /* ── IntersectionObserver for scroll reveal animations ── */
 function initRevealObserver() {
@@ -36,41 +37,47 @@ function MainPage() {
     return () => observer.disconnect();
   }, []);
 
+  // Weak hardware / reduced-motion users get a static background (no blur
+  // layers, no floating orbs) to keep the page light and smooth.
+  const staticBg = useStaticBackground();
+
   return (
     <main className="min-h-screen relative overflow-hidden" style={{ background: "var(--bg)" }}>
 
       {/* ── Background orbs — CSS-only, no JS animation loop ── */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div style={{
-          position: "absolute", top: "-10%", left: "-5%",
-          width: "600px", height: "600px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%)",
-          filter: "blur(80px)",
-          animation: "float 10s ease-in-out infinite",
-        }} />
-        <div style={{
-          position: "absolute", top: "30%", right: "-10%",
-          width: "500px", height: "500px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(16,185,129,0.12), transparent 70%)",
-          filter: "blur(80px)",
-          animation: "float 12s ease-in-out 2s infinite",
-        }} />
-        <div style={{
-          position: "absolute", bottom: "-5%", left: "30%",
-          width: "450px", height: "450px", borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(249,115,22,0.08), transparent 70%)",
-          filter: "blur(80px)",
-          animation: "float 14s ease-in-out 4s infinite",
-        }} />
-        {/* Subtle grid pattern */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: "radial-gradient(rgba(59,130,246,0.04) 1px, transparent 1px)",
-          backgroundSize: "50px 50px",
-          maskImage: "radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 100%)",
-        }} />
-      </div>
+      {!staticBg && (
+        <div className="fixed inset-0 -z-10 pointer-events-none">
+          <div style={{
+            position: "absolute", top: "-10%", left: "-5%",
+            width: "600px", height: "600px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%)",
+            filter: "blur(80px)",
+            animation: "float 10s ease-in-out infinite",
+          }} />
+          <div style={{
+            position: "absolute", top: "30%", right: "-10%",
+            width: "500px", height: "500px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(16,185,129,0.12), transparent 70%)",
+            filter: "blur(80px)",
+            animation: "float 12s ease-in-out 2s infinite",
+          }} />
+          <div style={{
+            position: "absolute", bottom: "-5%", left: "30%",
+            width: "450px", height: "450px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(249,115,22,0.08), transparent 70%)",
+            filter: "blur(80px)",
+            animation: "float 14s ease-in-out 4s infinite",
+          }} />
+          {/* Subtle grid pattern */}
+          <div style={{
+            position: "absolute", inset: 0,
+            backgroundImage: "radial-gradient(rgba(59,130,246,0.04) 1px, transparent 1px)",
+            backgroundSize: "50px 50px",
+            maskImage: "radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 100%)",
+            WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 100%)",
+          }} />
+        </div>
+      )}
 
       <Intro />
       <Navbar />
@@ -88,7 +95,7 @@ function MainPage() {
 export default function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/resume" element={<ResumePage />} />

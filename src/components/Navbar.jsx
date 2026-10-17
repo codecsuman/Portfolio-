@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
-import Logo from "../assets/Logo.png";
+import Logo from "../assets/Logo.webp";
+import { LIGHT_EFFECTS as lightFx } from "../utils/perf";
 
 const NAV_ITEMS = ["home", "about", "skills", "projects", "experience", "contact"];
 
@@ -10,23 +11,14 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const isLight = theme === "light";
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }),
-      { rootMargin: "-40% 0px -55% 0px" }
-    );
-    NAV_ITEMS.forEach((id) => { const el = document.getElementById(id); if (el) observer.observe(el); });
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -37,10 +29,7 @@ export default function Navbar() {
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-      setActive(id);
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleNavClick = (e, id) => {
@@ -91,11 +80,17 @@ export default function Navbar() {
       <nav
         className="fixed top-0 left-0 w-full z-50"
         style={{
-          background: scrolled ? "rgba(10,10,15,0.92)" : "transparent",
-          backdropFilter: scrolled ? "blur(20px) saturate(1.2)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(20px) saturate(1.2)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(139,92,246,0.1)" : "1px solid transparent",
-          boxShadow: scrolled ? "0 4px 40px rgba(0,0,0,0.5)" : "none",
+          background: scrolled
+            ? isLight ? "rgba(255,255,255,0.95)" : "rgba(10,10,15,0.96)"
+            : "transparent",
+          backdropFilter: scrolled && !lightFx ? "blur(20px) saturate(1.2)" : "none",
+          WebkitBackdropFilter: scrolled && !lightFx ? "blur(20px) saturate(1.2)" : "none",
+          borderBottom: scrolled
+            ? isLight ? "1px solid rgba(15,23,42,0.06)" : "1px solid rgba(139,92,246,0.1)"
+            : "1px solid transparent",
+          boxShadow: scrolled
+            ? isLight ? "0 4px 40px rgba(15,23,42,0.08)" : "0 4px 40px rgba(0,0,0,0.5)"
+            : "none",
           transition: "all 0.3s ease",
         }}
       >
@@ -276,9 +271,15 @@ export default function Navbar() {
           maxHeight: menuOpen ? "500px" : "0px",
           overflow: "auto",
           transition: "max-height 0.35s ease",
-          background: "rgba(10,10,15,0.97)",
-          backdropFilter: "blur(20px)",
-          borderTop: menuOpen ? "1px solid rgba(139,92,246,0.1)" : "none",
+          background: isLight ? "rgba(255,255,255,0.98)" : "rgba(10,10,15,0.97)",
+          backdropFilter: lightFx ? "none" : "blur(20px)",
+          WebkitBackdropFilter: lightFx ? "none" : "blur(20px)",
+          borderTop: menuOpen
+            ? isLight ? "1px solid rgba(15,23,42,0.06)" : "1px solid rgba(139,92,246,0.1)"
+            : "none",
+          boxShadow: menuOpen
+            ? isLight ? "0 12px 32px rgba(15,23,42,0.1)" : "0 12px 32px rgba(0,0,0,0.5)"
+            : "none",
         }}>
           <div style={{ padding: "16px 20px 20px" }}>
             {NAV_ITEMS.map((item, i) => {

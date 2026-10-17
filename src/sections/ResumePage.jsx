@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { FaDownload, FaTimes, FaExpand, FaCompress, FaRedo, FaUndo, FaPlus, FaMinus, FaFileDownload } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
+import { LIGHT_EFFECTS } from "../utils/perf";
 
 /* ============================================================================
    RESUME PAGE — Full-screen PDF viewer with toolbar controls
@@ -123,7 +124,7 @@ export default function ResumePage() {
           justifyContent: "space-between",
           padding: "14px 24px",
           background: "rgba(17,17,24,0.95)",
-          backdropFilter: "blur(12px)",
+          backdropFilter: LIGHT_EFFECTS ? "none" : "blur(12px)",
           borderBottom: "1px solid rgba(139,92,246,0.15)",
           flexWrap: "wrap",
           gap: "12px",
@@ -391,8 +392,8 @@ export default function ResumePage() {
           flexWrap: "wrap",
           color: "var(--text-muted)",
           fontSize: "0.7rem",
-          background: "rgba(10,10,15,0.8)",
-          backdropFilter: "blur(8px)",
+          background: "rgba(10,10,15,0.95)",
+          backdropFilter: LIGHT_EFFECTS ? "none" : "blur(8px)",
           borderTop: "1px solid rgba(139,92,246,0.08)",
         }}
       >

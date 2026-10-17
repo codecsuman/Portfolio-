@@ -148,9 +148,14 @@ body {
   to   { opacity: 1; transform: translateX(0); }
 }
 
+/* Slow drifting motion — up, down, left, right (robot avatar + bg orbs) */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-12px); }
+  0%   { transform: translate(0px, 0px); }
+  20%  { transform: translate(-14px, -10px); }
+  40%  { transform: translate(10px, -18px); }
+  60%  { transform: translate(14px, 4px); }
+  80%  { transform: translate(-8px, 10px); }
+  100% { transform: translate(0px, 0px); }
 }
 
 @keyframes pulseGlow {
@@ -257,6 +262,13 @@ body {
   margin: 0 auto;
   position: relative;
   z-index: 1;
+}
+
+/* Skip rendering work for below-fold sections until scrolled near
+   (big win for phones & low-end devices). Home stays fully rendered. */
+#about, #experience, #projects, #skills, #contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
 }
 
 /* ================================================================
@@ -631,3 +643,14 @@ a:hover { color: var(--green-light); }
 
 /* Footer - Yellow accent */
 footer .section-title::after { background: linear-gradient(135deg, var(--yellow), var(--orange)); }
+
+/* ── Accessibility & low-end device support ──
+   Users who prefer reduced motion (OS setting) get a calm, static UI. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

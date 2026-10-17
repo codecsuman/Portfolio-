@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { FaGithub, FaLinkedin, FaEnvelope, FaDownload } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
 
@@ -9,14 +8,16 @@ const SOCIALS = [
   { icon: <FaEnvelope />, href: "mailto:sumanjhanp1@gmail.com", label: "Email", color: "#f59e0b" },
 ];
 
+import { LIGHT_EFFECTS as light } from "../utils/perf";
+
 /* ── Footer ── */
 export default function Footer() {
   return (
     <footer style={{
       borderTop: "1px solid rgba(139,92,246,0.12)",
-      background: "rgba(10,10,15,0.85)",
+      background: "rgba(10,10,15,0.97)",
       marginTop: "4rem",
-      backdropFilter: "blur(12px)",
+      backdropFilter: light ? "none" : "blur(12px)",
       position: "relative",
     }}>
       {/* Top gradient line */}

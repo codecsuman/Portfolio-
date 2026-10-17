@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
-import avatar from "../assets/avator.png";
-import { FaGithub, FaLinkedin, FaArrowDown, FaCode, FaDatabase, FaChartLine, FaLightbulb, FaServer, FaCloud } from "react-icons/fa";
+import avatar from "../assets/avator.webp";
+import { FaGithub, FaLinkedin, FaArrowDown, FaCode, FaChartLine, FaLightbulb, FaUsers } from "react-icons/fa";
 
 const ROLES = ["Full Stack Developer", "MERN Specialist", "Backend Engineer", "Data Analyst", "Problem Solver"];
 
@@ -12,6 +12,8 @@ function useCountUp(end, duration = 2000) {
   const hasAnimated = useRef(false);
 
   useEffect(() => {
+    // Re-animate when the target changes (e.g. live stats finish loading)
+    hasAnimated.current = false;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated.current) {
@@ -37,12 +39,17 @@ function useCountUp(end, duration = 2000) {
   return [count, ref];
 }
 
+import { LIGHT_EFFECTS } from "../utils/perf";
+import { useLiveStats } from "../utils/liveStats";
+
 export default function Home() {
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [typing, setTyping] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const light = LIGHT_EFFECTS;
+  const stats = useLiveStats();
   const sectionRef = useRef(null);
 
   // Entrance animation
@@ -51,19 +58,28 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Parallax mouse effect
+  // Parallax mouse effect (rAF-throttled; disabled on phones & low-end devices)
   useEffect(() => {
+    if (light) return undefined;
+    let raf = 0;
     const handleMouseMove = (e) => {
-      if (!sectionRef.current) return;
-      const rect = sectionRef.current.getBoundingClientRect();
-      setMousePos({
-        x: (e.clientX - rect.left - rect.width / 2) / rect.width,
-        y: (e.clientY - rect.top - rect.height / 2) / rect.height,
+      if (raf || !sectionRef.current) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const rect = sectionRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        setMousePos({
+          x: (e.clientX - rect.left - rect.width / 2) / rect.width,
+          y: (e.clientY - rect.top - rect.height / 2) / rect.height,
+        });
       });
     };
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [light]);
 
   // Typewriter effect
   useEffect(() => {
@@ -74,9 +90,11 @@ export default function Home() {
       return;
     }
     if (!typing && i < 0) {
-      setRoleIndex((prev) => (prev + 1) % ROLES.length);
-      setTyping(true);
-      return;
+      const restart = setTimeout(() => {
+        setRoleIndex((prev) => (prev + 1) % ROLES.length);
+        setTyping(true);
+      }, 0);
+      return () => clearTimeout(restart);
     }
     const timeout = setTimeout(() => {
       setDisplayed(typing ? current.slice(0, i + 1) : current.slice(0, i));
@@ -86,10 +104,10 @@ export default function Home() {
 
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
-  const [projectCount, projectRef] = useCountUp(12);
-  const [clientCount, clientRef] = useCountUp(8);
-  const [expCount, expCountRef] = useCountUp(1);
-  const [dsaCount, dsaRef] = useCountUp(240);
+  const [projectCount, projectRef] = useCountUp(stats.repos);
+  const [clientCount, clientRef] = useCountUp(stats.followers);
+  const [expCount, expCountRef] = useCountUp(stats.years);
+  const [dsaCount, dsaRef] = useCountUp(stats.solved);
 
   return (
     <section
@@ -98,62 +116,64 @@ export default function Home() {
       className="min-h-screen flex items-center relative overflow-hidden"
       style={{ paddingTop: "80px" }}
     >
-      {/* ===== ANIMATED BACKGROUND ===== */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Primary gradient orb - follows mouse slightly */}
-        <div
-          className="absolute transition-transform duration-700 ease-out"
-          style={{
-            right: "-5%",
-            top: "5%",
-            width: "60vw",
-            height: "75vh",
-            background: "radial-gradient(ellipse at 60% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)",
-            filter: "blur(80px)",
-            transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)`,
-          }}
-        />
-        {/* Secondary gradient orb */}
-        <div
-          className="absolute transition-transform duration-1000 ease-out"
-          style={{
-            bottom: "5%",
-            right: "10%",
-            width: "40vw",
-            height: "30vh",
-            background: "radial-gradient(ellipse at 50% 100%, rgba(6,182,212,0.08), transparent 70%)",
-            filter: "blur(60px)",
-            transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)`,
-          }}
-        />
-        {/* Floating particles */}
-        {[...Array(6)].map((_, i) => (
+      {/* ===== ANIMATED BACKGROUND (disabled on low-end devices) ===== */}
+      {!light && (
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          {/* Primary gradient orb - follows mouse slightly */}
           <div
-            key={i}
-            className="absolute rounded-full"
+            className="absolute transition-transform duration-700 ease-out"
             style={{
-              width: `${2 + (i % 3)}px`,
-              height: `${2 + (i % 3)}px`,
-              background: i % 2 === 0 ? "rgba(139,92,246,0.4)" : "rgba(6,182,212,0.4)",
-              left: `${15 + i * 14}%`,
-              top: `${20 + (i * 13) % 50}%`,
-              animation: `floatParticle ${8 + i * 2}s ease-in-out infinite`,
-              animationDelay: `${i * 0.8}s`,
+              right: "-5%",
+              top: "5%",
+              width: "60vw",
+              height: "75vh",
+              background: "radial-gradient(ellipse at 60% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)",
+              filter: "blur(80px)",
+              transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20}px)`,
             }}
           />
-        ))}
-        {/* Grid pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
+          {/* Secondary gradient orb */}
+          <div
+            className="absolute transition-transform duration-1000 ease-out"
+            style={{
+              bottom: "5%",
+              right: "10%",
+              width: "40vw",
+              height: "30vh",
+              background: "radial-gradient(ellipse at 50% 100%, rgba(6,182,212,0.08), transparent 70%)",
+              filter: "blur(60px)",
+              transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 15}px)`,
+            }}
+          />
+          {/* Floating particles */}
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: `${2 + (i % 3)}px`,
+                height: `${2 + (i % 3)}px`,
+                background: i % 2 === 0 ? "rgba(139,92,246,0.4)" : "rgba(6,182,212,0.4)",
+                left: `${15 + i * 14}%`,
+                top: `${20 + (i * 13) % 50}%`,
+                animation: `floatParticle ${8 + i * 2}s ease-in-out infinite`,
+                animationDelay: `${i * 0.8}s`,
+              }}
+            />
+          ))}
+          {/* Grid pattern overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `
               linear-gradient(rgba(139,92,246,0.3) 1px, transparent 1px),
               linear-gradient(90deg, rgba(139,92,246,0.3) 1px, transparent 1px)
             `,
-            backgroundSize: "60px 60px",
-          }}
-        />
-      </div>
+              backgroundSize: "60px 60px",
+            }}
+          />
+        </div>
+      )}
 
       {/* ===== MAIN CONTENT GRID ===== */}
       <div
@@ -184,7 +204,7 @@ export default function Home() {
               background: "rgba(139,92,246,0.08)",
               border: "1px solid rgba(139,92,246,0.2)",
               color: "var(--violet-light)",
-              backdropFilter: "blur(10px)",
+              backdropFilter: light ? "none" : "blur(10px)",
             }}
           >
             <span
@@ -266,14 +286,15 @@ export default function Home() {
             }}
           >
             {[
-              { ref: projectRef, count: projectCount, label: "Projects", icon: <FaCode /> },
-              { ref: clientRef, count: clientCount, label: "Clients", icon: <FaDatabase /> },
-              { ref: expCountRef, count: expCount, label: "Years Exp.", icon: <FaChartLine /> },
-              { ref: dsaRef, count: dsaCount, label: "DSA Solved", icon: <FaLightbulb /> },
-            ].map(({ ref, count, label, icon }) => (
+              { ref: projectRef, count: projectCount, label: "Projects", icon: <FaCode />, from: "Live from GitHub" },
+              { ref: clientRef, count: clientCount, label: "Followers", icon: <FaUsers />, from: "Live from GitHub" },
+              { ref: expCountRef, count: expCount, label: "Years Exp.", icon: <FaChartLine />, from: "Professional experience" },
+              { ref: dsaRef, count: dsaCount, label: "DSA Solved", icon: <FaLightbulb />, from: "Live from LeetCode" },
+            ].map(({ ref, count, label, icon, from }) => (
               <div
                 key={label}
                 ref={ref}
+                title={from}
                 className="flex flex-col items-center gap-1 px-4 py-3 rounded-xl"
                 style={{
                   background: "rgba(139,92,246,0.04)",
@@ -304,7 +325,7 @@ export default function Home() {
               onClick={() => scrollTo("projects")}
               className="group relative px-6 py-3 rounded-xl font-semibold text-sm overflow-hidden transition-all duration-300"
               style={{
-                background: "linear-gradient(135deg, var(--violet), var(--violet-dark))",
+                background: "linear-gradient(135deg, var(--violet), var(--cyan))",
                 color: "white",
                 boxShadow: "0 4px 20px rgba(139,92,246,0.3)",
               }}
@@ -404,7 +425,7 @@ export default function Home() {
             transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s",
           }}
         >
-          {/* Animated rings */}
+          {/* Animated rings (static on phones/low-end) */}
           {[0, 1, 2].map((i) => (
             <div
               key={i}
@@ -420,14 +441,16 @@ export default function Home() {
                     ? `rgba(139,92,246,${0.15 - i * 0.04})`
                     : `rgba(6,182,212,${0.1 - i * 0.02})`
                 }`,
-                animation: `ringPulse ${4 + i}s ease-in-out infinite`,
+                animation: light
+                  ? "none"
+                  : `ringPulse ${4 + i}s ease-in-out infinite`,
                 animationDelay: `${i * 0.5}s`,
                 zIndex: 1,
               }}
             />
           ))}
 
-          {/* Rotating dashed ring */}
+          {/* Rotating dashed ring (static on phones/low-end) */}
           <div
             className="absolute rounded-full"
             style={{
@@ -437,12 +460,12 @@ export default function Home() {
               width: "clamp(340px, 42vw, 500px)",
               height: "clamp(340px, 42vw, 500px)",
               border: "1.5px dashed rgba(139,92,246,0.1)",
-              animation: "spin 30s linear infinite",
+              animation: light ? "none" : "spin 30s linear infinite",
               zIndex: 1,
             }}
           />
 
-          {/* Glow behind avatar */}
+          {/* Glow behind avatar (no blur layer on phones/low-end) */}
           <div
             className="absolute rounded-full"
             style={{
@@ -453,13 +476,13 @@ export default function Home() {
               height: "clamp(300px, 38vw, 450px)",
               background:
                 "radial-gradient(ellipse at 50% 60%, rgba(139,92,246,0.12) 0%, transparent 60%)",
-              filter: "blur(40px)",
+              filter: light ? "none" : "blur(40px)",
               zIndex: 1,
-              animation: "glowPulse 4s ease-in-out infinite",
+              animation: light ? "none" : "glowPulse 4s ease-in-out infinite",
             }}
           />
 
-          {/* Avatar */}
+          {/* Avatar (slow 4-direction drift: up / down / left / right) */}
           <img
             src={avatar}
             alt="Suman avatar"
@@ -470,8 +493,11 @@ export default function Home() {
               maxWidth: "100%",
               objectFit: "contain",
               objectPosition: "bottom",
-              animation: "float 6s ease-in-out infinite",
-              filter: "drop-shadow(0 20px 40px rgba(139,92,246,0.15))",
+              animation: "float 14s ease-in-out infinite",
+              filter: light
+                ? "none"
+                : "drop-shadow(0 20px 40px rgba(139,92,246,0.15))",
+              willChange: "transform",
             }}
           />
 
@@ -482,7 +508,7 @@ export default function Home() {
               bottom: "clamp(50px, 8vh, 90px)",
               right: "clamp(5px, 1.5vw, 25px)",
               background: "rgba(17,17,24,0.85)",
-              backdropFilter: "blur(12px)",
+              backdropFilter: light ? "none" : "blur(12px)",
               border: "1px solid rgba(139,92,246,0.2)",
               color: "var(--violet-light)",
               fontWeight: 700,
@@ -505,7 +531,7 @@ export default function Home() {
               top: "clamp(60px, 12vh, 120px)",
               left: "clamp(10px, 2vw, 30px)",
               background: "rgba(17,17,24,0.8)",
-              backdropFilter: "blur(10px)",
+              backdropFilter: light ? "none" : "blur(10px)",
               border: "1px solid rgba(6,182,212,0.15)",
               color: "var(--cyan)",
               fontWeight: 600,
@@ -550,10 +576,6 @@ export default function Home() {
 
       {/* ===== STYLES ===== */}
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
         @keyframes floatParticle {
           0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
           25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }

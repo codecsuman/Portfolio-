@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import Logo from "../assets/Logo.png";
+import Logo from "../assets/Logo.webp";
 
 /* ───────── Settings (easy to change) ───────── */
 const NAME = "Suman Jhanp";

@@ -1,22 +1,24 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   FaGithub,
   FaExternalLinkAlt,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import { LIGHT_EFFECTS as light } from "../utils/perf";
+import { useTheme } from "../context/ThemeContext";
 
-import d1 from "../assets/d1.png";
-import f1 from "../assets/f1.png";
-import j1 from "../assets/j1.png";
-import i1 from "../assets/i1.png";
-import s1 from "../assets/s1.png";
-import s3 from "../assets/s3.png";
-import s4 from "../assets/s4.png";
-import s5 from "../assets/s5.png";
-import P1 from "../assets/P1.png";
-import P2 from "../assets/P2.png";
-import P3 from "../assets/P3.png";
+import d1 from "../assets/d1.webp";
+import f1 from "../assets/f1.webp";
+import j1 from "../assets/j1.webp";
+import i1 from "../assets/i1.webp";
+import s1 from "../assets/s1.webp";
+import s3 from "../assets/s3.webp";
+import s4 from "../assets/s4.webp";
+import s5 from "../assets/s5.webp";
+import P1 from "../assets/P1.webp";
+import P2 from "../assets/P2.webp";
+import P3 from "../assets/P3.webp";
 
 const PROJECTS = Object.freeze([
   {
@@ -176,6 +178,8 @@ const CATEGORIES = [
 ];
 
 export default function Projects() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [activeCategory, setActiveCategory] = useState("all");
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
@@ -195,35 +199,29 @@ export default function Projects() {
     setIndex(0);
   };
 
-  const navigate = useCallback(
-    (dir) => {
-      if (animating) return;
-      setDirection(dir);
-      setAnimating(true);
-      setTimeout(() => {
-        setIndex((i) =>
-          dir === "next"
-            ? Math.min(i + 1, filtered.length - 1)
-            : Math.max(i - 1, 0),
-        );
-        setAnimating(false);
-      }, 220);
-    },
-    [animating, filtered.length],
-  );
+  const navigate = (dir) => {
+    if (animating) return;
+    setDirection(dir);
+    setAnimating(true);
+    setTimeout(() => {
+      setIndex((i) =>
+        dir === "next"
+          ? Math.min(i + 1, filtered.length - 1)
+          : Math.max(i - 1, 0),
+      );
+      setAnimating(false);
+    }, 220);
+  };
 
-  const goTo = useCallback(
-    (i) => {
-      if (animating || i === index) return;
-      setDirection(i > index ? "next" : "prev");
-      setAnimating(true);
-      setTimeout(() => {
-        setIndex(i);
-        setAnimating(false);
-      }, 220);
-    },
-    [animating, index],
-  );
+  const goTo = (i) => {
+    if (animating || i === index) return;
+    setDirection(i > index ? "next" : "prev");
+    setAnimating(true);
+    setTimeout(() => {
+      setIndex(i);
+      setAnimating(false);
+    }, 220);
+  };
 
   useEffect(() => {
     const handler = (e) => {
@@ -248,30 +246,34 @@ export default function Projects() {
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: "-60px",
-            right: "-60px",
-            width: "400px",
-            height: "400px",
-            background:
-              "radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%)",
-            filter: "blur(50px)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-40px",
-            left: "5%",
-            width: "360px",
-            height: "360px",
-            background:
-              "radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)",
-            filter: "blur(50px)",
-          }}
-        />
+        {!light && (
+          <div
+            style={{
+              position: "absolute",
+              top: "-60px",
+              right: "-60px",
+              width: "400px",
+              height: "400px",
+              background:
+                "radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%)",
+              filter: "blur(50px)",
+            }}
+          />
+        )}
+        {!light && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "-40px",
+              left: "5%",
+              width: "360px",
+              height: "360px",
+              background:
+                "radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)",
+              filter: "blur(50px)",
+            }}
+          />
+        )}
       </div>
 
       <div style={{ position: "relative", zIndex: 1 }}>
@@ -389,6 +391,8 @@ export default function Projects() {
             <img
               src={project.desktop}
               alt={project.title}
+              loading="lazy"
+              decoding="async"
               style={{
                 width: "100%",
                 height: "100%",
@@ -411,7 +415,7 @@ export default function Projects() {
                   ? "rgba(236,72,153,0.85)"
                   : "rgba(139,92,246,0.85)",
                 color: "white",
-                backdropFilter: "blur(4px)",
+                backdropFilter: light ? "none" : "blur(4px)",
               }}
             >
               {isData ? "Data Analytics" : "Full Stack"}
@@ -599,19 +603,35 @@ export default function Projects() {
               borderRadius: "10px",
               fontSize: "0.83rem",
               fontWeight: 600,
-              background: "transparent",
-              border: `1px solid ${atStart ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.12)"}`,
-              color: atStart ? "var(--text-muted)" : "var(--text-secondary)",
+              background: atStart
+                ? isLight ? "rgba(0,0,0,0.03)" : "transparent"
+                : "linear-gradient(135deg, var(--violet), var(--cyan))",
+              border: atStart
+                ? `1px solid ${isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.05)"}`
+                : "1px solid transparent",
+              color: atStart
+                ? "var(--text-muted)"
+                : "white",
               cursor: atStart ? "not-allowed" : "pointer",
-              opacity: atStart ? 0.4 : 1,
+              opacity: atStart ? 0.45 : 1,
+              boxShadow: atStart
+                ? "none"
+                : "0 2px 16px rgba(139,92,246,0.35)",
               transition: "all 0.2s ease",
+              textDecoration: "none",
             }}
+            aria-label="Previous project"
             onMouseEnter={(e) => {
-              if (!atStart)
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+              if (!atStart) {
+                e.currentTarget.style.filter = "brightness(1.12)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow = "0 4px 22px rgba(139,92,246,0.5)";
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.filter = "none";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 16px rgba(139,92,246,0.35)";
             }}
           >
             <FaChevronLeft size={12} /> Previous
@@ -636,7 +656,11 @@ export default function Projects() {
                     height: "7px",
                     borderRadius: "999px",
                     background:
-                      i === index ? p.color : "rgba(255,255,255,0.12)",
+                      i === index
+                        ? p.color
+                        : isLight
+                          ? "rgba(0,0,0,0.15)"
+                          : "rgba(255,255,255,0.12)",
                     border: "none",
                     cursor: "pointer",
                     padding: 0,
@@ -662,19 +686,35 @@ export default function Projects() {
               borderRadius: "10px",
               fontSize: "0.83rem",
               fontWeight: 600,
-              background: "transparent",
-              border: `1px solid ${atEnd ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.12)"}`,
-              color: atEnd ? "var(--text-muted)" : "var(--text-secondary)",
+              background: atEnd
+                ? isLight ? "rgba(0,0,0,0.03)" : "transparent"
+                : "linear-gradient(135deg, var(--violet), var(--cyan))",
+              border: atEnd
+                ? `1px solid ${isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.05)"}`
+                : "1px solid transparent",
+              color: atEnd
+                ? "var(--text-muted)"
+                : "white",
               cursor: atEnd ? "not-allowed" : "pointer",
-              opacity: atEnd ? 0.4 : 1,
+              opacity: atEnd ? 0.45 : 1,
+              boxShadow: atEnd
+                ? "none"
+                : "0 2px 16px rgba(6,182,212,0.35)",
               transition: "all 0.2s ease",
+              textDecoration: "none",
             }}
+            aria-label="Next project"
             onMouseEnter={(e) => {
-              if (!atEnd)
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+              if (!atEnd) {
+                e.currentTarget.style.filter = "brightness(1.12)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.boxShadow = "0 4px 22px rgba(6,182,212,0.5)";
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.filter = "none";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 16px rgba(6,182,212,0.35)";
             }}
           >
             Next <FaChevronRight size={12} />

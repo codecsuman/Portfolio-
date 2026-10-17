@@ -2,6 +2,8 @@ import { useState } from "react";
 import emailjs from "@emailjs/browser";
 import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
+import { LIGHT_EFFECTS as light } from "../utils/perf";
+import { useTheme } from "../context/ThemeContext";
 
 const SERVICE_ID = import.meta.env.VITE_SERVICE_ID;
 const TEMPLATE_ID = import.meta.env.VITE_TEMPLATE_ID;
@@ -15,6 +17,8 @@ const LINKS = [
 ];
 
 export default function Contact() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState("");
   const [focused, setFocused] = useState("");
@@ -38,8 +42,10 @@ export default function Contact() {
 
   const field = (name) => ({
     style: {
-      background: "rgba(255,255,255,0.04)",
-      border: `1px solid ${focused === name ? "rgba(139,92,246,0.5)" : "rgba(255,255,255,0.08)"}`,
+      background: isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.04)",
+      border: `1px solid ${focused === name
+        ? "rgba(139,92,246,0.5)"
+        : isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.08)"}`,
       borderRadius: "12px",
       color: "var(--text)",
       padding: "13px 16px",
@@ -58,21 +64,23 @@ export default function Contact() {
   return (
     <section id="contact" className="section" style={{ position: "relative" }}>
 
-      {/* Ambient glows */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-        <div style={{
-          position: "absolute", top: "-60px", right: "-60px",
-          width: "400px", height: "400px",
-          background: "radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%)",
-          filter: "blur(50px)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: "-60px", left: "-60px",
-          width: "380px", height: "380px",
-          background: "radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)",
-          filter: "blur(50px)",
-        }} />
-      </div>
+      {/* Ambient glows (skipped on phones/low-end devices) */}
+      {!light && (
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", top: "-60px", right: "-60px",
+            width: "400px", height: "400px",
+            background: "radial-gradient(circle, rgba(139,92,246,0.07), transparent 70%)",
+            filter: "blur(50px)",
+          }} />
+          <div style={{
+            position: "absolute", bottom: "-60px", left: "-60px",
+            width: "380px", height: "380px",
+            background: "radial-gradient(circle, rgba(6,182,212,0.06), transparent 70%)",
+            filter: "blur(50px)",
+          }} />
+        </div>
+      )}
 
       <div style={{ position: "relative", zIndex: 1 }}>
 
@@ -156,12 +164,13 @@ export default function Contact() {
 
           {/* RIGHT — form */}
           <div style={{
-            background: "rgba(17,17,24,0.7)",
-            backdropFilter: "blur(16px)",
+            background: isLight ? "rgba(255,255,255,0.9)" : "rgba(17,17,24,0.7)",
+            backdropFilter: light ? "none" : "blur(16px)",
+            WebkitBackdropFilter: light ? "none" : "blur(16px)",
             borderRadius: "20px",
             padding: "28px",
-            border: "1px solid rgba(139,92,246,0.1)",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
+            border: isLight ? "1px solid rgba(15,23,42,0.08)" : "1px solid rgba(139,92,246,0.1)",
+            boxShadow: isLight ? "0 8px 40px rgba(15,23,42,0.1)" : "0 8px 40px rgba(0,0,0,0.35)",
             position: "relative", overflow: "hidden",
           }}>
             {/* corner glow */}
@@ -244,7 +253,7 @@ export default function Contact() {
                 <div style={{
                   display: "flex", alignItems: "center", gap: "8px",
                   padding: "12px 16px", borderRadius: "10px",
-                  color: "#34d399",
+                  color: isLight ? "#059669" : "#34d399",
                   background: "rgba(16,185,129,0.08)",
                   border: "1px solid rgba(16,185,129,0.2)",
                   fontSize: "0.85rem", fontWeight: 600,

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LIGHT_EFFECTS } from "../utils/perf";
+import { iconFallback } from "../utils/iconFallback";
 
 const light = LIGHT_EFFECTS;
 
@@ -237,20 +238,22 @@ function useInView(threshold = 0.1, rootMargin = "0px") {
 
 /* ───────── Single logo ───────── */
 function SkillLogo({ name, logo, animate, index }) {
-  const [failed, setFailed] = useState(false);
-  const showImage = logo && !failed;
+  const [failCount, setFailCount] = useState(0);
+  /* Primary → fallback CDN → letter, so a blocked CDN never breaks the UI */
+  const chain = [logo, iconFallback(logo)].filter(Boolean);
+  const current = failCount < chain.length ? chain[failCount] : null;
   const docs = DOCS[name];
 
   const content = (
     <>
       <div className="skill-logo__box">
-        {showImage ? (
+        {current ? (
           <img
-            src={logo}
+            src={current}
             alt={name}
             className="skill-logo__img"
             loading="lazy"
-            onError={() => setFailed(true)}
+            onError={() => setFailCount((c) => c + 1)}
           />
         ) : (
           <span className="skill-logo__fallback">{name.charAt(0)}</span>

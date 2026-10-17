@@ -23,10 +23,16 @@
        <link rel="icon" href="/favicon.svg" />
 
        <!-- GOOGLE FONTS — Syne (display) + DM Sans (body) -->
+       <!-- Loaded async: if fonts.googleapis.com is blocked/ad-filtered, the
+            page still renders instantly with system-ui fallback fonts -->
        <link rel="preconnect" href="https://fonts.googleapis.com" />
        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
        <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
-              rel="stylesheet" />
+              rel="stylesheet" media="print" onload="this.media='all'" />
+       <noscript>
+              <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+                     rel="stylesheet" />
+       </noscript>
 
        <style>
               /* Apply fonts globally before React mounts — prevents FOUT */

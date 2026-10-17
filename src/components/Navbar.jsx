@@ -22,7 +22,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth >= 1024) setMenuOpen(false); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -116,8 +116,9 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Desktop Nav */}
-          <ul className="hidden md:flex" style={{ display: "flex", gap: "4px", listStyle: "none", margin: 0, padding: 0 }}>
+          {/* Desktop Nav — only ≥1024px. Below that: hamburger only.
+              No inline `display` here — it would override the hidden/flex classes. */}
+          <ul className="hidden lg:flex" style={{ gap: "2px", listStyle: "none", margin: 0, padding: 0 }}>
             {NAV_ITEMS.map((item) => {
               const isActive = isActiveSection(item);
               const navProps = getNavLinkProps(item);
@@ -128,9 +129,9 @@ export default function Navbar() {
                   {...navProps}
                   style={({ isActive: active }) => ({
                     cursor: "pointer",
-                    padding: "7px 18px",
+                    padding: "7px 12px",
                     borderRadius: "10px",
-                    fontSize: "0.82rem",
+                    fontSize: "0.8rem",
                     fontWeight: (active || isActive) ? 700 : 400,
                     letterSpacing: (active || isActive) ? "0.04em" : "0.02em",
                     textTransform: "capitalize",
@@ -161,7 +162,7 @@ export default function Navbar() {
                 alignItems: "center",
                 gap: "6px",
                 cursor: "pointer",
-                padding: "7px 16px",
+                padding: "7px 12px",
                 borderRadius: "10px",
                 fontSize: "0.82rem",
                 fontWeight: isActive ? 700 : 600,
@@ -226,7 +227,7 @@ export default function Navbar() {
           </ul>
 
           {/* Desktop CTA */}
-          <a href="https://www.linkedin.com/in/sumanjhanp/" target="_blank" rel="noopener noreferrer" className="hidden md:flex"
+          <a href="https://www.linkedin.com/in/sumanjhanp/" target="_blank" rel="noopener noreferrer" className="hidden lg:flex"
             style={{
               alignItems: "center", gap: "6px",
               padding: "8px 20px", borderRadius: "10px",
@@ -242,14 +243,16 @@ export default function Navbar() {
             Hire Me ✦
           </a>
 
-          {/* Mobile hamburger */}
-          <button className="md:hidden"
+          {/* Mobile hamburger — the ONLY nav control below 1024px.
+              `flex flex-col` comes from classes: an inline display:flex
+              here would override md:hidden/lg:hidden and clash. */}
+          <button className="lg:hidden flex flex-col items-center"
             onClick={() => setMenuOpen((o) => !o)}
             style={{
               background: "rgba(139,92,246,0.08)",
               border: "1px solid rgba(139,92,246,0.2)",
               borderRadius: "10px", padding: "8px 10px", cursor: "pointer",
-              display: "flex", flexDirection: "column", gap: "4px", alignItems: "center",
+              gap: "4px",
             }}
           >
             {[0, 1, 2].map((i) => (
@@ -268,7 +271,7 @@ export default function Navbar() {
 
         {/* Mobile dropdown */}
         <div style={{
-          maxHeight: menuOpen ? "500px" : "0px",
+          maxHeight: menuOpen ? "640px" : "0px",
           overflow: "auto",
           transition: "max-height 0.35s ease",
           background: isLight ? "rgba(255,255,255,0.98)" : "rgba(10,10,15,0.97)",

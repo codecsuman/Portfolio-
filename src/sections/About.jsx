@@ -173,7 +173,7 @@ export default function About() {
 
           <div className="about-buttons">
             <ResumeButton />
-            <a href="/Resume.pdf" download className="btn-outline">
+            <a href=`${import.meta.env.BASE_URL}Resume.pdf` download className="btn-outline">
               <FaDownload size={12} /> Download PDF
             </a>
           </div>

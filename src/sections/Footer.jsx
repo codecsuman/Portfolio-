@@ -81,7 +81,7 @@ export default function Footer() {
 
           {/* Resume Download only */}
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
-            <a href="/Resume.pdf" download
+            <a href=`${import.meta.env.BASE_URL}Resume.pdf` download
               style={{
                 display: "flex", alignItems: "center", gap: "6px",
                 padding: "9px 20px", borderRadius: "10px",

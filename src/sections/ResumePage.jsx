@@ -82,7 +82,7 @@ export default function ResumePage() {
 
   const downloadResume = () => {
     const link = document.createElement("a");
-    link.href = "/Resume.pdf";
+    link.href = `${import.meta.env.BASE_URL}Resume.pdf`;
     link.download = "Suman_Jhanp_Resume.pdf";
     link.click();
   };
@@ -214,7 +214,7 @@ export default function ResumePage() {
             <FaFileDownload size={16} />
           </button>
           <a
-            href="/Resume.pdf"
+            href=`${import.meta.env.BASE_URL}Resume.pdf`
             download="Suman_Jhanp_Resume.pdf"
             className="toolbar-btn primary"
             style={{
@@ -298,7 +298,7 @@ export default function ResumePage() {
         {/* PDF iframe */}
         <iframe
           ref={iframeRef}
-          src="/Resume.pdf"
+          src=`${import.meta.env.BASE_URL}Resume.pdf`
           title="Suman Jhanp Resume"
           onLoad={() => setPdfLoaded(true)}
           style={{
@@ -338,7 +338,7 @@ export default function ResumePage() {
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
             <a
-              href="/Resume.pdf"
+              href=`${import.meta.env.BASE_URL}Resume.pdf`
               download="Suman_Jhanp_Resume.pdf"
               style={{
                 display: "inline-flex",
@@ -356,7 +356,7 @@ export default function ResumePage() {
               <FaDownload size={16} /> Download Resume PDF
             </a>
             <a
-              href="/Resume.pdf"
+              href=`${import.meta.env.BASE_URL}Resume.pdf`
               target="_blank"
               rel="noopener noreferrer"
               style={{

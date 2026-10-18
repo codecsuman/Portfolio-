@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/free-port.mjs 5173",
     "build": "vite build",
+    "build:pages": "vite build --base=/Portfolio-/",
+    "deploy:pages": "npm run build:pages && gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
     "update:log": "powershell -ExecutionPolicy Bypass -File ./update-log.ps1",
     "update:log:bash": "bash ./update-log.sh"
   },

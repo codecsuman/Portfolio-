@@ -10,11 +10,23 @@ const LC_USER = "sumanjhanp1";
 const CACHE_KEY = "liveStatsCache";
 const TTL = 3600_000; // 1 hour
 
+/*
+ * Same-origin proxy base in dev (avoids ad-blocker ERR_BLOCKED_BY_CLIENT),
+ * direct URLs in production.
+ */
+const GH_API =
+  import.meta.env.DEV
+    ? "/dev-api/gh"
+    : "https://api.github.com";
+
 /* Multiple endpoints — if one is blocked/slow, the next is tried */
-const LC_ENDPOINTS = [
-  `https://alfa-leetcode-api.onrender.com/userProfile/${LC_USER}`,
-  `https://leetcode-api-faisalshohag.vercel.app/${LC_USER}`,
-];
+const LC_ENDPOINTS =
+  import.meta.env.DEV
+    ? [`/dev-api/lc/userProfile/${LC_USER}`]
+    : [
+      `https://alfa-leetcode-api.onrender.com/userProfile/${LC_USER}`,
+      `https://leetcode-api-faisalshohag.vercel.app/${LC_USER}`,
+    ];
 
 const FALLBACK = { repos: 14, followers: 3, solved: 244, years: 1 };
 
@@ -55,7 +67,7 @@ function fetchStats() {
   if (inflight) return inflight;
 
   inflight = Promise.all([
-    fetch(`https://api.github.com/users/${GH_USER}`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    fetch(`${GH_API}/users/${GH_USER}`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
     fetchLCUser(),
   ]).then(([gh, lc]) => {
     const next = { ...FALLBACK, loaded: true };

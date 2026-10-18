@@ -22,14 +22,14 @@ const EDUCATION = [
   },
   {
     degree: "Higher Secondary (WBCHSE)",
-    school: "Gourhati Haradas Institution, Kolkata",
+    school: "Gourhati Haradas Institution, Gourhati",
     period: "2020 – 2022",
     grade: "88%",
     color: "#06b6d4",
   },
   {
     degree: "Secondary (WBBSE)",
-    school: "Gourhati Haradas Institution, Kolkata",
+    school: "Gourhati Haradas Institution, Gourhati",
     period: "2019 – 2020",
     grade: "87%",
     color: "#f43f5e",

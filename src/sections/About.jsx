@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import P from "../assets/P.webp";
-import { useLiveStats } from "../utils/liveStats";
+import { useLiveStats } from "../utils/profileData";
 import {
   FaDownload,
   FaGraduationCap,

@@ -40,7 +40,7 @@ function useCountUp(end, duration = 2000) {
 }
 
 import { LIGHT_EFFECTS } from "../utils/perf";
-import { useLiveStats } from "../utils/liveStats";
+import { useLiveStats } from "../utils/profileData";
 
 export default function Home() {
   const [roleIndex, setRoleIndex] = useState(0);
